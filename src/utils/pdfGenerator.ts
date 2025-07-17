@@ -1,3 +1,5 @@
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 interface PDFData {
   title: string;
@@ -13,17 +15,55 @@ interface PDFData {
   rehabEstimate: number;
   arv: number;
   sellingCosts: number;
+  netProfit: number;
+  
+  // Property details
+  roofAge: string;
+  roofCondition: string;
+  roofNotes: string;
+  hvacAge: string;
+  hvacCondition: string;
+  hvacNotes: string;
+  waterHeaterAge: string;
+  waterHeaterCondition: string;
+  waterHeaterNotes: string;
+  sidingType: string;
+  sidingCondition: string;
+  sidingNotes: string;
+  additionalNotes: string;
+  
+  // Comps
+  pendingComps: string[];
+  soldComps: string[];
+  rentalComps: string[];
+  newConstructionComps: string[];
+  asIsComps: string[];
+  
+  // Occupancy
+  occupancy: string;
+  leaseTerms: string;
+  
+  // Access
+  access: string;
+  lockboxCode: string;
+  
+  // Contact
   contactName: string;
   contactPhone: string;
   contactEmail: string;
   businessHours: string;
+  
+  // EMD
   emdAmount: number;
-  closingDate: Date | undefined;
+  emdDueDate: string;
   memoFiled: boolean;
+  
+  // Other
+  photoLink: string;
   exitStrategy: string;
   rentalBackup: boolean;
   rentalBackupDetails: string;
-  photoLink: string;
+  closingDate: Date | undefined;
 }
 
 export const generatePDF = async (data: PDFData): Promise<void> => {
@@ -33,6 +73,87 @@ export const generatePDF = async (data: PDFData): Promise<void> => {
   const sellingCostAmount = Math.round(data.arv * (data.sellingCosts / 100));
   const netProfit = grossProfit - sellingCostAmount;
   
+  // Helper function to format comps
+  const formatComps = (comps: string[], title: string) => {
+    if (!comps.length || !comps.some(comp => comp.trim())) return '';
+    
+    return `
+      <div class="comp-section">
+        <h3 class="comp-title">${title}</h3>
+        ${comps.filter(comp => comp.trim()).map((comp, index) => `
+          <div class="comp-item">
+            <span class="comp-number">${index + 1}.</span>
+            <a href="${comp}" class="comp-link" target="_blank">${comp}</a>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  };
+
+  // Helper function to format property details
+  const formatPropertyDetails = () => {
+    const details = [];
+    
+    if (data.roofAge || data.roofCondition || data.roofNotes) {
+      details.push(`
+        <div class="detail-item">
+          <strong>Roof:</strong> 
+          ${data.roofAge ? `Age: ${data.roofAge}` : ''} 
+          ${data.roofCondition ? `| Condition: ${data.roofCondition}` : ''}
+          ${data.roofNotes ? `<br><em>${data.roofNotes}</em>` : ''}
+        </div>
+      `);
+    }
+    
+    if (data.hvacAge || data.hvacCondition || data.hvacNotes) {
+      details.push(`
+        <div class="detail-item">
+          <strong>HVAC:</strong> 
+          ${data.hvacAge ? `Age: ${data.hvacAge}` : ''} 
+          ${data.hvacCondition ? `| Condition: ${data.hvacCondition}` : ''}
+          ${data.hvacNotes ? `<br><em>${data.hvacNotes}</em>` : ''}
+        </div>
+      `);
+    }
+    
+    if (data.waterHeaterAge || data.waterHeaterCondition || data.waterHeaterNotes) {
+      details.push(`
+        <div class="detail-item">
+          <strong>Hot Water Heater:</strong> 
+          ${data.waterHeaterAge ? `Age: ${data.waterHeaterAge}` : ''} 
+          ${data.waterHeaterCondition ? `| Condition: ${data.waterHeaterCondition}` : ''}
+          ${data.waterHeaterNotes ? `<br><em>${data.waterHeaterNotes}</em>` : ''}
+        </div>
+      `);
+    }
+    
+    if (data.sidingType || data.sidingCondition || data.sidingNotes) {
+      details.push(`
+        <div class="detail-item">
+          <strong>Siding:</strong> 
+          ${data.sidingType ? `Type: ${data.sidingType}` : ''} 
+          ${data.sidingCondition ? `| Condition: ${data.sidingCondition}` : ''}
+          ${data.sidingNotes ? `<br><em>${data.sidingNotes}</em>` : ''}
+        </div>
+      `);
+    }
+    
+    if (data.additionalNotes) {
+      details.push(`
+        <div class="detail-item">
+          <strong>Additional Notes:</strong> ${data.additionalNotes}
+        </div>
+      `);
+    }
+    
+    return details.length > 0 ? `
+      <div class="section">
+        <h2 class="section-title">🔍 Property Details</h2>
+        ${details.join('')}
+      </div>
+    ` : '';
+  };
+  
   // Create HTML content
   const htmlContent = `
     <!DOCTYPE html>
@@ -41,12 +162,15 @@ export const generatePDF = async (data: PDFData): Promise<void> => {
       <meta charset="UTF-8">
       <title>Fix & Flip Opportunity</title>
       <style>
+        * { box-sizing: border-box; }
+        
         body {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
           margin: 0;
           padding: 40px;
           background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
           min-height: 100vh;
+          line-height: 1.4;
         }
         
         .container {
@@ -103,8 +227,8 @@ export const generatePDF = async (data: PDFData): Promise<void> => {
         
         .financial-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-          gap: 20px;
+          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+          gap: 15px;
           margin-bottom: 20px;
         }
         
@@ -116,13 +240,13 @@ export const generatePDF = async (data: PDFData): Promise<void> => {
         }
         
         .financial-label {
-          font-size: 14px;
+          font-size: 13px;
           opacity: 0.9;
           margin-bottom: 5px;
         }
         
         .financial-value {
-          font-size: 20px;
+          font-size: 18px;
           font-weight: 700;
         }
         
@@ -143,54 +267,102 @@ export const generatePDF = async (data: PDFData): Promise<void> => {
         
         .property-overview {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-          gap: 20px;
+          grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+          gap: 15px;
           margin: 30px 0;
         }
         
         .property-item {
           background: #f8fafc;
-          padding: 20px;
+          padding: 15px;
           border-radius: 8px;
           text-align: center;
           border: 2px solid #e2e8f0;
         }
         
         .property-icon {
-          font-size: 24px;
-          margin-bottom: 10px;
+          font-size: 20px;
+          margin-bottom: 8px;
         }
         
         .property-value {
-          font-size: 24px;
+          font-size: 20px;
           font-weight: 700;
           color: #1f2937;
-          margin-bottom: 5px;
+          margin-bottom: 3px;
         }
         
         .property-label {
-          font-size: 14px;
+          font-size: 12px;
           color: #6b7280;
           text-transform: uppercase;
           letter-spacing: 0.5px;
         }
         
         .section {
-          margin: 30px 0;
-          padding: 25px;
+          margin: 25px 0;
+          padding: 20px;
           background: #f9fafb;
           border-radius: 12px;
           border-left: 4px solid #3b82f6;
         }
         
         .section-title {
-          font-size: 20px;
+          font-size: 18px;
           font-weight: 700;
           color: #1f2937;
           margin-bottom: 15px;
           display: flex;
           align-items: center;
-          gap: 10px;
+          gap: 8px;
+        }
+        
+        .detail-item {
+          margin-bottom: 12px;
+          font-size: 14px;
+          line-height: 1.5;
+        }
+        
+        .comp-section {
+          margin-bottom: 20px;
+        }
+        
+        .comp-title {
+          font-size: 16px;
+          font-weight: 600;
+          color: #1f2937;
+          margin-bottom: 10px;
+        }
+        
+        .comp-item {
+          margin-bottom: 8px;
+          font-size: 13px;
+        }
+        
+        .comp-number {
+          font-weight: 600;
+          margin-right: 8px;
+        }
+        
+        .comp-link {
+          color: #3b82f6;
+          text-decoration: none;
+          word-break: break-all;
+        }
+        
+        .occupancy-section, .access-section {
+          background: #f0f9ff;
+          border: 2px solid #3b82f6;
+          border-radius: 8px;
+          padding: 15px;
+          margin: 20px 0;
+        }
+        
+        .occupancy-title, .access-title {
+          font-size: 16px;
+          font-weight: 600;
+          color: #1d4ed8;
+          margin-bottom: 8px;
         }
         
         .contact-info {
@@ -203,26 +375,26 @@ export const generatePDF = async (data: PDFData): Promise<void> => {
         
         .contact-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-          gap: 20px;
-          margin-top: 20px;
+          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+          gap: 15px;
+          margin-top: 15px;
         }
         
         .contact-item {
           background: rgba(255,255,255,0.15);
-          padding: 15px;
+          padding: 12px;
           border-radius: 8px;
           backdrop-filter: blur(10px);
         }
         
         .contact-label {
-          font-size: 14px;
+          font-size: 12px;
           opacity: 0.9;
-          margin-bottom: 5px;
+          margin-bottom: 4px;
         }
         
         .contact-value {
-          font-size: 16px;
+          font-size: 14px;
           font-weight: 600;
         }
         
@@ -235,6 +407,7 @@ export const generatePDF = async (data: PDFData): Promise<void> => {
           margin: 20px 0;
           font-weight: 600;
           text-align: center;
+          font-size: 14px;
         }
         
         .rental-backup {
@@ -247,67 +420,69 @@ export const generatePDF = async (data: PDFData): Promise<void> => {
         }
         
         .rental-backup-title {
-          font-size: 18px;
+          font-size: 16px;
           font-weight: 700;
-          margin-bottom: 10px;
+          margin-bottom: 8px;
           color: #059669;
         }
         
         .photo-section {
           text-align: center;
-          margin: 30px 0;
+          margin: 20px 0;
         }
         
         .photo-link {
           display: inline-block;
           background: #3b82f6;
           color: white;
-          padding: 12px 24px;
+          padding: 10px 20px;
           border-radius: 6px;
           text-decoration: none;
           font-weight: 600;
-          margin-top: 10px;
+          margin-top: 8px;
+          font-size: 14px;
         }
         
         .cta-section {
           background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
           color: white;
-          padding: 30px;
+          padding: 25px;
           border-radius: 12px;
           text-align: center;
           margin-top: 30px;
         }
         
         .cta-title {
-          font-size: 24px;
+          font-size: 22px;
           font-weight: 700;
-          margin-bottom: 15px;
+          margin-bottom: 12px;
         }
         
         .cta-subtitle {
-          font-size: 16px;
-          margin-bottom: 20px;
+          font-size: 14px;
+          margin-bottom: 15px;
           opacity: 0.9;
         }
         
         .closing-info {
           background: rgba(255,255,255,0.15);
-          padding: 20px;
+          padding: 15px;
           border-radius: 8px;
-          margin-top: 20px;
+          margin-top: 15px;
           backdrop-filter: blur(10px);
         }
         
-        @media print {
-          body {
-            background: white;
-            padding: 20px;
-          }
-          
-          .container {
-            box-shadow: none;
-            padding: 20px;
-          }
+        .closing-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 15px;
+          margin-bottom: 10px;
+        }
+        
+        .emd-notice {
+          font-weight: 600;
+          font-size: 13px;
+          text-align: center;
         }
       </style>
     </head>
@@ -323,7 +498,7 @@ export const generatePDF = async (data: PDFData): Promise<void> => {
           <h2 class="financial-title">💰 Financial Breakdown</h2>
           <div class="financial-grid">
             <div class="financial-item">
-              <div class="financial-label">Starting Price</div>
+              <div class="financial-label">Purchase Price</div>
               <div class="financial-value">$${data.purchasePrice.toLocaleString()}</div>
             </div>
             <div class="financial-item">
@@ -391,10 +566,39 @@ export const generatePDF = async (data: PDFData): Promise<void> => {
           </div>
         ` : ''}
         
+        ${formatPropertyDetails()}
+        
         ${data.exitStrategy ? `
           <div class="section">
-            <h2 class="section-title">🔍 Property Details</h2>
+            <h2 class="section-title">📋 Exit Strategy Notes</h2>
             <p>${data.exitStrategy}</p>
+          </div>
+        ` : ''}
+        
+        ${[data.pendingComps, data.soldComps, data.rentalComps, data.newConstructionComps, data.asIsComps].some(comps => comps.some(comp => comp.trim())) ? `
+          <div class="section">
+            <h2 class="section-title">📊 Comps</h2>
+            ${formatComps(data.pendingComps, 'Pending Flipped Comps')}
+            ${formatComps(data.soldComps, 'Sold Flipped Comps')}
+            ${formatComps(data.rentalComps, 'Rental Comps')}
+            ${formatComps(data.newConstructionComps, 'New Construction Comps')}
+            ${formatComps(data.asIsComps, 'Sold As-Is Comps')}
+          </div>
+        ` : ''}
+        
+        ${data.occupancy ? `
+          <div class="occupancy-section">
+            <h3 class="occupancy-title">🏡 Occupancy</h3>
+            <p><strong>${data.occupancy.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</strong></p>
+            ${data.leaseTerms ? `<p><em>Lease Terms: ${data.leaseTerms}</em></p>` : ''}
+          </div>
+        ` : ''}
+        
+        ${data.access ? `
+          <div class="access-section">
+            <h3 class="access-title">🔐 Access</h3>
+            <p><strong>${data.access.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</strong></p>
+            ${data.lockboxCode ? `<p><em>Lockbox Code: ${data.lockboxCode}</em></p>` : ''}
           </div>
         ` : ''}
         
@@ -438,7 +642,7 @@ export const generatePDF = async (data: PDFData): Promise<void> => {
           <p class="cta-subtitle">PUT YOUR OFFER IN TODAY</p>
           
           <div class="closing-info">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="closing-grid">
               <div>
                 <div class="contact-label">EMD Amount</div>
                 <div class="contact-value">$${data.emdAmount.toLocaleString()}</div>
@@ -448,7 +652,7 @@ export const generatePDF = async (data: PDFData): Promise<void> => {
                 <div class="contact-value">${data.closingDate ? data.closingDate.toLocaleDateString() : 'TBD'}</div>
               </div>
             </div>
-            <div style="margin-top: 15px; font-weight: 600;">
+            <div class="emd-notice">
               EMD DUE WITHIN 24HR OF EXECUTED CONTRACT
             </div>
           </div>
@@ -458,17 +662,48 @@ export const generatePDF = async (data: PDFData): Promise<void> => {
     </html>
   `;
   
-  // Create a new window with the HTML content
-  const printWindow = window.open('', '_blank');
-  if (printWindow) {
-    printWindow.document.write(htmlContent);
-    printWindow.document.close();
-    
-    // Wait for the content to load, then trigger print
-    printWindow.onload = () => {
-      setTimeout(() => {
-        printWindow.print();
-      }, 500);
-    };
+  // Create a temporary container for HTML content
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = htmlContent;
+  tempDiv.style.position = 'absolute';
+  tempDiv.style.left = '-9999px';
+  tempDiv.style.top = '-9999px';
+  tempDiv.style.width = '800px';
+  document.body.appendChild(tempDiv);
+
+  try {
+    // Generate canvas from HTML
+    const canvas = await html2canvas(tempDiv, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: '#667eea'
+    });
+
+    // Create PDF
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4'
+    });
+
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+    const imgWidth = canvas.width;
+    const imgHeight = canvas.height;
+    const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+    const imgX = (pdfWidth - imgWidth * ratio) / 2;
+    const imgY = 0;
+
+    pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
+
+    // Download the PDF
+    const fileName = `Fix-Flip-Flyer-${data.address.replace(/[^a-zA-Z0-9]/g, '-')}-${new Date().toISOString().split('T')[0]}.pdf`;
+    pdf.save(fileName);
+
+  } finally {
+    // Clean up temporary element
+    document.body.removeChild(tempDiv);
   }
 };
