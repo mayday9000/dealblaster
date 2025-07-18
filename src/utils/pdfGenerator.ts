@@ -73,470 +73,637 @@ export const generatePDF = async (data: PDFData): Promise<void> => {
   const sellingCostAmount = Math.round(data.arv * (data.sellingCosts / 100));
   const netProfit = grossProfit - sellingCostAmount;
   
-  // Create PDF
-  const pdf = new jsPDF({
-    orientation: 'portrait',
-    unit: 'mm',
-    format: 'a4'
-  });
-
-  const pageWidth = pdf.internal.pageSize.getWidth();
-  const pageHeight = pdf.internal.pageSize.getHeight();
-  const margin = 15;
-  const contentWidth = pageWidth - (margin * 2);
-  let currentY = margin;
-
-  // Helper function to check if we need a new page
-  const checkPageBreak = (requiredHeight: number) => {
-    if (currentY + requiredHeight > pageHeight - margin) {
-      pdf.addPage();
-      currentY = margin;
-    }
+  // Helper function to format comps
+  const formatComps = (comps: string[], title: string) => {
+    if (!comps.length || !comps.some(comp => comp.trim())) return '';
+    
+    return `
+      <div class="comp-section">
+        <h3 class="comp-title">${title}</h3>
+        ${comps.filter(comp => comp.trim()).map((comp, index) => `
+          <div class="comp-item">
+            <span class="comp-number">${index + 1}.</span>
+            <a href="${comp}" class="comp-link" target="_blank">${comp}</a>
+          </div>
+        `).join('')}
+      </div>
+    `;
   };
 
-  // Helper function to add text with proper line wrapping
-  const addText = (text: string, x: number, y: number, options: any = {}) => {
-    const lines = pdf.splitTextToSize(text, options.maxWidth || contentWidth);
-    pdf.text(lines, x, y, options);
-    return lines.length * (options.lineHeight || 7);
-  };
-
-  // Helper function to add clickable link
-  const addLink = (text: string, url: string, x: number, y: number, maxWidth: number = contentWidth) => {
-    const lines = pdf.splitTextToSize(text, maxWidth);
-    pdf.setTextColor(59, 130, 246); // Blue color
-    pdf.text(lines, x, y);
-    
-    // Add clickable link annotation - simplified version without getFontSize
-    const fontSize = 10; // Use default font size
-    const textWidth = pdf.getStringUnitWidth(lines[0]) * fontSize / pdf.internal.scaleFactor;
-    const lineHeight = fontSize / pdf.internal.scaleFactor;
-    
-    pdf.link(x, y - lineHeight, textWidth, lineHeight, { url: url });
-    
-    pdf.setTextColor(0, 0, 0); // Reset to black
-    return lines.length * 7;
-  };
-
-  // Header Section
-  pdf.setFillColor(59, 130, 246);
-  pdf.rect(margin, currentY, contentWidth, 20, 'F');
-  
-  pdf.setTextColor(255, 255, 255);
-  pdf.setFontSize(20);
-  pdf.setFont(undefined, 'bold');
-  currentY += 15;
-  addText(data.title, margin + 5, currentY, { align: 'center', maxWidth: contentWidth - 10 });
-  
-  currentY += 10;
-  pdf.setFontSize(12);
-  pdf.setFont(undefined, 'normal');
-  addText(data.subtitle, margin + 5, currentY, { align: 'center', maxWidth: contentWidth - 10 });
-  
-  currentY += 15;
-  pdf.setFontSize(14);
-  pdf.setFont(undefined, 'bold');
-  addText(`📍 ${data.address}`, margin + 5, currentY, { align: 'center', maxWidth: contentWidth - 10 });
-  
-  currentY += 20;
-  pdf.setTextColor(0, 0, 0);
-
-  // Financial Breakdown Section
-  checkPageBreak(80);
-  pdf.setFillColor(16, 185, 129);
-  pdf.rect(margin, currentY, contentWidth, 15, 'F');
-  
-  pdf.setTextColor(255, 255, 255);
-  pdf.setFontSize(16);
-  pdf.setFont(undefined, 'bold');
-  currentY += 12;
-  addText('💰 Financial Breakdown', margin + 5, currentY);
-  
-  currentY += 15;
-  pdf.setTextColor(0, 0, 0);
-  pdf.setFontSize(12);
-  pdf.setFont(undefined, 'normal');
-  
-  // Financial grid
-  const financialItems = [
-    ['Purchase Price', `$${data.purchasePrice.toLocaleString()}`],
-    ['Rehab Estimate', `$${data.rehabEstimate.toLocaleString()}`],
-    ['Total Investment', `$${totalInvestment.toLocaleString()}`],
-    ['After Repair Value', `$${data.arv.toLocaleString()}`]
-  ];
-  
-  const itemWidth = contentWidth / 2;
-  let itemX = margin;
-  let itemY = currentY;
-  
-  financialItems.forEach((item, index) => {
-    if (index % 2 === 0 && index > 0) {
-      itemY += 25;
-      itemX = margin;
-    }
-    
-    pdf.setFillColor(248, 250, 252);
-    pdf.rect(itemX, itemY, itemWidth - 5, 20, 'F');
-    pdf.setDrawColor(226, 232, 240);
-    pdf.rect(itemX, itemY, itemWidth - 5, 20);
-    
-    pdf.setFont(undefined, 'normal');
-    pdf.text(item[0], itemX + 3, itemY + 8);
-    pdf.setFont(undefined, 'bold');
-    pdf.text(item[1], itemX + 3, itemY + 15);
-    
-    itemX = index % 2 === 0 ? margin + itemWidth : margin;
-  });
-  
-  currentY = itemY + 35;
-  
-  // Gross Profit Highlight
-  pdf.setFillColor(245, 158, 11);
-  pdf.rect(margin, currentY, contentWidth, 25, 'F');
-  pdf.setTextColor(255, 255, 255);
-  pdf.setFontSize(10);
-  addText('Gross Profit', margin + 5, currentY + 8, { align: 'center', maxWidth: contentWidth - 10 });
-  pdf.setFontSize(24);
-  pdf.setFont(undefined, 'bold');
-  addText(`$${grossProfit.toLocaleString()}`, margin + 5, currentY + 20, { align: 'center', maxWidth: contentWidth - 10 });
-  
-  currentY += 35;
-  pdf.setTextColor(0, 0, 0);
-
-  // Property Overview Section
-  checkPageBreak(60);
-  pdf.setFontSize(14);
-  pdf.setFont(undefined, 'bold');
-  addText('🏠 Property Overview', margin, currentY);
-  currentY += 10;
-  
-  const propertyItems = [
-    ['🛏️', data.beds.toString(), 'Bedrooms'],
-    ['🛁', data.baths.toString(), 'Bathrooms'],
-    ['📐', data.sqft.toLocaleString(), 'Square Feet'],
-    ['📏', data.lotSize.toString(), 'Acre Lot'],
-    ['🏗️', data.yearBuilt.toString(), 'Year Built'],
-    ['📚', data.zoning, 'Zoning']
-  ];
-  
-  const propItemWidth = contentWidth / 3;
-  let propX = margin;
-  let propY = currentY;
-  
-  propertyItems.forEach((item, index) => {
-    if (index % 3 === 0 && index > 0) {
-      propY += 30;
-      propX = margin;
-    }
-    
-    pdf.setFillColor(248, 250, 252);
-    pdf.rect(propX, propY, propItemWidth - 5, 25, 'F');
-    pdf.setDrawColor(226, 232, 240);
-    pdf.rect(propX, propY, propItemWidth - 5, 25);
-    
-    pdf.setFontSize(16);
-    pdf.text(item[0], propX + propItemWidth/2 - 5, propY + 8, { align: 'center' });
-    pdf.setFontSize(14);
-    pdf.setFont(undefined, 'bold');
-    pdf.text(item[1], propX + propItemWidth/2, propY + 15, { align: 'center' });
-    pdf.setFontSize(8);
-    pdf.setFont(undefined, 'normal');
-    pdf.text(item[2], propX + propItemWidth/2, propY + 20, { align: 'center' });
-    
-    propX = (index % 3 + 1) * propItemWidth + margin;
-  });
-  
-  currentY = propY + 40;
-
-  // Photo Link Section
-  if (data.photoLink) {
-    checkPageBreak(20);
-    pdf.setFontSize(12);
-    pdf.setFont(undefined, 'bold');
-    addText('📸 Property Photos', margin, currentY);
-    currentY += 10;
-    
-    const linkHeight = addLink('Click Here → View Photos', data.photoLink, margin, currentY, contentWidth);
-    currentY += linkHeight + 10;
-  }
-
-  // Property Details Section
-  const hasPropertyDetails = data.roofAge || data.roofCondition || data.roofNotes || 
-                           data.hvacAge || data.hvacCondition || data.hvacNotes ||
-                           data.waterHeaterAge || data.waterHeaterCondition || data.waterHeaterNotes ||
-                           data.sidingType || data.sidingCondition || data.sidingNotes || data.additionalNotes;
-
-  if (hasPropertyDetails) {
-    checkPageBreak(60);
-    pdf.setFontSize(14);
-    pdf.setFont(undefined, 'bold');
-    addText('🔍 Property Details', margin, currentY);
-    currentY += 15;
-    
-    pdf.setFontSize(10);
-    pdf.setFont(undefined, 'normal');
+  // Helper function to format property details
+  const formatPropertyDetails = () => {
+    const details = [];
     
     if (data.roofAge || data.roofCondition || data.roofNotes) {
-      pdf.setFont(undefined, 'bold');
-      addText('Roof:', margin, currentY);
-      pdf.setFont(undefined, 'normal');
-      let roofText = '';
-      if (data.roofAge) roofText += `Age: ${data.roofAge}`;
-      if (data.roofCondition) roofText += ` | Condition: ${data.roofCondition}`;
-      if (data.roofNotes) roofText += ` | Notes: ${data.roofNotes}`;
-      currentY += addText(roofText, margin + 15, currentY, { maxWidth: contentWidth - 15 });
-      currentY += 5;
+      details.push(`
+        <div class="detail-item">
+          <strong>Roof:</strong> 
+          ${data.roofAge ? `Age: ${data.roofAge}` : ''} 
+          ${data.roofCondition ? `| Condition: ${data.roofCondition}` : ''}
+          ${data.roofNotes ? `<br><em>${data.roofNotes}</em>` : ''}
+        </div>
+      `);
     }
     
     if (data.hvacAge || data.hvacCondition || data.hvacNotes) {
-      pdf.setFont(undefined, 'bold');
-      addText('HVAC:', margin, currentY);
-      pdf.setFont(undefined, 'normal');
-      let hvacText = '';
-      if (data.hvacAge) hvacText += `Age: ${data.hvacAge}`;
-      if (data.hvacCondition) hvacText += ` | Condition: ${data.hvacCondition}`;
-      if (data.hvacNotes) hvacText += ` | Notes: ${data.hvacNotes}`;
-      currentY += addText(hvacText, margin + 15, currentY, { maxWidth: contentWidth - 15 });
-      currentY += 5;
+      details.push(`
+        <div class="detail-item">
+          <strong>HVAC:</strong> 
+          ${data.hvacAge ? `Age: ${data.hvacAge}` : ''} 
+          ${data.hvacCondition ? `| Condition: ${data.hvacCondition}` : ''}
+          ${data.hvacNotes ? `<br><em>${data.hvacNotes}</em>` : ''}
+        </div>
+      `);
     }
     
     if (data.waterHeaterAge || data.waterHeaterCondition || data.waterHeaterNotes) {
-      pdf.setFont(undefined, 'bold');
-      addText('Hot Water Heater:', margin, currentY);
-      pdf.setFont(undefined, 'normal');
-      let waterText = '';
-      if (data.waterHeaterAge) waterText += `Age: ${data.waterHeaterAge}`;
-      if (data.waterHeaterCondition) waterText += ` | Condition: ${data.waterHeaterCondition}`;
-      if (data.waterHeaterNotes) waterText += ` | Notes: ${data.waterHeaterNotes}`;
-      currentY += addText(waterText, margin + 15, currentY, { maxWidth: contentWidth - 15 });
-      currentY += 5;
+      details.push(`
+        <div class="detail-item">
+          <strong>Hot Water Heater:</strong> 
+          ${data.waterHeaterAge ? `Age: ${data.waterHeaterAge}` : ''} 
+          ${data.waterHeaterCondition ? `| Condition: ${data.waterHeaterCondition}` : ''}
+          ${data.waterHeaterNotes ? `<br><em>${data.waterHeaterNotes}</em>` : ''}
+        </div>
+      `);
     }
     
     if (data.sidingType || data.sidingCondition || data.sidingNotes) {
-      pdf.setFont(undefined, 'bold');
-      addText('Siding:', margin, currentY);
-      pdf.setFont(undefined, 'normal');
-      let sidingText = '';
-      if (data.sidingType) sidingText += `Type: ${data.sidingType}`;
-      if (data.sidingCondition) sidingText += ` | Condition: ${data.sidingCondition}`;
-      if (data.sidingNotes) sidingText += ` | Notes: ${data.sidingNotes}`;
-      currentY += addText(sidingText, margin + 15, currentY, { maxWidth: contentWidth - 15 });
-      currentY += 5;
+      details.push(`
+        <div class="detail-item">
+          <strong>Siding:</strong> 
+          ${data.sidingType ? `Type: ${data.sidingType}` : ''} 
+          ${data.sidingCondition ? `| Condition: ${data.sidingCondition}` : ''}
+          ${data.sidingNotes ? `<br><em>${data.sidingNotes}</em>` : ''}
+        </div>
+      `);
     }
     
     if (data.additionalNotes) {
-      pdf.setFont(undefined, 'bold');
-      addText('Additional Notes:', margin, currentY);
-      pdf.setFont(undefined, 'normal');
-      currentY += addText(data.additionalNotes, margin + 15, currentY, { maxWidth: contentWidth - 15 });
-      currentY += 5;
+      details.push(`
+        <div class="detail-item">
+          <strong>Additional Notes:</strong> ${data.additionalNotes}
+        </div>
+      `);
     }
     
-    currentY += 10;
-  }
-
-  // Exit Strategy Section
-  if (data.exitStrategy) {
-    checkPageBreak(30);
-    pdf.setFontSize(14);
-    pdf.setFont(undefined, 'bold');
-    addText('📋 Exit Strategy Notes', margin, currentY);
-    currentY += 15;
-    
-    pdf.setFontSize(10);
-    pdf.setFont(undefined, 'normal');
-    currentY += addText(data.exitStrategy, margin, currentY, { maxWidth: contentWidth });
-    currentY += 15;
-  }
-
-  // Comps Section
-  const hasComps = [data.pendingComps, data.soldComps, data.rentalComps, data.newConstructionComps, data.asIsComps]
-    .some(comps => comps.some(comp => comp.trim()));
-
-  if (hasComps) {
-    checkPageBreak(40);
-    pdf.setFontSize(14);
-    pdf.setFont(undefined, 'bold');
-    addText('📊 Comps', margin, currentY);
-    currentY += 15;
-    
-    pdf.setFontSize(10);
-    
-    const compSections = [
-      { comps: data.pendingComps, title: 'Pending Flipped Comps' },
-      { comps: data.soldComps, title: 'Sold Flipped Comps' },
-      { comps: data.rentalComps, title: 'Rental Comps' },
-      { comps: data.newConstructionComps, title: 'New Construction Comps' },
-      { comps: data.asIsComps, title: 'Sold As-Is Comps' }
-    ];
-    
-    compSections.forEach(section => {
-      if (section.comps.some(comp => comp.trim())) {
-        checkPageBreak(20 + section.comps.filter(comp => comp.trim()).length * 7);
+    return details.length > 0 ? `
+      <div class="section">
+        <h2 class="section-title">🔍 Property Details</h2>
+        ${details.join('')}
+      </div>
+    ` : '';
+  };
+  
+  // Create HTML content
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <title>Fix & Flip Opportunity</title>
+      <style>
+        * { box-sizing: border-box; }
         
-        pdf.setFont(undefined, 'bold');
-        addText(section.title, margin, currentY);
-        currentY += 10;
+        body {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          margin: 0;
+          padding: 40px;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          min-height: 100vh;
+          line-height: 1.4;
+        }
         
-        pdf.setFont(undefined, 'normal');
-        section.comps.filter(comp => comp.trim()).forEach((comp, index) => {
-          addText(`${index + 1}.`, margin + 5, currentY);
-          const linkHeight = addLink(comp, comp, margin + 15, currentY, contentWidth - 20);
-          currentY += linkHeight + 2;
-        });
-        currentY += 10;
-      }
+        .container {
+          max-width: 800px;
+          margin: 0 auto;
+          background: white;
+          border-radius: 16px;
+          padding: 40px;
+          box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+          text-align: center;
+          margin-bottom: 40px;
+          padding-bottom: 30px;
+          border-bottom: 3px solid #3b82f6;
+        }
+        
+        .title {
+          font-size: 32px;
+          font-weight: 800;
+          color: #1f2937;
+          margin-bottom: 10px;
+          line-height: 1.2;
+        }
+        
+        .subtitle {
+          font-size: 18px;
+          color: #6b7280;
+          margin-bottom: 20px;
+        }
+        
+        .address {
+          font-size: 24px;
+          font-weight: 600;
+          color: #dc2626;
+          margin-bottom: 10px;
+        }
+        
+        .financial-section {
+          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+          color: white;
+          padding: 30px;
+          border-radius: 12px;
+          margin: 30px 0;
+          text-align: center;
+        }
+        
+        .financial-title {
+          font-size: 24px;
+          font-weight: 700;
+          margin-bottom: 20px;
+        }
+        
+        .financial-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+          gap: 15px;
+          margin-bottom: 20px;
+        }
+        
+        .financial-item {
+          background: rgba(255,255,255,0.15);
+          padding: 15px;
+          border-radius: 8px;
+          backdrop-filter: blur(10px);
+        }
+        
+        .financial-label {
+          font-size: 13px;
+          opacity: 0.9;
+          margin-bottom: 5px;
+        }
+        
+        .financial-value {
+          font-size: 18px;
+          font-weight: 700;
+        }
+        
+        .gross-profit {
+          background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+          color: white;
+          padding: 20px;
+          border-radius: 12px;
+          text-align: center;
+          margin: 20px 0;
+        }
+        
+        .gross-profit-value {
+          font-size: 36px;
+          font-weight: 800;
+          margin: 10px 0;
+        }
+        
+        .property-overview {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+          gap: 15px;
+          margin: 30px 0;
+        }
+        
+        .property-item {
+          background: #f8fafc;
+          padding: 15px;
+          border-radius: 8px;
+          text-align: center;
+          border: 2px solid #e2e8f0;
+        }
+        
+        .property-icon {
+          font-size: 20px;
+          margin-bottom: 8px;
+        }
+        
+        .property-value {
+          font-size: 20px;
+          font-weight: 700;
+          color: #1f2937;
+          margin-bottom: 3px;
+        }
+        
+        .property-label {
+          font-size: 12px;
+          color: #6b7280;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+        
+        .section {
+          margin: 25px 0;
+          padding: 20px;
+          background: #f9fafb;
+          border-radius: 12px;
+          border-left: 4px solid #3b82f6;
+        }
+        
+        .section-title {
+          font-size: 18px;
+          font-weight: 700;
+          color: #1f2937;
+          margin-bottom: 15px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        
+        .detail-item {
+          margin-bottom: 12px;
+          font-size: 14px;
+          line-height: 1.5;
+        }
+        
+        .comp-section {
+          margin-bottom: 20px;
+        }
+        
+        .comp-title {
+          font-size: 16px;
+          font-weight: 600;
+          color: #1f2937;
+          margin-bottom: 10px;
+        }
+        
+        .comp-item {
+          margin-bottom: 8px;
+          font-size: 13px;
+        }
+        
+        .comp-number {
+          font-weight: 600;
+          margin-right: 8px;
+        }
+        
+        .comp-link {
+          color: #3b82f6;
+          text-decoration: none;
+          word-break: break-all;
+        }
+        
+        .occupancy-section, .access-section {
+          background: #f0f9ff;
+          border: 2px solid #3b82f6;
+          border-radius: 8px;
+          padding: 15px;
+          margin: 20px 0;
+        }
+        
+        .occupancy-title, .access-title {
+          font-size: 16px;
+          font-weight: 600;
+          color: #1d4ed8;
+          margin-bottom: 8px;
+        }
+        
+        .contact-info {
+          background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+          color: white;
+          padding: 30px;
+          border-radius: 12px;
+          margin-top: 30px;
+        }
+        
+        .contact-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+          gap: 15px;
+          margin-top: 15px;
+        }
+        
+        .contact-item {
+          background: rgba(255,255,255,0.15);
+          padding: 12px;
+          border-radius: 8px;
+          backdrop-filter: blur(10px);
+        }
+        
+        .contact-label {
+          font-size: 12px;
+          opacity: 0.9;
+          margin-bottom: 4px;
+        }
+        
+        .contact-value {
+          font-size: 14px;
+          font-weight: 600;
+        }
+        
+        .memo-alert {
+          background: #fef3c7;
+          border: 2px solid #f59e0b;
+          color: #92400e;
+          padding: 15px;
+          border-radius: 8px;
+          margin: 20px 0;
+          font-weight: 600;
+          text-align: center;
+          font-size: 14px;
+        }
+        
+        .rental-backup {
+          background: #ecfdf5;
+          border: 2px solid #10b981;
+          color: #065f46;
+          padding: 20px;
+          border-radius: 8px;
+          margin: 20px 0;
+        }
+        
+        .rental-backup-title {
+          font-size: 16px;
+          font-weight: 700;
+          margin-bottom: 8px;
+          color: #059669;
+        }
+        
+        .photo-section {
+          text-align: center;
+          margin: 20px 0;
+        }
+        
+        .photo-link {
+          display: inline-block;
+          background: #3b82f6;
+          color: white;
+          padding: 10px 20px;
+          border-radius: 6px;
+          text-decoration: none;
+          font-weight: 600;
+          margin-top: 8px;
+          font-size: 14px;
+        }
+        
+        .cta-section {
+          background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+          color: white;
+          padding: 25px;
+          border-radius: 12px;
+          text-align: center;
+          margin-top: 30px;
+        }
+        
+        .cta-title {
+          font-size: 22px;
+          font-weight: 700;
+          margin-bottom: 12px;
+        }
+        
+        .cta-subtitle {
+          font-size: 14px;
+          margin-bottom: 15px;
+          opacity: 0.9;
+        }
+        
+        .closing-info {
+          background: rgba(255,255,255,0.15);
+          padding: 15px;
+          border-radius: 8px;
+          margin-top: 15px;
+          backdrop-filter: blur(10px);
+        }
+        
+        .closing-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 15px;
+          margin-bottom: 10px;
+        }
+        
+        .emd-notice {
+          font-weight: 600;
+          font-size: 13px;
+          text-align: center;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1 class="title">${data.title}</h1>
+          <p class="subtitle">${data.subtitle}</p>
+          <div class="address">📍 ${data.address}</div>
+        </div>
+        
+        <div class="financial-section">
+          <h2 class="financial-title">💰 Financial Breakdown</h2>
+          <div class="financial-grid">
+            <div class="financial-item">
+              <div class="financial-label">Purchase Price</div>
+              <div class="financial-value">$${data.purchasePrice.toLocaleString()}</div>
+            </div>
+            <div class="financial-item">
+              <div class="financial-label">Rehab Estimate</div>
+              <div class="financial-value">$${data.rehabEstimate.toLocaleString()}</div>
+            </div>
+            <div class="financial-item">
+              <div class="financial-label">Total Investment</div>
+              <div class="financial-value">$${totalInvestment.toLocaleString()}</div>
+            </div>
+            <div class="financial-item">
+              <div class="financial-label">After Repair Value</div>
+              <div class="financial-value">$${data.arv.toLocaleString()}</div>
+            </div>
+          </div>
+          
+          <div class="gross-profit">
+            <div class="financial-label">Gross Profit</div>
+            <div class="gross-profit-value">$${grossProfit.toLocaleString()}</div>
+          </div>
+        </div>
+        
+        <div class="section">
+          <h2 class="section-title">🏠 Property Overview</h2>
+          <div class="property-overview">
+            <div class="property-item">
+              <div class="property-icon">🛏️</div>
+              <div class="property-value">${data.beds}</div>
+              <div class="property-label">Bedrooms</div>
+            </div>
+            <div class="property-item">
+              <div class="property-icon">🛁</div>
+              <div class="property-value">${data.baths}</div>
+              <div class="property-label">Bathrooms</div>
+            </div>
+            <div class="property-item">
+              <div class="property-icon">📐</div>
+              <div class="property-value">${data.sqft.toLocaleString()}</div>
+              <div class="property-label">Square Feet</div>
+            </div>
+            <div class="property-item">
+              <div class="property-icon">📏</div>
+              <div class="property-value">${data.lotSize}</div>
+              <div class="property-label">Acre Lot</div>
+            </div>
+            <div class="property-item">
+              <div class="property-icon">🏗️</div>
+              <div class="property-value">${data.yearBuilt}</div>
+              <div class="property-label">Year Built</div>
+            </div>
+            <div class="property-item">
+              <div class="property-icon">📚</div>
+              <div class="property-value">${data.zoning}</div>
+              <div class="property-label">Zoning</div>
+            </div>
+          </div>
+        </div>
+        
+        ${data.photoLink ? `
+          <div class="photo-section">
+            <h3>📸 Property Photos</h3>
+            <a href="${data.photoLink}" class="photo-link" target="_blank">
+              Click Here → View Photos
+            </a>
+          </div>
+        ` : ''}
+        
+        ${formatPropertyDetails()}
+        
+        ${data.exitStrategy ? `
+          <div class="section">
+            <h2 class="section-title">📋 Exit Strategy Notes</h2>
+            <p>${data.exitStrategy}</p>
+          </div>
+        ` : ''}
+        
+        ${[data.pendingComps, data.soldComps, data.rentalComps, data.newConstructionComps, data.asIsComps].some(comps => comps.some(comp => comp.trim())) ? `
+          <div class="section">
+            <h2 class="section-title">📊 Comps</h2>
+            ${formatComps(data.pendingComps, 'Pending Flipped Comps')}
+            ${formatComps(data.soldComps, 'Sold Flipped Comps')}
+            ${formatComps(data.rentalComps, 'Rental Comps')}
+            ${formatComps(data.newConstructionComps, 'New Construction Comps')}
+            ${formatComps(data.asIsComps, 'Sold As-Is Comps')}
+          </div>
+        ` : ''}
+        
+        ${data.occupancy ? `
+          <div class="occupancy-section">
+            <h3 class="occupancy-title">🏡 Occupancy</h3>
+            <p><strong>${data.occupancy.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</strong></p>
+            ${data.leaseTerms ? `<p><em>Lease Terms: ${data.leaseTerms}</em></p>` : ''}
+          </div>
+        ` : ''}
+        
+        ${data.access ? `
+          <div class="access-section">
+            <h3 class="access-title">🔐 Access</h3>
+            <p><strong>${data.access.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</strong></p>
+            ${data.lockboxCode ? `<p><em>Lockbox Code: ${data.lockboxCode}</em></p>` : ''}
+          </div>
+        ` : ''}
+        
+        ${data.rentalBackup ? `
+          <div class="rental-backup">
+            <h3 class="rental-backup-title">💎 Bonus: Rental Backup Plan</h3>
+            <p>${data.rentalBackupDetails}</p>
+          </div>
+        ` : ''}
+        
+        ${data.memoFiled ? `
+          <div class="memo-alert">
+            ⚠️ MEMORANDUM OF CONTRACT FILED ON THIS PROPERTY TO PROTECT THE FINANCIAL INTEREST OF SELLER AND BUYER
+          </div>
+        ` : ''}
+        
+        <div class="contact-info">
+          <h2 class="financial-title">📞 Contact Information</h2>
+          <div class="contact-grid">
+            <div class="contact-item">
+              <div class="contact-label">Name/Company</div>
+              <div class="contact-value">${data.contactName}</div>
+            </div>
+            <div class="contact-item">
+              <div class="contact-label">Phone</div>
+              <div class="contact-value">${data.contactPhone}</div>
+            </div>
+            <div class="contact-item">
+              <div class="contact-label">Email</div>
+              <div class="contact-value">${data.contactEmail}</div>
+            </div>
+            <div class="contact-item">
+              <div class="contact-label">Business Hours</div>
+              <div class="contact-value">${data.businessHours}</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="cta-section">
+          <h2 class="cta-title">🚨 THIS DEAL WILL NOT LAST LONG</h2>
+          <p class="cta-subtitle">PUT YOUR OFFER IN TODAY</p>
+          
+          <div class="closing-info">
+            <div class="closing-grid">
+              <div>
+                <div class="contact-label">EMD Amount</div>
+                <div class="contact-value">$${data.emdAmount.toLocaleString()}</div>
+              </div>
+              <div>
+                <div class="contact-label">Closing Date</div>
+                <div class="contact-value">${data.closingDate ? data.closingDate.toLocaleDateString() : 'TBD'}</div>
+              </div>
+            </div>
+            <div class="emd-notice">
+              EMD DUE WITHIN 24HR OF EXECUTED CONTRACT
+            </div>
+          </div>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+  
+  // Create a temporary container for HTML content
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = htmlContent;
+  tempDiv.style.position = 'absolute';
+  tempDiv.style.left = '-9999px';
+  tempDiv.style.top = '-9999px';
+  tempDiv.style.width = '800px';
+  document.body.appendChild(tempDiv);
+
+  try {
+    // Generate canvas from HTML
+    const canvas = await html2canvas(tempDiv, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: '#667eea'
     });
+
+    // Create PDF
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4'
+    });
+
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+    const imgWidth = canvas.width;
+    const imgHeight = canvas.height;
+    const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+    const imgX = (pdfWidth - imgWidth * ratio) / 2;
+    const imgY = 0;
+
+    pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
+
+    // Download the PDF
+    const fileName = `Fix-Flip-Flyer-${data.address.replace(/[^a-zA-Z0-9]/g, '-')}-${new Date().toISOString().split('T')[0]}.pdf`;
+    pdf.save(fileName);
+
+  } finally {
+    // Clean up temporary element
+    document.body.removeChild(tempDiv);
   }
-
-  // Occupancy Section
-  if (data.occupancy) {
-    checkPageBreak(25);
-    pdf.setFontSize(14);
-    pdf.setFont(undefined, 'bold');
-    addText('🏡 Occupancy', margin, currentY);
-    currentY += 15;
-    
-    pdf.setFontSize(12);
-    pdf.setFont(undefined, 'bold');
-    addText(data.occupancy.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), margin, currentY);
-    currentY += 10;
-    
-    if (data.leaseTerms) {
-      pdf.setFont(undefined, 'italic');
-      currentY += addText(`Lease Terms: ${data.leaseTerms}`, margin, currentY, { maxWidth: contentWidth });
-    }
-    currentY += 15;
-  }
-
-  // Access Section
-  if (data.access) {
-    checkPageBreak(25);
-    pdf.setFontSize(14);
-    pdf.setFont(undefined, 'bold');
-    addText('🔐 Access', margin, currentY);
-    currentY += 15;
-    
-    pdf.setFontSize(12);
-    pdf.setFont(undefined, 'bold');
-    addText(data.access.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), margin, currentY);
-    currentY += 10;
-    
-    if (data.lockboxCode) {
-      pdf.setFont(undefined, 'italic');
-      addText(`Lockbox Code: ${data.lockboxCode}`, margin, currentY);
-      currentY += 10;
-    }
-    currentY += 15;
-  }
-
-  // Rental Backup Section
-  if (data.rentalBackup) {
-    checkPageBreak(30);
-    pdf.setFontSize(14);
-    pdf.setFont(undefined, 'bold');
-    addText('💎 Bonus: Rental Backup Plan', margin, currentY);
-    currentY += 15;
-    
-    pdf.setFontSize(10);
-    pdf.setFont(undefined, 'normal');
-    currentY += addText(data.rentalBackupDetails, margin, currentY, { maxWidth: contentWidth });
-    currentY += 15;
-  }
-
-  // Memo Alert
-  if (data.memoFiled) {
-    checkPageBreak(20);
-    pdf.setFillColor(254, 243, 199);
-    pdf.rect(margin, currentY, contentWidth, 15, 'F');
-    pdf.setDrawColor(245, 158, 11);
-    pdf.rect(margin, currentY, contentWidth, 15);
-    
-    pdf.setTextColor(146, 64, 14);
-    pdf.setFontSize(10);
-    pdf.setFont(undefined, 'bold');
-    currentY += 10;
-    addText('⚠️ MEMORANDUM OF CONTRACT FILED ON THIS PROPERTY TO PROTECT THE FINANCIAL INTEREST OF SELLER AND BUYER', margin + 5, currentY, { align: 'center', maxWidth: contentWidth - 10 });
-    currentY += 15;
-    pdf.setTextColor(0, 0, 0);
-  }
-
-  // Contact Information Section
-  checkPageBreak(50);
-  pdf.setFillColor(59, 130, 246);
-  pdf.rect(margin, currentY, contentWidth, 15, 'F');
-  
-  pdf.setTextColor(255, 255, 255);
-  pdf.setFontSize(16);
-  pdf.setFont(undefined, 'bold');
-  currentY += 12;
-  addText('📞 Contact Information', margin + 5, currentY);
-  
-  currentY += 15;
-  pdf.setTextColor(0, 0, 0);
-  pdf.setFontSize(12);
-  
-  const contactItems = [
-    ['Name/Company', data.contactName],
-    ['Phone', data.contactPhone],
-    ['Email', data.contactEmail],
-    ['Business Hours', data.businessHours]
-  ];
-  
-  const contactItemWidth = contentWidth / 2;
-  let contactX = margin;
-  let contactY = currentY;
-  
-  contactItems.forEach((item, index) => {
-    if (index % 2 === 0 && index > 0) {
-      contactY += 20;
-      contactX = margin;
-    }
-    
-    pdf.setFillColor(248, 250, 252);
-    pdf.rect(contactX, contactY, contactItemWidth - 5, 15, 'F');
-    pdf.setDrawColor(226, 232, 240);
-    pdf.rect(contactX, contactY, contactItemWidth - 5, 15);
-    
-    pdf.setFont(undefined, 'normal');
-    pdf.setFontSize(8);
-    pdf.text(item[0], contactX + 3, contactY + 6);
-    pdf.setFont(undefined, 'bold');
-    pdf.setFontSize(10);
-    pdf.text(item[1], contactX + 3, contactY + 12);
-    
-    contactX = index % 2 === 0 ? margin + contactItemWidth : margin;
-  });
-  
-  currentY = contactY + 30;
-
-  // CTA Section
-  checkPageBreak(40);
-  pdf.setFillColor(220, 38, 38);
-  pdf.rect(margin, currentY, contentWidth, 35, 'F');
-  
-  pdf.setTextColor(255, 255, 255);
-  pdf.setFontSize(18);
-  pdf.setFont(undefined, 'bold');
-  currentY += 12;
-  addText('🚨 THIS DEAL WILL NOT LAST LONG', margin + 5, currentY, { align: 'center', maxWidth: contentWidth - 10 });
-  
-  currentY += 10;
-  pdf.setFontSize(12);
-  addText('PUT YOUR OFFER IN TODAY', margin + 5, currentY, { align: 'center', maxWidth: contentWidth - 10 });
-  
-  currentY += 15;
-  pdf.setFontSize(10);
-  pdf.setFont(undefined, 'normal');
-  
-  addText(`EMD Amount: $${data.emdAmount.toLocaleString()}`, margin + 5, currentY);
-  addText(`Closing Date: ${data.closingDate ? data.closingDate.toLocaleDateString() : 'TBD'}`, margin + contentWidth/2, currentY);
-  
-  currentY += 8;
-  pdf.setFont(undefined, 'bold');
-  addText('EMD DUE WITHIN 24HR OF EXECUTED CONTRACT', margin + 5, currentY, { align: 'center', maxWidth: contentWidth - 10 });
-
-  // Download the PDF
-  const fileName = `Fix-Flip-Flyer-${data.address.replace(/[^a-zA-Z0-9]/g, '-')}-${new Date().toISOString().split('T')[0]}.pdf`;
-  pdf.save(fileName);
 };
