@@ -268,50 +268,39 @@ export const generatePDF = async (data: PDFData): Promise<void> => {
     });
   }
 
-  // Add occupancy section as separate page if it exists
-  if (data.occupancy) {
-    sections.push({
-      id: 'occupancy',
-      content: `
+  // Final page with contact info and CTA
+  sections.push({
+    id: 'page3',
+    content: `
+      ${data.occupancy ? `
         <div class="occupancy-section">
           <h3 class="occupancy-title">🏡 Occupancy</h3>
           <p><strong>${data.occupancy.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</strong></p>
           ${data.leaseTerms ? `<p><em>Lease Terms: ${data.leaseTerms}</em></p>` : ''}
         </div>
-      `
-    });
-  }
-
-  // Add access section as separate page if it exists
-  if (data.access) {
-    sections.push({
-      id: 'access',
-      content: `
+      ` : ''}
+      
+      ${data.access ? `
         <div class="access-section">
           <h3 class="access-title">🔐 Access</h3>
           <p><strong>${data.access.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</strong></p>
           ${data.lockboxCode ? `<p><em>Lockbox Code: ${data.lockboxCode}</em></p>` : ''}
         </div>
-      `
-    });
-  }
-
-  // Add memorandum section as separate page if it exists
-  if (data.memoFiled) {
-    sections.push({
-      id: 'memorandum',
-      content: `
+      ` : ''}
+      
+      ${data.rentalBackup ? `
+        <div class="rental-backup">
+          <h3 class="rental-backup-title">💎 Bonus: Rental Backup Plan</h3>
+          <p>${data.rentalBackupDetails}</p>
+        </div>
+      ` : ''}
+      
+      ${data.memoFiled ? `
         <div class="memo-alert">
           ⚠️ MEMORANDUM OF CONTRACT FILED ON THIS PROPERTY TO PROTECT THE FINANCIAL INTEREST OF SELLER AND BUYER
         </div>
-      `
-    });
-  }
-
-  // Add contact info as separate page
-  sections.push({
-    id: 'contact',
-    content: `
+      ` : ''}
+      
       <div class="contact-info">
         <h2 class="financial-title">📞 Contact Information</h2>
         <div class="contact-grid">
@@ -333,13 +322,7 @@ export const generatePDF = async (data: PDFData): Promise<void> => {
           </div>
         </div>
       </div>
-    `
-  });
-
-  // Add CTA section as separate page
-  sections.push({
-    id: 'cta',
-    content: `
+      
       <div class="cta-section">
         <h2 class="cta-title">🚨 THIS DEAL WILL NOT LAST LONG</h2>
         <p class="cta-subtitle">PUT YOUR OFFER IN TODAY</p>
@@ -381,11 +364,10 @@ export const generatePDF = async (data: PDFData): Promise<void> => {
       body {
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         margin: 0;
-        padding: 15mm;
+        padding: 20mm;
         background: white;
         line-height: 1.4;
         color: #1f2937;
-        max-width: calc(210mm - 30mm);
       }
       
       .header {
@@ -726,7 +708,7 @@ export const generatePDF = async (data: PDFData): Promise<void> => {
     tempDiv.style.position = 'absolute';
     tempDiv.style.left = '-9999px';
     tempDiv.style.top = '-9999px';
-    tempDiv.style.width = 'calc(210mm - 30mm)';
+    tempDiv.style.width = '210mm';
     document.body.appendChild(tempDiv);
 
     try {
