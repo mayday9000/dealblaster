@@ -242,8 +242,8 @@ export const generatePDF = async (data: PDFData): Promise<void> => {
     }
   ];
 
-  // Add additional pages only if they have content
-  if (data.exitStrategy || [data.pendingComps, data.soldComps, data.rentalComps, data.newConstructionComps, data.asIsComps].some(comps => comps.some(comp => comp.trim()))) {
+  // Add page 2 with exit strategy, comps, and occupancy
+  if (data.exitStrategy || [data.pendingComps, data.soldComps, data.rentalComps, data.newConstructionComps, data.asIsComps].some(comps => comps.some(comp => comp.trim())) || data.occupancy) {
     sections.push({
       id: 'page2',
       content: `
@@ -264,43 +264,49 @@ export const generatePDF = async (data: PDFData): Promise<void> => {
             ${formatComps(data.asIsComps, 'Sold As-Is Comps')}
           </div>
         ` : ''}
+        
+        ${data.occupancy ? `
+          <div class="occupancy-section">
+            <h3 class="occupancy-title">🏡 Occupancy</h3>
+            <p><strong>${data.occupancy.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</strong></p>
+            ${data.leaseTerms ? `<p><em>Lease Terms: ${data.leaseTerms}</em></p>` : ''}
+          </div>
+        ` : ''}
+      `
+    });
+  }
+
+  // Add page 3 with access information
+  if (data.access) {
+    sections.push({
+      id: 'page3',
+      content: `
+        <div class="access-section">
+          <h3 class="access-title">🔐 Access</h3>
+          <p><strong>${data.access.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</strong></p>
+          ${data.lockboxCode ? `<p><em>Lockbox Code: ${data.lockboxCode}</em></p>` : ''}
+        </div>
+        
+        ${data.rentalBackup ? `
+          <div class="rental-backup">
+            <h3 class="rental-backup-title">💎 Bonus: Rental Backup Plan</h3>
+            <p>${data.rentalBackupDetails}</p>
+          </div>
+        ` : ''}
+        
+        ${data.memoFiled ? `
+          <div class="memo-alert">
+            ⚠️ MEMORANDUM OF CONTRACT FILED ON THIS PROPERTY TO PROTECT THE FINANCIAL INTEREST OF SELLER AND BUYER
+          </div>
+        ` : ''}
       `
     });
   }
 
   // Final page with contact info and CTA
   sections.push({
-    id: 'page3',
+    id: 'final',
     content: `
-      ${data.occupancy ? `
-        <div class="occupancy-section">
-          <h3 class="occupancy-title">🏡 Occupancy</h3>
-          <p><strong>${data.occupancy.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</strong></p>
-          ${data.leaseTerms ? `<p><em>Lease Terms: ${data.leaseTerms}</em></p>` : ''}
-        </div>
-      ` : ''}
-      
-      ${data.access ? `
-        <div class="access-section">
-          <h3 class="access-title">🔐 Access</h3>
-          <p><strong>${data.access.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</strong></p>
-          ${data.lockboxCode ? `<p><em>Lockbox Code: ${data.lockboxCode}</em></p>` : ''}
-        </div>
-      ` : ''}
-      
-      ${data.rentalBackup ? `
-        <div class="rental-backup">
-          <h3 class="rental-backup-title">💎 Bonus: Rental Backup Plan</h3>
-          <p>${data.rentalBackupDetails}</p>
-        </div>
-      ` : ''}
-      
-      ${data.memoFiled ? `
-        <div class="memo-alert">
-          ⚠️ MEMORANDUM OF CONTRACT FILED ON THIS PROPERTY TO PROTECT THE FINANCIAL INTEREST OF SELLER AND BUYER
-        </div>
-      ` : ''}
-      
       <div class="contact-info">
         <h2 class="financial-title">📞 Contact Information</h2>
         <div class="contact-grid">
@@ -364,7 +370,7 @@ export const generatePDF = async (data: PDFData): Promise<void> => {
       body {
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         margin: 0;
-        padding: 20mm;
+        padding: 15mm 20mm;
         background: white;
         line-height: 1.4;
         color: #1f2937;
