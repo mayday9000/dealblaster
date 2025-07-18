@@ -174,12 +174,18 @@ export const generatePDF = async (data: PDFData): Promise<void> => {
         }
         
         .container {
-          max-width: 800px;
-          margin: 0 auto;
+          width: 100%;
+          max-width: none;
+          margin: 0;
           background: white;
-          border-radius: 16px;
+          border-radius: 0;
           padding: 40px;
-          box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+          box-shadow: none;
+        }
+        
+        .page-break {
+          page-break-after: always;
+          break-after: page;
         }
         
         .header {
@@ -568,6 +574,8 @@ export const generatePDF = async (data: PDFData): Promise<void> => {
         
         ${formatPropertyDetails()}
         
+        <div class="page-break"></div>
+        
         ${data.exitStrategy ? `
           <div class="section">
             <h2 class="section-title">📋 Exit Strategy Notes</h2>
@@ -584,6 +592,7 @@ export const generatePDF = async (data: PDFData): Promise<void> => {
             ${formatComps(data.newConstructionComps, 'New Construction Comps')}
             ${formatComps(data.asIsComps, 'Sold As-Is Comps')}
           </div>
+          <div class="page-break"></div>
         ` : ''}
         
         ${data.occupancy ? `
@@ -614,6 +623,8 @@ export const generatePDF = async (data: PDFData): Promise<void> => {
             ⚠️ MEMORANDUM OF CONTRACT FILED ON THIS PROPERTY TO PROTECT THE FINANCIAL INTEREST OF SELLER AND BUYER
           </div>
         ` : ''}
+        
+        <div class="page-break"></div>
         
         <div class="contact-info">
           <h2 class="financial-title">📞 Contact Information</h2>
@@ -668,7 +679,7 @@ export const generatePDF = async (data: PDFData): Promise<void> => {
   tempDiv.style.position = 'absolute';
   tempDiv.style.left = '-9999px';
   tempDiv.style.top = '-9999px';
-  tempDiv.style.width = '800px';
+  tempDiv.style.width = '210mm'; // A4 width
   document.body.appendChild(tempDiv);
 
   try {
@@ -677,11 +688,12 @@ export const generatePDF = async (data: PDFData): Promise<void> => {
       scale: 2,
       useCORS: true,
       allowTaint: true,
-      backgroundColor: '#667eea'
+      backgroundColor: '#667eea',
+      width: tempDiv.scrollWidth,
+      height: tempDiv.scrollHeight
     });
 
     // Create PDF
-    const imgData = canvas.toDataURL('image/png');
     const pdf = new jsPDF({
       orientation: 'portrait',
       unit: 'mm',
@@ -692,11 +704,29 @@ export const generatePDF = async (data: PDFData): Promise<void> => {
     const pdfHeight = pdf.internal.pageSize.getHeight();
     const imgWidth = canvas.width;
     const imgHeight = canvas.height;
-    const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-    const imgX = (pdfWidth - imgWidth * ratio) / 2;
-    const imgY = 0;
-
-    pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
+    
+    // Calculate how many pages we need
+    const pageHeight = (pdfWidth / imgWidth) * imgHeight;
+    const totalPages = Math.ceil(pageHeight / pdfHeight);
+    
+    // Add pages and content
+    for (let i = 0; i < totalPages; i++) {
+      if (i > 0) {
+        pdf.addPage();
+      }
+      
+      const yOffset = -(i * pdfHeight);
+      const imgData = canvas.toDataURL('image/png');
+      
+      pdf.addImage(
+        imgData,
+        'PNG',
+        0,
+        yOffset,
+        pdfWidth,
+        pageHeight
+      );
+    }
 
     // Download the PDF
     const fileName = `Fix-Flip-Flyer-${data.address.replace(/[^a-zA-Z0-9]/g, '-')}-${new Date().toISOString().split('T')[0]}.pdf`;
