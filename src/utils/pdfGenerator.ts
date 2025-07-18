@@ -153,347 +153,12 @@ export const generatePDF = async (data: PDFData): Promise<void> => {
       </div>
     ` : '';
   };
-  
-  // Create HTML content
-  const htmlContent = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="UTF-8">
-      <title>Fix & Flip Opportunity</title>
-      <style>
-        * { box-sizing: border-box; }
-        
-        body {
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-          margin: 0;
-          padding: 40px;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          min-height: 100vh;
-          line-height: 1.4;
-        }
-        
-        .container {
-          width: 100%;
-          max-width: none;
-          margin: 0;
-          background: white;
-          border-radius: 0;
-          padding: 40px;
-          box-shadow: none;
-        }
-        
-        .page-break {
-          page-break-after: always;
-          break-after: page;
-        }
-        
-        .header {
-          text-align: center;
-          margin-bottom: 40px;
-          padding-bottom: 30px;
-          border-bottom: 3px solid #3b82f6;
-        }
-        
-        .title {
-          font-size: 32px;
-          font-weight: 800;
-          color: #1f2937;
-          margin-bottom: 10px;
-          line-height: 1.2;
-        }
-        
-        .subtitle {
-          font-size: 18px;
-          color: #6b7280;
-          margin-bottom: 20px;
-        }
-        
-        .address {
-          font-size: 24px;
-          font-weight: 600;
-          color: #dc2626;
-          margin-bottom: 10px;
-        }
-        
-        .financial-section {
-          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-          color: white;
-          padding: 30px;
-          border-radius: 12px;
-          margin: 30px 0;
-          text-align: center;
-        }
-        
-        .financial-title {
-          font-size: 24px;
-          font-weight: 700;
-          margin-bottom: 20px;
-        }
-        
-        .financial-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-          gap: 15px;
-          margin-bottom: 20px;
-        }
-        
-        .financial-item {
-          background: rgba(255,255,255,0.15);
-          padding: 15px;
-          border-radius: 8px;
-          backdrop-filter: blur(10px);
-        }
-        
-        .financial-label {
-          font-size: 13px;
-          opacity: 0.9;
-          margin-bottom: 5px;
-        }
-        
-        .financial-value {
-          font-size: 18px;
-          font-weight: 700;
-        }
-        
-        .gross-profit {
-          background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-          color: white;
-          padding: 20px;
-          border-radius: 12px;
-          text-align: center;
-          margin: 20px 0;
-        }
-        
-        .gross-profit-value {
-          font-size: 36px;
-          font-weight: 800;
-          margin: 10px 0;
-        }
-        
-        .property-overview {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-          gap: 15px;
-          margin: 30px 0;
-        }
-        
-        .property-item {
-          background: #f8fafc;
-          padding: 15px;
-          border-radius: 8px;
-          text-align: center;
-          border: 2px solid #e2e8f0;
-        }
-        
-        .property-icon {
-          font-size: 20px;
-          margin-bottom: 8px;
-        }
-        
-        .property-value {
-          font-size: 20px;
-          font-weight: 700;
-          color: #1f2937;
-          margin-bottom: 3px;
-        }
-        
-        .property-label {
-          font-size: 12px;
-          color: #6b7280;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-        
-        .section {
-          margin: 25px 0;
-          padding: 20px;
-          background: #f9fafb;
-          border-radius: 12px;
-          border-left: 4px solid #3b82f6;
-        }
-        
-        .section-title {
-          font-size: 18px;
-          font-weight: 700;
-          color: #1f2937;
-          margin-bottom: 15px;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-        }
-        
-        .detail-item {
-          margin-bottom: 12px;
-          font-size: 14px;
-          line-height: 1.5;
-        }
-        
-        .comp-section {
-          margin-bottom: 20px;
-        }
-        
-        .comp-title {
-          font-size: 16px;
-          font-weight: 600;
-          color: #1f2937;
-          margin-bottom: 10px;
-        }
-        
-        .comp-item {
-          margin-bottom: 8px;
-          font-size: 13px;
-        }
-        
-        .comp-number {
-          font-weight: 600;
-          margin-right: 8px;
-        }
-        
-        .comp-link {
-          color: #3b82f6;
-          text-decoration: none;
-          word-break: break-all;
-        }
-        
-        .occupancy-section, .access-section {
-          background: #f0f9ff;
-          border: 2px solid #3b82f6;
-          border-radius: 8px;
-          padding: 15px;
-          margin: 20px 0;
-        }
-        
-        .occupancy-title, .access-title {
-          font-size: 16px;
-          font-weight: 600;
-          color: #1d4ed8;
-          margin-bottom: 8px;
-        }
-        
-        .contact-info {
-          background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-          color: white;
-          padding: 30px;
-          border-radius: 12px;
-          margin-top: 30px;
-        }
-        
-        .contact-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-          gap: 15px;
-          margin-top: 15px;
-        }
-        
-        .contact-item {
-          background: rgba(255,255,255,0.15);
-          padding: 12px;
-          border-radius: 8px;
-          backdrop-filter: blur(10px);
-        }
-        
-        .contact-label {
-          font-size: 12px;
-          opacity: 0.9;
-          margin-bottom: 4px;
-        }
-        
-        .contact-value {
-          font-size: 14px;
-          font-weight: 600;
-        }
-        
-        .memo-alert {
-          background: #fef3c7;
-          border: 2px solid #f59e0b;
-          color: #92400e;
-          padding: 15px;
-          border-radius: 8px;
-          margin: 20px 0;
-          font-weight: 600;
-          text-align: center;
-          font-size: 14px;
-        }
-        
-        .rental-backup {
-          background: #ecfdf5;
-          border: 2px solid #10b981;
-          color: #065f46;
-          padding: 20px;
-          border-radius: 8px;
-          margin: 20px 0;
-        }
-        
-        .rental-backup-title {
-          font-size: 16px;
-          font-weight: 700;
-          margin-bottom: 8px;
-          color: #059669;
-        }
-        
-        .photo-section {
-          text-align: center;
-          margin: 20px 0;
-        }
-        
-        .photo-link {
-          display: inline-block;
-          background: #3b82f6;
-          color: white;
-          padding: 10px 20px;
-          border-radius: 6px;
-          text-decoration: none;
-          font-weight: 600;
-          margin-top: 8px;
-          font-size: 14px;
-        }
-        
-        .cta-section {
-          background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
-          color: white;
-          padding: 25px;
-          border-radius: 12px;
-          text-align: center;
-          margin-top: 30px;
-        }
-        
-        .cta-title {
-          font-size: 22px;
-          font-weight: 700;
-          margin-bottom: 12px;
-        }
-        
-        .cta-subtitle {
-          font-size: 14px;
-          margin-bottom: 15px;
-          opacity: 0.9;
-        }
-        
-        .closing-info {
-          background: rgba(255,255,255,0.15);
-          padding: 15px;
-          border-radius: 8px;
-          margin-top: 15px;
-          backdrop-filter: blur(10px);
-        }
-        
-        .closing-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 15px;
-          margin-bottom: 10px;
-        }
-        
-        .emd-notice {
-          font-weight: 600;
-          font-size: 13px;
-          text-align: center;
-        }
-      </style>
-    </head>
-    <body>
-      <div class="container">
+
+  // Create sections that will be rendered on separate pages
+  const sections = [
+    {
+      id: 'page1',
+      content: `
         <div class="header">
           <h1 class="title">${data.title}</h1>
           <p class="subtitle">${data.subtitle}</p>
@@ -573,9 +238,15 @@ export const generatePDF = async (data: PDFData): Promise<void> => {
         ` : ''}
         
         ${formatPropertyDetails()}
-        
-        <div class="page-break"></div>
-        
+      `
+    }
+  ];
+
+  // Add additional pages only if they have content
+  if (data.exitStrategy || [data.pendingComps, data.soldComps, data.rentalComps, data.newConstructionComps, data.asIsComps].some(comps => comps.some(comp => comp.trim()))) {
+    sections.push({
+      id: 'page2',
+      content: `
         ${data.exitStrategy ? `
           <div class="section">
             <h2 class="section-title">📋 Exit Strategy Notes</h2>
@@ -592,148 +263,482 @@ export const generatePDF = async (data: PDFData): Promise<void> => {
             ${formatComps(data.newConstructionComps, 'New Construction Comps')}
             ${formatComps(data.asIsComps, 'Sold As-Is Comps')}
           </div>
-          <div class="page-break"></div>
         ` : ''}
-        
-        ${data.occupancy ? `
-          <div class="occupancy-section">
-            <h3 class="occupancy-title">🏡 Occupancy</h3>
-            <p><strong>${data.occupancy.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</strong></p>
-            ${data.leaseTerms ? `<p><em>Lease Terms: ${data.leaseTerms}</em></p>` : ''}
-          </div>
-        ` : ''}
-        
-        ${data.access ? `
-          <div class="access-section">
-            <h3 class="access-title">🔐 Access</h3>
-            <p><strong>${data.access.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</strong></p>
-            ${data.lockboxCode ? `<p><em>Lockbox Code: ${data.lockboxCode}</em></p>` : ''}
-          </div>
-        ` : ''}
-        
-        ${data.rentalBackup ? `
-          <div class="rental-backup">
-            <h3 class="rental-backup-title">💎 Bonus: Rental Backup Plan</h3>
-            <p>${data.rentalBackupDetails}</p>
-          </div>
-        ` : ''}
-        
-        ${data.memoFiled ? `
-          <div class="memo-alert">
-            ⚠️ MEMORANDUM OF CONTRACT FILED ON THIS PROPERTY TO PROTECT THE FINANCIAL INTEREST OF SELLER AND BUYER
-          </div>
-        ` : ''}
-        
-        <div class="page-break"></div>
-        
-        <div class="contact-info">
-          <h2 class="financial-title">📞 Contact Information</h2>
-          <div class="contact-grid">
-            <div class="contact-item">
-              <div class="contact-label">Name/Company</div>
-              <div class="contact-value">${data.contactName}</div>
-            </div>
-            <div class="contact-item">
-              <div class="contact-label">Phone</div>
-              <div class="contact-value">${data.contactPhone}</div>
-            </div>
-            <div class="contact-item">
-              <div class="contact-label">Email</div>
-              <div class="contact-value">${data.contactEmail}</div>
-            </div>
-            <div class="contact-item">
-              <div class="contact-label">Business Hours</div>
-              <div class="contact-value">${data.businessHours}</div>
-            </div>
-          </div>
+      `
+    });
+  }
+
+  // Final page with contact info and CTA
+  sections.push({
+    id: 'page3',
+    content: `
+      ${data.occupancy ? `
+        <div class="occupancy-section">
+          <h3 class="occupancy-title">🏡 Occupancy</h3>
+          <p><strong>${data.occupancy.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</strong></p>
+          ${data.leaseTerms ? `<p><em>Lease Terms: ${data.leaseTerms}</em></p>` : ''}
         </div>
-        
-        <div class="cta-section">
-          <h2 class="cta-title">🚨 THIS DEAL WILL NOT LAST LONG</h2>
-          <p class="cta-subtitle">PUT YOUR OFFER IN TODAY</p>
-          
-          <div class="closing-info">
-            <div class="closing-grid">
-              <div>
-                <div class="contact-label">EMD Amount</div>
-                <div class="contact-value">$${data.emdAmount.toLocaleString()}</div>
-              </div>
-              <div>
-                <div class="contact-label">Closing Date</div>
-                <div class="contact-value">${data.closingDate ? data.closingDate.toLocaleDateString() : 'TBD'}</div>
-              </div>
-            </div>
-            <div class="emd-notice">
-              EMD DUE WITHIN 24HR OF EXECUTED CONTRACT
-            </div>
+      ` : ''}
+      
+      ${data.access ? `
+        <div class="access-section">
+          <h3 class="access-title">🔐 Access</h3>
+          <p><strong>${data.access.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</strong></p>
+          ${data.lockboxCode ? `<p><em>Lockbox Code: ${data.lockboxCode}</em></p>` : ''}
+        </div>
+      ` : ''}
+      
+      ${data.rentalBackup ? `
+        <div class="rental-backup">
+          <h3 class="rental-backup-title">💎 Bonus: Rental Backup Plan</h3>
+          <p>${data.rentalBackupDetails}</p>
+        </div>
+      ` : ''}
+      
+      ${data.memoFiled ? `
+        <div class="memo-alert">
+          ⚠️ MEMORANDUM OF CONTRACT FILED ON THIS PROPERTY TO PROTECT THE FINANCIAL INTEREST OF SELLER AND BUYER
+        </div>
+      ` : ''}
+      
+      <div class="contact-info">
+        <h2 class="financial-title">📞 Contact Information</h2>
+        <div class="contact-grid">
+          <div class="contact-item">
+            <div class="contact-label">Name/Company</div>
+            <div class="contact-value">${data.contactName}</div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-label">Phone</div>
+            <div class="contact-value"><a href="tel:${data.contactPhone}">${data.contactPhone}</a></div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-label">Email</div>
+            <div class="contact-value"><a href="mailto:${data.contactEmail}">${data.contactEmail}</a></div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-label">Business Hours</div>
+            <div class="contact-value">${data.businessHours}</div>
           </div>
         </div>
       </div>
-    </body>
-    </html>
-  `;
+      
+      <div class="cta-section">
+        <h2 class="cta-title">🚨 THIS DEAL WILL NOT LAST LONG</h2>
+        <p class="cta-subtitle">PUT YOUR OFFER IN TODAY</p>
+        
+        <div class="closing-info">
+          <div class="closing-grid">
+            <div>
+              <div class="contact-label">EMD Amount</div>
+              <div class="contact-value">$${data.emdAmount.toLocaleString()}</div>
+            </div>
+            <div>
+              <div class="contact-label">Closing Date</div>
+              <div class="contact-value">${data.closingDate ? data.closingDate.toLocaleDateString() : 'TBD'}</div>
+            </div>
+          </div>
+          <div class="emd-notice">
+            EMD DUE WITHIN 24HR OF EXECUTED CONTRACT
+          </div>
+        </div>
+      </div>
+    `
+  });
   
-  // Create a temporary container for HTML content
-  const tempDiv = document.createElement('div');
-  tempDiv.innerHTML = htmlContent;
-  tempDiv.style.position = 'absolute';
-  tempDiv.style.left = '-9999px';
-  tempDiv.style.top = '-9999px';
-  tempDiv.style.width = '210mm'; // A4 width
-  document.body.appendChild(tempDiv);
+  // Create PDF with each section on separate pages
+  const pdf = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4'
+  });
 
-  try {
-    // Generate canvas from HTML
-    const canvas = await html2canvas(tempDiv, {
-      scale: 2,
-      useCORS: true,
-      allowTaint: true,
-      backgroundColor: '#667eea',
-      width: tempDiv.scrollWidth,
-      height: tempDiv.scrollHeight
-    });
-
-    // Create PDF
-    const pdf = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4'
-    });
-
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = pdf.internal.pageSize.getHeight();
-    const imgWidth = canvas.width;
-    const imgHeight = canvas.height;
-    
-    // Calculate how many pages we need
-    const pageHeight = (pdfWidth / imgWidth) * imgHeight;
-    const totalPages = Math.ceil(pageHeight / pdfHeight);
-    
-    // Add pages and content
-    for (let i = 0; i < totalPages; i++) {
-      if (i > 0) {
-        pdf.addPage();
+  const pdfWidth = pdf.internal.pageSize.getWidth();
+  const pdfHeight = pdf.internal.pageSize.getHeight();
+  
+  // Common CSS styles for all sections
+  const commonStyles = `
+    <style>
+      * { box-sizing: border-box; }
+      
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        margin: 0;
+        padding: 20mm;
+        background: white;
+        line-height: 1.4;
+        color: #1f2937;
       }
       
-      const yOffset = -(i * pdfHeight);
-      const imgData = canvas.toDataURL('image/png');
+      .header {
+        text-align: center;
+        margin-bottom: 40px;
+        padding-bottom: 30px;
+        border-bottom: 3px solid #3b82f6;
+      }
       
-      pdf.addImage(
-        imgData,
-        'PNG',
-        0,
-        yOffset,
-        pdfWidth,
-        pageHeight
-      );
+      .title {
+        font-size: 32px;
+        font-weight: 800;
+        color: #1f2937;
+        margin-bottom: 10px;
+        line-height: 1.2;
+      }
+      
+      .subtitle {
+        font-size: 18px;
+        color: #6b7280;
+        margin-bottom: 20px;
+      }
+      
+      .address {
+        font-size: 24px;
+        font-weight: 600;
+        color: #dc2626;
+        margin-bottom: 10px;
+      }
+      
+      .financial-section {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 12px;
+        margin: 30px 0;
+        text-align: center;
+      }
+      
+      .financial-title {
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 20px;
+      }
+      
+      .financial-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+      }
+      
+      .financial-item {
+        background: rgba(255,255,255,0.15);
+        padding: 15px;
+        border-radius: 8px;
+        backdrop-filter: blur(10px);
+      }
+      
+      .financial-label {
+        font-size: 13px;
+        opacity: 0.9;
+        margin-bottom: 5px;
+      }
+      
+      .financial-value {
+        font-size: 18px;
+        font-weight: 700;
+      }
+      
+      .gross-profit {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 12px;
+        text-align: center;
+        margin: 20px 0;
+      }
+      
+      .gross-profit-value {
+        font-size: 36px;
+        font-weight: 800;
+        margin: 10px 0;
+      }
+      
+      .property-overview {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 15px;
+        margin: 30px 0;
+      }
+      
+      .property-item {
+        background: #f8fafc;
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+        border: 2px solid #e2e8f0;
+      }
+      
+      .property-icon {
+        font-size: 20px;
+        margin-bottom: 8px;
+      }
+      
+      .property-value {
+        font-size: 20px;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 3px;
+      }
+      
+      .property-label {
+        font-size: 12px;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      
+      .section {
+        margin: 25px 0;
+        padding: 20px;
+        background: #f9fafb;
+        border-radius: 12px;
+        border-left: 4px solid #3b82f6;
+      }
+      
+      .section-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      
+      .detail-item {
+        margin-bottom: 12px;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+      
+      .comp-section {
+        margin-bottom: 20px;
+      }
+      
+      .comp-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 10px;
+      }
+      
+      .comp-item {
+        margin-bottom: 8px;
+        font-size: 13px;
+      }
+      
+      .comp-number {
+        font-weight: 600;
+        margin-right: 8px;
+      }
+      
+      .comp-link {
+        color: #3b82f6;
+        text-decoration: underline;
+        word-break: break-all;
+      }
+      
+      .occupancy-section, .access-section {
+        background: #f0f9ff;
+        border: 2px solid #3b82f6;
+        border-radius: 8px;
+        padding: 15px;
+        margin: 20px 0;
+      }
+      
+      .occupancy-title, .access-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #1d4ed8;
+        margin-bottom: 8px;
+      }
+      
+      .contact-info {
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 12px;
+        margin-top: 30px;
+      }
+      
+      .contact-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 15px;
+        margin-top: 15px;
+      }
+      
+      .contact-item {
+        background: rgba(255,255,255,0.15);
+        padding: 12px;
+        border-radius: 8px;
+        backdrop-filter: blur(10px);
+      }
+      
+      .contact-label {
+        font-size: 12px;
+        opacity: 0.9;
+        margin-bottom: 4px;
+      }
+      
+      .contact-value {
+        font-size: 14px;
+        font-weight: 600;
+      }
+      
+      .contact-value a {
+        color: white;
+        text-decoration: underline;
+      }
+      
+      .memo-alert {
+        background: #fef3c7;
+        border: 2px solid #f59e0b;
+        color: #92400e;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 20px 0;
+        font-weight: 600;
+        text-align: center;
+        font-size: 14px;
+      }
+      
+      .rental-backup {
+        background: #ecfdf5;
+        border: 2px solid #10b981;
+        color: #065f46;
+        padding: 20px;
+        border-radius: 8px;
+        margin: 20px 0;
+      }
+      
+      .rental-backup-title {
+        font-size: 16px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        color: #059669;
+      }
+      
+      .photo-section {
+        text-align: center;
+        margin: 20px 0;
+      }
+      
+      .photo-link {
+        display: inline-block;
+        background: #3b82f6;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 600;
+        margin-top: 8px;
+        font-size: 14px;
+      }
+      
+      .cta-section {
+        background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+        color: white;
+        padding: 25px;
+        border-radius: 12px;
+        text-align: center;
+        margin-top: 30px;
+      }
+      
+      .cta-title {
+        font-size: 22px;
+        font-weight: 700;
+        margin-bottom: 12px;
+      }
+      
+      .cta-subtitle {
+        font-size: 14px;
+        margin-bottom: 15px;
+        opacity: 0.9;
+      }
+      
+      .closing-info {
+        background: rgba(255,255,255,0.15);
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 15px;
+        backdrop-filter: blur(10px);
+      }
+      
+      .closing-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-bottom: 10px;
+      }
+      
+      .emd-notice {
+        font-weight: 600;
+        font-size: 13px;
+        text-align: center;
+      }
+    </style>
+  `;
+
+  // Render each section separately
+  for (let i = 0; i < sections.length; i++) {
+    const section = sections[i];
+    
+    if (i > 0) {
+      pdf.addPage();
     }
 
-    // Download the PDF
-    const fileName = `Fix-Flip-Flyer-${data.address.replace(/[^a-zA-Z0-9]/g, '-')}-${new Date().toISOString().split('T')[0]}.pdf`;
-    pdf.save(fileName);
+    // Create HTML for this section
+    const sectionHTML = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        ${commonStyles}
+      </head>
+      <body>
+        ${section.content}
+      </body>
+      </html>
+    `;
 
-  } finally {
-    // Clean up temporary element
-    document.body.removeChild(tempDiv);
+    // Create temporary div for this section
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = sectionHTML;
+    tempDiv.style.position = 'absolute';
+    tempDiv.style.left = '-9999px';
+    tempDiv.style.top = '-9999px';
+    tempDiv.style.width = '210mm';
+    document.body.appendChild(tempDiv);
+
+    try {
+      // Generate canvas for this section
+      const canvas = await html2canvas(tempDiv, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: 'white',
+        width: tempDiv.scrollWidth,
+        height: tempDiv.scrollHeight
+      });
+
+      // Calculate scaling to fit page width
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const ratio = pdfWidth / (imgWidth / 2); // Divide by 2 because of scale factor
+      const scaledHeight = (imgHeight / 2) * ratio;
+
+      // Add image to PDF
+      const imgData = canvas.toDataURL('image/png');
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, scaledHeight);
+
+    } finally {
+      // Clean up
+      document.body.removeChild(tempDiv);
+    }
   }
+
+  // Download the PDF
+  const fileName = `Fix-Flip-Flyer-${data.address.replace(/[^a-zA-Z0-9]/g, '-')}-${new Date().toISOString().split('T')[0]}.pdf`;
+  pdf.save(fileName);
 };
