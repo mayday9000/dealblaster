@@ -10,7 +10,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon, Download, FileText, DollarSign, Home, MapPin, Phone, Mail, Building, Calculator, Plus, Minus, Wrench, Users, Lock } from 'lucide-react';
+import { CalendarIcon, Download, FileText, DollarSign, Home, MapPin, Phone, Mail, Building, Calculator, Plus, Minus, Wrench, Users, Lock, Upload, User } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
@@ -71,6 +71,7 @@ interface FormData {
   contactName: string;
   contactPhone: string;
   contactEmail: string;
+  contactImage: File | null;
   businessHours: string;
   
   // EMD
@@ -129,6 +130,7 @@ const Index = () => {
     contactName: '',
     contactPhone: '',
     contactEmail: '',
+    contactImage: null,
     businessHours: '',
     emdAmount: undefined,
     emdDueDate: '',
@@ -442,43 +444,97 @@ const Index = () => {
                 Contact Information
               </CardTitle>
             </CardHeader>
-            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="contactName">Name / Company</Label>
-                <Input
-                  id="contactName"
-                  value={formData.contactName}
-                  onChange={(e) => updateFormData('contactName', e.target.value)}
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="contactPhone">Phone</Label>
-                <Input
-                  id="contactPhone"
-                  value={formData.contactPhone}
-                  onChange={(e) => updateFormData('contactPhone', e.target.value)}
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="contactEmail">Email</Label>
-                <Input
-                  id="contactEmail"
-                  type="email"
-                  value={formData.contactEmail}
-                  onChange={(e) => updateFormData('contactEmail', e.target.value)}
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="businessHours">Business Hours</Label>
-                <Input
-                  id="businessHours"
-                  placeholder="Mon-Fri, 9AM-5PM"
-                  value={formData.businessHours}
-                  onChange={(e) => updateFormData('businessHours', e.target.value)}
-                />
+            <CardContent className="space-y-6">
+              {/* Profile Image Upload */}
+              <div className="flex flex-col md:flex-row gap-6">
+                <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="contactName">Name / Company</Label>
+                    <Input
+                      id="contactName"
+                      value={formData.contactName}
+                      onChange={(e) => updateFormData('contactName', e.target.value)}
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="contactPhone">Phone</Label>
+                    <Input
+                      id="contactPhone"
+                      value={formData.contactPhone}
+                      onChange={(e) => updateFormData('contactPhone', e.target.value)}
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="contactEmail">Email</Label>
+                    <Input
+                      id="contactEmail"
+                      type="email"
+                      value={formData.contactEmail}
+                      onChange={(e) => updateFormData('contactEmail', e.target.value)}
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="businessHours">Business Hours</Label>
+                    <Input
+                      id="businessHours"
+                      placeholder="Mon-Fri, 9AM-5PM"
+                      value={formData.businessHours}
+                      onChange={(e) => updateFormData('businessHours', e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                {/* Profile Image Section */}
+                <div className="flex flex-col items-center space-y-3">
+                  <Label className="text-sm font-medium">Profile Picture (Optional)</Label>
+                  <div className="relative">
+                    <div className="w-24 h-24 rounded-full border-2 border-dashed border-gray-300 bg-gray-50 flex items-center justify-center overflow-hidden">
+                      {formData.contactImage ? (
+                        <img
+                          src={URL.createObjectURL(formData.contactImage)}
+                          alt="Profile preview"
+                          className="w-full h-full object-cover rounded-full"
+                        />
+                      ) : (
+                        <User className="w-8 h-8 text-gray-400" />
+                      )}
+                    </div>
+                    <input
+                      type="file"
+                      id="contactImage"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0] || null;
+                        updateFormData('contactImage', file);
+                      }}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="absolute -bottom-2 left-1/2 transform -translate-x-1/2"
+                      onClick={() => document.getElementById('contactImage')?.click()}
+                    >
+                      <Upload className="w-3 h-3 mr-1" />
+                      {formData.contactImage ? 'Change' : 'Upload'}
+                    </Button>
+                  </div>
+                  {formData.contactImage && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="text-red-500 hover:text-red-700"
+                      onClick={() => updateFormData('contactImage', null)}
+                    >
+                      Remove
+                    </Button>
+                  )}
+                </div>
               </div>
             </CardContent>
           </Card>

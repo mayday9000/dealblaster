@@ -60,6 +60,7 @@ interface PDFData {
   contactName: string;
   contactPhone: string;
   contactEmail: string;
+  contactImage: File | null;
   businessHours: string;
   
   // EMD
