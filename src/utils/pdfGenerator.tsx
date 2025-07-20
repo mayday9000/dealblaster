@@ -324,7 +324,7 @@ const PDFDocument: React.FC<{ data: PDFData }> = ({ data }) => {
 
         {/* Financial Section - Only show if included */}
         {data.includeFinancialBreakdown && (
-          <View style={styles.financialSection}>
+          <View style={styles.financialSection} break={false}>
             <Text style={styles.financialTitle}>Financial Breakdown</Text>
             <View style={styles.financialGrid}>
               <View style={styles.financialItem}>
@@ -353,7 +353,7 @@ const PDFDocument: React.FC<{ data: PDFData }> = ({ data }) => {
         )}
 
         {/* Property Overview */}
-        <View style={styles.section}>
+        <View style={styles.section} break={false}>
           <Text style={styles.sectionTitle}>Property Overview</Text>
           <View style={styles.propertyGrid}>
             <View style={styles.propertyItem}>
@@ -385,7 +385,7 @@ const PDFDocument: React.FC<{ data: PDFData }> = ({ data }) => {
 
         {/* Photo Link - Only if exists */}
         {data.photoLink && data.photoLink.trim() && (
-          <View style={styles.section}>
+          <View style={styles.section} break={false}>
             <Text style={styles.sectionTitle}>Property Photos</Text>
             <Text style={styles.text}>Click Here to View Photos: {data.photoLink}</Text>
           </View>
@@ -397,7 +397,7 @@ const PDFDocument: React.FC<{ data: PDFData }> = ({ data }) => {
           data.waterHeaterAge || data.waterHeaterCondition || data.waterHeaterNotes ||
           data.sidingType || data.sidingCondition || data.sidingNotes ||
           data.additionalNotes) && (
-          <View style={styles.section}>
+          <View style={styles.section} break={false}>
             <Text style={styles.sectionTitle}>Property Details</Text>
             {(data.roofAge || data.roofCondition || data.roofNotes) && (
               <View style={styles.detailItem}>
@@ -452,7 +452,7 @@ const PDFDocument: React.FC<{ data: PDFData }> = ({ data }) => {
 
         {/* Exit Strategy */}
         {data.exitStrategy && (
-          <View style={styles.section}>
+          <View style={styles.section} break={false}>
             <Text style={styles.sectionTitle}>Exit Strategy Notes</Text>
             <Text style={styles.text}>{data.exitStrategy}</Text>
           </View>
@@ -461,7 +461,7 @@ const PDFDocument: React.FC<{ data: PDFData }> = ({ data }) => {
         {/* Comps - All comp types in one unified section */}
         {[data.pendingComps, data.soldComps, data.rentalComps, data.newConstructionComps, data.asIsComps]
           .some(comps => comps.some(comp => comp.trim())) && (
-          <View style={styles.section}>
+          <View style={styles.section} break={false}>
             <Text style={styles.sectionTitle}>Comps</Text>
             
             {data.pendingComps.some(comp => comp.trim()) && (
@@ -513,7 +513,7 @@ const PDFDocument: React.FC<{ data: PDFData }> = ({ data }) => {
 
         {/* Occupancy */}
         {data.occupancy && (
-          <View style={styles.section}>
+          <View style={styles.section} break={false}>
             <Text style={styles.sectionTitle}>Occupancy</Text>
             <Text style={styles.text}>
               <Text style={{ fontWeight: 'bold' }}>
@@ -528,7 +528,7 @@ const PDFDocument: React.FC<{ data: PDFData }> = ({ data }) => {
 
         {/* Access */}
         {data.access && (
-          <View style={styles.section}>
+          <View style={styles.section} break={false}>
             <Text style={styles.sectionTitle}>Access</Text>
             <Text style={styles.text}>
               <Text style={{ fontWeight: 'bold' }}>
@@ -543,7 +543,7 @@ const PDFDocument: React.FC<{ data: PDFData }> = ({ data }) => {
 
         {/* Rental Backup */}
         {data.rentalBackup && (
-          <View style={[styles.section, { backgroundColor: '#ECFDF5', borderLeftColor: '#10B981' }]}>
+          <View style={[styles.section, { backgroundColor: '#ECFDF5', borderLeftColor: '#10B981' }]} break={false}>
             <Text style={[styles.sectionTitle, { color: '#059669' }]}>Bonus: Rental Backup Plan</Text>
             <Text style={styles.text}>{data.rentalBackupDetails}</Text>
           </View>
@@ -551,7 +551,7 @@ const PDFDocument: React.FC<{ data: PDFData }> = ({ data }) => {
 
         {/* Memo Alert */}
         {data.memoFiled && (
-          <View style={[styles.section, { backgroundColor: '#FEF3C7', borderLeftColor: '#F59E0B' }]}>
+          <View style={[styles.section, { backgroundColor: '#FEF3C7', borderLeftColor: '#F59E0B' }]} break={false}>
             <Text style={[styles.text, { fontWeight: 'bold', textAlign: 'center', color: '#92400E' }]}>
               WARNING: MEMORANDUM OF CONTRACT FILED ON THIS PROPERTY TO PROTECT THE FINANCIAL INTEREST OF SELLER AND BUYER
             </Text>
@@ -559,7 +559,7 @@ const PDFDocument: React.FC<{ data: PDFData }> = ({ data }) => {
         )}
 
         {/* Contact Info */}
-        <View style={styles.contactSection}>
+        <View style={styles.contactSection} break={false}>
           <Text style={styles.financialTitle}>Contact Information</Text>
           
           {/* Profile Image */}
@@ -590,7 +590,7 @@ const PDFDocument: React.FC<{ data: PDFData }> = ({ data }) => {
         </View>
 
         {/* CTA Section */}
-        <View style={styles.ctaSection}>
+        <View style={styles.ctaSection} break={false}>
           <Text style={styles.ctaTitle}>THIS DEAL WILL NOT LAST LONG</Text>
           <Text style={styles.text}>PUT YOUR OFFER IN TODAY</Text>
           
