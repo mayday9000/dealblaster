@@ -13,7 +13,21 @@ import { CalendarIcon, Download, FileText, DollarSign, Home, MapPin, Phone, Mail
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
-import { generatePDF } from '@/utils/pdfGenerator';
+import { usePdfSections } from '@/hooks/usePdfSections';
+import { generateFlyer } from '@/lib/pdf/generateFlyer';
+import { calculateFinancials, formatCurrency } from '@/lib/pdf/utils';
+import {
+  HeaderSection,
+  FinancialSection,
+  PropertyOverviewSection,
+  PropertyDetailsSection,
+  CompsSection,
+  OccupancySection,
+  AccessSection,
+  ExitStrategySection,
+  EMDClosingSection,
+  ContactSection,
+} from '@/components/pdf/PDFSections';
 
 interface FormData {
   // Property basics
@@ -82,6 +96,7 @@ interface FormData {
 }
 
 const Index = () => {
+  const { refs, orderedRefs } = usePdfSections();
   const [formData, setFormData] = useState<FormData>({
     address: '',
     beds: 0,
@@ -161,16 +176,6 @@ const Index = () => {
     }));
   };
 
-  const generateTitle = () => {
-    const city = formData.address.split(',')[1]?.trim() || 'Prime Location';
-    const grossProfit = formData.arv - formData.purchasePrice - formData.rehabEstimate;
-    return `${city} - $${Math.round(grossProfit / 1000)}k Gross Profit Flip Opportunity!`;
-  };
-
-  const generateSubtitle = () => {
-    return `Rare Fix/Flip Opportunity Inside The Beltline - Prime ${formData.address.split(',')[1]?.trim() || 'Location'} Neighborhood`;
-  };
-
   const handleGeneratePDF = async () => {
     if (!formData.address || !formData.purchasePrice || !formData.arv) {
       toast({
@@ -184,13 +189,17 @@ const Index = () => {
     setIsGenerating(true);
     
     try {
-      const title = generateTitle();
-      const subtitle = generateSubtitle();
-      
-      await generatePDF({
-        ...formData,
-        title,
-        subtitle
+      // Get all sections that have content
+      const sectionsToRender = orderedRefs
+        .map(ref => ref.current)
+        .filter((el): el is HTMLDivElement => el !== null);
+
+      if (sectionsToRender.length === 0) {
+        throw new Error("No content sections found to generate PDF");
+      }
+
+      await generateFlyer(sectionsToRender, {
+        fileName: `${formData.address.replace(/[^a-zA-Z0-9]/g, '_')}_flyer.pdf`
       });
       
       toast({
@@ -198,6 +207,7 @@ const Index = () => {
         description: "Your fix & flip flyer has been downloaded.",
       });
     } catch (error) {
+      console.error('PDF generation error:', error);
       toast({
         title: "Error Generating PDF",
         description: "Please try again or contact support.",
@@ -1064,6 +1074,20 @@ const Index = () => {
               </Button>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Hidden PDF Sections for Generation */}
+        <div className="fixed -top-full left-0 opacity-0 pointer-events-none">
+          <HeaderSection ref={refs.header} formData={formData} />
+          <FinancialSection ref={refs.financial} formData={formData} />
+          <PropertyOverviewSection ref={refs.propertyOverview} formData={formData} />
+          <PropertyDetailsSection ref={refs.propertyDetails} formData={formData} />
+          <CompsSection ref={refs.comps} formData={formData} />
+          <OccupancySection ref={refs.occupancy} formData={formData} />
+          <AccessSection ref={refs.access} formData={formData} />
+          <ExitStrategySection ref={refs.exitStrategy} formData={formData} />
+          <EMDClosingSection ref={refs.emdClosing} formData={formData} />
+          <ContactSection ref={refs.contact} formData={formData} />
         </div>
       </div>
     </div>
