@@ -192,6 +192,15 @@ const Index = () => {
     return formData.arv - formData.purchasePrice - formData.rehabEstimate;
   };
 
+  const convertFileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
   const handleGeneratePDF = async () => {
     if (!formData.address) {
       toast({
@@ -217,8 +226,15 @@ const Index = () => {
       const title = generateTitle();
       const subtitle = generateSubtitle();
       
+      // Convert contact image to base64 if it exists
+      let contactImageBase64: string | null = null;
+      if (formData.contactImage) {
+        contactImageBase64 = await convertFileToBase64(formData.contactImage);
+      }
+      
       await generatePDF({
         ...formData,
+        contactImage: contactImageBase64,
         title,
         subtitle
       });

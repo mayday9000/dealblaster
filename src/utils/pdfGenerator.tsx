@@ -5,7 +5,8 @@ import {
   View, 
   StyleSheet, 
   PDFDownloadLink,
-  pdf 
+  pdf,
+  Image
 } from '@react-pdf/renderer';
 import React from 'react';
 
@@ -60,7 +61,7 @@ interface PDFData {
   contactName: string;
   contactPhone: string;
   contactEmail: string;
-  contactImage: File | null;
+  contactImage: string | null; // Base64 data URL
   businessHours: string;
   
   // EMD
@@ -251,6 +252,16 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: 'bold',
     color: 'white'
+  },
+  contactImageContainer: {
+    alignItems: 'center',
+    marginBottom: 10
+  },
+  contactImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    marginBottom: 8
   },
   ctaSection: {
     backgroundColor: '#DC2626',
@@ -550,6 +561,14 @@ const PDFDocument: React.FC<{ data: PDFData }> = ({ data }) => {
         {/* Contact Info */}
         <View style={styles.contactSection}>
           <Text style={styles.financialTitle}>Contact Information</Text>
+          
+          {/* Profile Image */}
+          {data.contactImage && (
+            <View style={styles.contactImageContainer}>
+              <Image style={styles.contactImage} src={data.contactImage} />
+            </View>
+          )}
+          
           <View style={styles.contactGrid}>
             <View style={styles.contactItem}>
               <Text style={styles.contactLabel}>Name/Company</Text>
