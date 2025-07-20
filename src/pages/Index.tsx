@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,28 +19,32 @@ import { generatePDF } from '@/utils/pdfGenerator';
 interface FormData {
   // Property basics
   address: string;
-  beds: number;
-  baths: number;
-  sqft: number;
-  yearBuilt: number;
-  lotSize: number;
+  beds: number | undefined;
+  baths: number | undefined;
+  sqft: number | undefined;
+  yearBuilt: number | undefined;
+  lotSize: number | undefined;
   zoning: string;
   
-  // Financial
-  purchasePrice: number;
-  rehabEstimate: number;
-  arv: number;
+  // Financial (optional section)
+  includeFinancialBreakdown: boolean;
+  purchasePrice: number | undefined;
+  rehabEstimate: number | undefined;
+  arv: number | undefined;
   sellingCosts: number;
-  netProfit: number;
+  netProfit: number | undefined;
   
-  // Property details
+  // Property details with exact age options
   roofAge: string;
+  roofExactAge: number | undefined;
   roofCondition: string;
   roofNotes: string;
   hvacAge: string;
+  hvacExactAge: number | undefined;
   hvacCondition: string;
   hvacNotes: string;
   waterHeaterAge: string;
+  waterHeaterExactAge: number | undefined;
   waterHeaterCondition: string;
   waterHeaterNotes: string;
   sidingType: string;
@@ -69,7 +74,7 @@ interface FormData {
   businessHours: string;
   
   // EMD
-  emdAmount: number;
+  emdAmount: number | undefined;
   emdDueDate: string;
   memoFiled: boolean;
   
@@ -84,24 +89,28 @@ interface FormData {
 const Index = () => {
   const [formData, setFormData] = useState<FormData>({
     address: '',
-    beds: 0,
-    baths: 0,
-    sqft: 0,
-    yearBuilt: 0,
-    lotSize: 0,
+    beds: undefined,
+    baths: undefined,
+    sqft: undefined,
+    yearBuilt: undefined,
+    lotSize: undefined,
     zoning: '',
-    purchasePrice: 0,
-    rehabEstimate: 0,
-    arv: 0,
+    includeFinancialBreakdown: true,
+    purchasePrice: undefined,
+    rehabEstimate: undefined,
+    arv: undefined,
     sellingCosts: 8,
-    netProfit: 0,
+    netProfit: undefined,
     roofAge: '',
+    roofExactAge: undefined,
     roofCondition: '',
     roofNotes: '',
     hvacAge: '',
+    hvacExactAge: undefined,
     hvacCondition: '',
     hvacNotes: '',
     waterHeaterAge: '',
+    waterHeaterExactAge: undefined,
     waterHeaterCondition: '',
     waterHeaterNotes: '',
     sidingType: '',
@@ -121,7 +130,7 @@ const Index = () => {
     contactPhone: '',
     contactEmail: '',
     businessHours: '',
-    emdAmount: 0,
+    emdAmount: undefined,
     emdDueDate: '',
     memoFiled: false,
     photoLink: '',
@@ -163,19 +172,38 @@ const Index = () => {
 
   const generateTitle = () => {
     const city = formData.address.split(',')[1]?.trim() || 'Prime Location';
-    const grossProfit = formData.arv - formData.purchasePrice - formData.rehabEstimate;
-    return `${city} - $${Math.round(grossProfit / 1000)}k Gross Profit Flip Opportunity!`;
+    if (formData.includeFinancialBreakdown && formData.arv && formData.purchasePrice && formData.rehabEstimate) {
+      const grossProfit = formData.arv - formData.purchasePrice - formData.rehabEstimate;
+      return `${city} - $${Math.round(grossProfit / 1000)}k Gross Profit Flip Opportunity!`;
+    }
+    return `${city} - Fix & Flip Opportunity!`;
   };
 
   const generateSubtitle = () => {
     return `Rare Fix/Flip Opportunity Inside The Beltline - Prime ${formData.address.split(',')[1]?.trim() || 'Location'} Neighborhood`;
   };
 
+  const calculateGrossProfit = () => {
+    if (!formData.includeFinancialBreakdown || !formData.arv || !formData.purchasePrice || !formData.rehabEstimate) {
+      return 0;
+    }
+    return formData.arv - formData.purchasePrice - formData.rehabEstimate;
+  };
+
   const handleGeneratePDF = async () => {
-    if (!formData.address || !formData.purchasePrice || !formData.arv) {
+    if (!formData.address) {
       toast({
         title: "Missing Required Fields",
-        description: "Please fill in at least the property address, purchase price, and ARV.",
+        description: "Please fill in the property address.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (formData.includeFinancialBreakdown && (!formData.purchasePrice || !formData.arv)) {
+      toast({
+        title: "Missing Required Financial Fields",
+        description: "Please fill in the purchase price and ARV for the financial breakdown.",
         variant: "destructive"
       });
       return;
@@ -247,8 +275,9 @@ const Index = () => {
                 <Input
                   id="beds"
                   type="number"
-                  value={formData.beds}
-                  onChange={(e) => updateFormData('beds', parseInt(e.target.value) || 0)}
+                  placeholder=""
+                  value={formData.beds || ''}
+                  onChange={(e) => updateFormData('beds', e.target.value ? parseInt(e.target.value) : undefined)}
                 />
               </div>
               
@@ -258,8 +287,9 @@ const Index = () => {
                   id="baths"
                   type="number"
                   step="0.5"
-                  value={formData.baths}
-                  onChange={(e) => updateFormData('baths', parseFloat(e.target.value) || 0)}
+                  placeholder=""
+                  value={formData.baths || ''}
+                  onChange={(e) => updateFormData('baths', e.target.value ? parseFloat(e.target.value) : undefined)}
                 />
               </div>
               
@@ -268,8 +298,9 @@ const Index = () => {
                 <Input
                   id="sqft"
                   type="number"
-                  value={formData.sqft}
-                  onChange={(e) => updateFormData('sqft', parseInt(e.target.value) || 0)}
+                  placeholder=""
+                  value={formData.sqft || ''}
+                  onChange={(e) => updateFormData('sqft', e.target.value ? parseInt(e.target.value) : undefined)}
                 />
               </div>
               
@@ -278,8 +309,9 @@ const Index = () => {
                 <Input
                   id="yearBuilt"
                   type="number"
-                  value={formData.yearBuilt}
-                  onChange={(e) => updateFormData('yearBuilt', parseInt(e.target.value) || 0)}
+                  placeholder=""
+                  value={formData.yearBuilt || ''}
+                  onChange={(e) => updateFormData('yearBuilt', e.target.value ? parseInt(e.target.value) : undefined)}
                 />
               </div>
               
@@ -289,8 +321,9 @@ const Index = () => {
                   id="lotSize"
                   type="number"
                   step="0.01"
-                  value={formData.lotSize}
-                  onChange={(e) => updateFormData('lotSize', parseFloat(e.target.value) || 0)}
+                  placeholder=""
+                  value={formData.lotSize || ''}
+                  onChange={(e) => updateFormData('lotSize', e.target.value ? parseFloat(e.target.value) : undefined)}
                 />
               </div>
               
@@ -316,69 +349,90 @@ const Index = () => {
             </CardContent>
           </Card>
 
-          {/* Financial Information */}
+          {/* Financial Breakdown Toggle */}
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <DollarSign className="h-5 w-5" />
-                Financial Breakdown
-              </CardTitle>
-              <CardDescription>Investment numbers and profit calculation</CardDescription>
-            </CardHeader>
-            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="purchasePrice">Purchase Price *</Label>
-                <Input
-                  id="purchasePrice"
-                  type="number"
-                  value={formData.purchasePrice}
-                  onChange={(e) => updateFormData('purchasePrice', parseInt(e.target.value) || 0)}
+            <CardContent className="pt-6">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="includeFinancialBreakdown"
+                  checked={formData.includeFinancialBreakdown}
+                  onCheckedChange={(checked) => updateFormData('includeFinancialBreakdown', checked)}
                 />
-              </div>
-              
-              <div>
-                <Label htmlFor="rehabEstimate">Rehab Estimate</Label>
-                <Input
-                  id="rehabEstimate"
-                  type="number"
-                  value={formData.rehabEstimate}
-                  onChange={(e) => updateFormData('rehabEstimate', parseInt(e.target.value) || 0)}
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="arv">After Repair Value (ARV) *</Label>
-                <Input
-                  id="arv"
-                  type="number"
-                  value={formData.arv}
-                  onChange={(e) => updateFormData('arv', parseInt(e.target.value) || 0)}
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="sellingCosts">Selling Costs (%)</Label>
-                <Input
-                  id="sellingCosts"
-                  type="number"
-                  value={formData.sellingCosts}
-                  onChange={(e) => updateFormData('sellingCosts', parseInt(e.target.value) || 0)}
-                />
-              </div>
-              
-              <div className="md:col-span-2">
-                <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Calculator className="h-5 w-5 text-green-600" />
-                    <span className="font-semibold text-green-800">Calculated Gross Profit</span>
-                  </div>
-                  <div className="text-2xl font-bold text-green-600">
-                    ${(formData.arv - formData.purchasePrice - formData.rehabEstimate).toLocaleString()}
-                  </div>
-                </div>
+                <Label htmlFor="includeFinancialBreakdown" className="text-base font-medium">
+                  Include Financial Breakdown
+                </Label>
               </div>
             </CardContent>
           </Card>
+
+          {/* Financial Information - Conditional */}
+          {formData.includeFinancialBreakdown && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <DollarSign className="h-5 w-5" />
+                  Financial Breakdown
+                </CardTitle>
+                <CardDescription>Investment numbers and profit calculation</CardDescription>
+              </CardHeader>
+              <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="purchasePrice">Purchase Price *</Label>
+                  <Input
+                    id="purchasePrice"
+                    type="number"
+                    placeholder=""
+                    value={formData.purchasePrice || ''}
+                    onChange={(e) => updateFormData('purchasePrice', e.target.value ? parseInt(e.target.value) : undefined)}
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="rehabEstimate">Rehab Estimate</Label>
+                  <Input
+                    id="rehabEstimate"
+                    type="number"
+                    placeholder=""
+                    value={formData.rehabEstimate || ''}
+                    onChange={(e) => updateFormData('rehabEstimate', e.target.value ? parseInt(e.target.value) : undefined)}
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="arv">After Repair Value (ARV) *</Label>
+                  <Input
+                    id="arv"
+                    type="number"
+                    placeholder=""
+                    value={formData.arv || ''}
+                    onChange={(e) => updateFormData('arv', e.target.value ? parseInt(e.target.value) : undefined)}
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="sellingCosts">Selling Costs (%)</Label>
+                  <Input
+                    id="sellingCosts"
+                    type="number"
+                    value={formData.sellingCosts}
+                    onChange={(e) => updateFormData('sellingCosts', parseInt(e.target.value) || 0)}
+                  />
+                </div>
+                
+                <div className="md:col-span-2">
+                  <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Calculator className="h-5 w-5 text-green-600" />
+                      <span className="font-semibold text-green-800">Calculated Gross Profit</span>
+                    </div>
+                    <div className="text-2xl font-bold text-green-600">
+                      ${calculateGrossProfit().toLocaleString()}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Contact Information */}
           <Card>
@@ -440,8 +494,9 @@ const Index = () => {
                 <Input
                   id="emdAmount"
                   type="number"
-                  value={formData.emdAmount}
-                  onChange={(e) => updateFormData('emdAmount', parseInt(e.target.value) || 0)}
+                  placeholder=""
+                  value={formData.emdAmount || ''}
+                  onChange={(e) => updateFormData('emdAmount', e.target.value ? parseInt(e.target.value) : undefined)}
                 />
               </div>
               
@@ -565,6 +620,10 @@ const Index = () => {
                       <RadioGroupItem value="<20yrs" id="roof-20" />
                       <Label htmlFor="roof-20" className="text-sm">&lt;20 yrs</Label>
                     </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="exact" id="roof-exact" />
+                      <Label htmlFor="roof-exact" className="text-sm">Exact Age</Label>
+                    </div>
                   </RadioGroup>
                   <RadioGroup
                     value={formData.roofCondition}
@@ -581,6 +640,18 @@ const Index = () => {
                     </div>
                   </RadioGroup>
                 </div>
+                {formData.roofAge === 'exact' && (
+                  <div>
+                    <Label htmlFor="roofExactAge">Exact Age (years)</Label>
+                    <Input
+                      id="roofExactAge"
+                      type="number"
+                      placeholder=""
+                      value={formData.roofExactAge || ''}
+                      onChange={(e) => updateFormData('roofExactAge', e.target.value ? parseInt(e.target.value) : undefined)}
+                    />
+                  </div>
+                )}
                 <div>
                   <Label htmlFor="roofNotes">Notes</Label>
                   <Textarea
@@ -622,6 +693,10 @@ const Index = () => {
                       <RadioGroupItem value="<20yrs" id="hvac-20" />
                       <Label htmlFor="hvac-20" className="text-sm">&lt;20 yrs</Label>
                     </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="exact" id="hvac-exact" />
+                      <Label htmlFor="hvac-exact" className="text-sm">Exact Age</Label>
+                    </div>
                   </RadioGroup>
                   <RadioGroup
                     value={formData.hvacCondition}
@@ -638,6 +713,18 @@ const Index = () => {
                     </div>
                   </RadioGroup>
                 </div>
+                {formData.hvacAge === 'exact' && (
+                  <div>
+                    <Label htmlFor="hvacExactAge">Exact Age (years)</Label>
+                    <Input
+                      id="hvacExactAge"
+                      type="number"
+                      placeholder=""
+                      value={formData.hvacExactAge || ''}
+                      onChange={(e) => updateFormData('hvacExactAge', e.target.value ? parseInt(e.target.value) : undefined)}
+                    />
+                  </div>
+                )}
                 <div>
                   <Label htmlFor="hvacNotes">Notes</Label>
                   <Textarea
@@ -679,6 +766,10 @@ const Index = () => {
                       <RadioGroupItem value="<20yrs" id="water-20" />
                       <Label htmlFor="water-20" className="text-sm">&lt;20 yrs</Label>
                     </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="exact" id="water-exact" />
+                      <Label htmlFor="water-exact" className="text-sm">Exact Age</Label>
+                    </div>
                   </RadioGroup>
                   <RadioGroup
                     value={formData.waterHeaterCondition}
@@ -695,6 +786,18 @@ const Index = () => {
                     </div>
                   </RadioGroup>
                 </div>
+                {formData.waterHeaterAge === 'exact' && (
+                  <div>
+                    <Label htmlFor="waterHeaterExactAge">Exact Age (years)</Label>
+                    <Input
+                      id="waterHeaterExactAge"
+                      type="number"
+                      placeholder=""
+                      value={formData.waterHeaterExactAge || ''}
+                      onChange={(e) => updateFormData('waterHeaterExactAge', e.target.value ? parseInt(e.target.value) : undefined)}
+                    />
+                  </div>
+                )}
                 <div>
                   <Label htmlFor="waterHeaterNotes">Notes</Label>
                   <Textarea
