@@ -14,7 +14,6 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 import { generatePDF } from '@/utils/pdfGenerator';
-import { usePdfSections } from '@/hooks/usePdfSections';
 
 interface FormData {
   // Property basics
@@ -83,7 +82,6 @@ interface FormData {
 }
 
 const Index = () => {
-  const { refs, orderKeys } = usePdfSections();
   const [formData, setFormData] = useState<FormData>({
     address: '',
     beds: 0,
@@ -188,15 +186,11 @@ const Index = () => {
     try {
       const title = generateTitle();
       const subtitle = generateSubtitle();
-      const sectionElements = orderKeys
-        .map(key => ({ key, el: refs[key].current }))
-        .filter(s => s.el) as { key: any; el: HTMLElement }[];
-
+      
       await generatePDF({
         ...formData,
         title,
-        subtitle,
-        sections: sectionElements,
+        subtitle
       });
       
       toast({
@@ -229,8 +223,7 @@ const Index = () => {
 
         <div className="grid gap-6">
           {/* Property Information */}
-          <div ref={refs.property} data-pdf-section="property">
-            <Card>
+          <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Home className="h-5 w-5" />
@@ -322,11 +315,9 @@ const Index = () => {
               </div>
             </CardContent>
           </Card>
-          </div>
 
           {/* Financial Information */}
-          <div ref={refs.financial} data-pdf-section="financial">
-            <Card>
+          <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <DollarSign className="h-5 w-5" />
@@ -388,11 +379,9 @@ const Index = () => {
               </div>
             </CardContent>
           </Card>
-          </div>
 
           {/* Contact Information */}
-          <div ref={refs.contact} data-pdf-section="contact">
-            <Card>
+          <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Phone className="h-5 w-5" />
@@ -439,11 +428,9 @@ const Index = () => {
               </div>
             </CardContent>
           </Card>
-          </div>
 
           {/* EMD and Closing */}
-          <div ref={refs.emdClosing} data-pdf-section="emdClosing">
-            <Card>
+          <Card>
             <CardHeader>
               <CardTitle>EMD & Closing Information</CardTitle>
             </CardHeader>
@@ -497,11 +484,9 @@ const Index = () => {
               </div>
             </CardContent>
           </Card>
-          </div>
 
           {/* Exit Strategy */}
-          <div ref={refs.exitStrategy} data-pdf-section="exitStrategy">
-            <Card>
+          <Card>
             <CardHeader>
               <CardTitle>Exit Strategy & Notes</CardTitle>
             </CardHeader>
@@ -540,11 +525,9 @@ const Index = () => {
               )}
             </CardContent>
           </Card>
-          </div>
 
           {/* Property Details */}
-          <div ref={refs.propertyDetails} data-pdf-section="propertyDetails">
-            <Card>
+          <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Wrench className="h-5 w-5" />
@@ -775,11 +758,9 @@ const Index = () => {
               </div>
             </CardContent>
           </Card>
-          </div>
 
           {/* Comps Section */}
-          <div ref={refs.comps} data-pdf-section="comps">
-            <Card>
+          <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <FileText className="h-5 w-5" />
@@ -969,11 +950,9 @@ const Index = () => {
               </div>
             </CardContent>
           </Card>
-          </div>
 
           {/* Occupancy */}
-          <div ref={refs.occupancy} data-pdf-section="occupancy">
-            <Card>
+          <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Users className="h-5 w-5" />
@@ -1021,11 +1000,9 @@ const Index = () => {
               )}
             </CardContent>
           </Card>
-          </div>
 
           {/* Access */}
-          <div ref={refs.access} data-pdf-section="access">
-            <Card>
+          <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Lock className="h-5 w-5" />
@@ -1064,7 +1041,6 @@ const Index = () => {
               )}
             </CardContent>
           </Card>
-          </div>
 
           {/* Generate PDF Button */}
           <Card>
