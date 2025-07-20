@@ -13,17 +13,18 @@ interface PDFData {
   title: string;
   subtitle: string;
   address: string;
-  beds: number;
-  baths: number;
-  sqft: number;
-  yearBuilt: number;
-  lotSize: number;
+  beds: number | undefined;
+  baths: number | undefined;
+  sqft: number | undefined;
+  yearBuilt: number | undefined;
+  lotSize: number | undefined;
   zoning: string;
-  purchasePrice: number;
-  rehabEstimate: number;
-  arv: number;
-  sellingCosts: number;
-  netProfit: number;
+  purchasePrice: number | undefined;
+  rehabEstimate: number | undefined;
+  arv: number | undefined;
+  sellingCosts: number | undefined;
+  netProfit: number | undefined;
+  includeFinancialBreakdown?: boolean;
   
   // Property details
   roofAge: string;
@@ -294,10 +295,10 @@ const styles = StyleSheet.create({
 
 // PDF Document Component
 const PDFDocument: React.FC<{ data: PDFData }> = ({ data }) => {
-  // Calculate derived values
-  const totalInvestment = data.purchasePrice + data.rehabEstimate;
-  const grossProfit = data.arv - totalInvestment;
-  const sellingCostAmount = Math.round(data.arv * (data.sellingCosts / 100));
+  // Calculate derived values - only if financial data is included
+  const totalInvestment = (data.purchasePrice || 0) + (data.rehabEstimate || 0);
+  const grossProfit = (data.arv || 0) - totalInvestment;
+  const sellingCostAmount = Math.round((data.arv || 0) * ((data.sellingCosts || 0) / 100));
   
   return (
     <Document>
@@ -309,56 +310,58 @@ const PDFDocument: React.FC<{ data: PDFData }> = ({ data }) => {
           <Text style={styles.address}>{data.address}</Text>
         </View>
 
-        {/* Financial Section */}
-        <View style={styles.financialSection}>
-          <Text style={styles.financialTitle}>Financial Breakdown</Text>
-          <View style={styles.financialGrid}>
-            <View style={styles.financialItem}>
-              <Text style={styles.financialLabel}>Purchase Price</Text>
-              <Text style={styles.financialValue}>${data.purchasePrice.toLocaleString()}</Text>
+        {/* Financial Section - Only show if included */}
+        {data.includeFinancialBreakdown && (
+          <View style={styles.financialSection}>
+            <Text style={styles.financialTitle}>Financial Breakdown</Text>
+            <View style={styles.financialGrid}>
+              <View style={styles.financialItem}>
+                <Text style={styles.financialLabel}>Purchase Price</Text>
+                <Text style={styles.financialValue}>${(data.purchasePrice || 0).toLocaleString()}</Text>
+              </View>
+              <View style={styles.financialItem}>
+                <Text style={styles.financialLabel}>Rehab Estimate</Text>
+                <Text style={styles.financialValue}>${(data.rehabEstimate || 0).toLocaleString()}</Text>
+              </View>
+              <View style={styles.financialItem}>
+                <Text style={styles.financialLabel}>Total Investment</Text>
+                <Text style={styles.financialValue}>${totalInvestment.toLocaleString()}</Text>
+              </View>
+              <View style={styles.financialItem}>
+                <Text style={styles.financialLabel}>After Repair Value</Text>
+                <Text style={styles.financialValue}>${(data.arv || 0).toLocaleString()}</Text>
+              </View>
             </View>
-            <View style={styles.financialItem}>
-              <Text style={styles.financialLabel}>Rehab Estimate</Text>
-              <Text style={styles.financialValue}>${data.rehabEstimate.toLocaleString()}</Text>
-            </View>
-            <View style={styles.financialItem}>
-              <Text style={styles.financialLabel}>Total Investment</Text>
-              <Text style={styles.financialValue}>${totalInvestment.toLocaleString()}</Text>
-            </View>
-            <View style={styles.financialItem}>
-              <Text style={styles.financialLabel}>After Repair Value</Text>
-              <Text style={styles.financialValue}>${data.arv.toLocaleString()}</Text>
+            
+            <View style={styles.grossProfit}>
+              <Text style={styles.financialLabel}>Gross Profit</Text>
+              <Text style={styles.grossProfitValue}>${grossProfit.toLocaleString()}</Text>
             </View>
           </View>
-          
-          <View style={styles.grossProfit}>
-            <Text style={styles.financialLabel}>Gross Profit</Text>
-            <Text style={styles.grossProfitValue}>${grossProfit.toLocaleString()}</Text>
-          </View>
-        </View>
+        )}
 
         {/* Property Overview */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Property Overview</Text>
           <View style={styles.propertyGrid}>
             <View style={styles.propertyItem}>
-              <Text style={styles.propertyValue}>{data.beds}</Text>
+              <Text style={styles.propertyValue}>{data.beds || 'TBD'}</Text>
               <Text style={styles.propertyLabel}>Bedrooms</Text>
             </View>
             <View style={styles.propertyItem}>
-              <Text style={styles.propertyValue}>{data.baths}</Text>
+              <Text style={styles.propertyValue}>{data.baths || 'TBD'}</Text>
               <Text style={styles.propertyLabel}>Bathrooms</Text>
             </View>
             <View style={styles.propertyItem}>
-              <Text style={styles.propertyValue}>{data.sqft.toLocaleString()}</Text>
+              <Text style={styles.propertyValue}>{data.sqft ? data.sqft.toLocaleString() : 'TBD'}</Text>
               <Text style={styles.propertyLabel}>Square Feet</Text>
             </View>
             <View style={styles.propertyItem}>
-              <Text style={styles.propertyValue}>{data.lotSize}</Text>
+              <Text style={styles.propertyValue}>{data.lotSize || 'TBD'}</Text>
               <Text style={styles.propertyLabel}>Acre Lot</Text>
             </View>
             <View style={styles.propertyItem}>
-              <Text style={styles.propertyValue}>{data.yearBuilt}</Text>
+              <Text style={styles.propertyValue}>{data.yearBuilt || 'TBD'}</Text>
               <Text style={styles.propertyLabel}>Year Built</Text>
             </View>
             <View style={styles.propertyItem}>
