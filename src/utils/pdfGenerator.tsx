@@ -13,68 +13,88 @@ import React from 'react';
 interface PDFData {
   title: string;
   subtitle: string;
+  
+  // Listing Headline
+  city: string;
+  dealType: string;
+  hook: string;
+  selectedTitle: string;
+  
+  // Basic Info
   address: string;
-  beds: number | undefined;
-  baths: number | undefined;
-  sqft: number | undefined;
-  yearBuilt: number | undefined;
-  lotSize: number | undefined;
+  askingPrice: string;
+  financingTypes: string[];
+  closingDate: string;
+  
+  // Photo Section
+  photoLink: string;
+  frontPhoto: File | null;
+  
+  // Property Overview
+  bedrooms: string;
+  bathrooms: string;
+  squareFootage: string;
+  yearBuilt: string;
   zoning: string;
-  purchasePrice: number | undefined;
-  rehabEstimate: number | undefined;
-  arv: number | undefined;
-  sellingCosts: number | undefined;
-  netProfit: number | undefined;
-  includeFinancialBreakdown?: boolean;
+  lotSize: string;
+  foundationType: string;
+  utilities: string[];
+  garage: string;
+  pool: boolean;
   
-  // Property details
+  // Big Ticket Systems
   roofAge: string;
+  roofSpecificAge: string;
+  roofLastServiced: string;
   roofCondition: string;
-  roofNotes: string;
   hvacAge: string;
+  hvacSpecificAge: string;
+  hvacLastServiced: string;
   hvacCondition: string;
-  hvacNotes: string;
   waterHeaterAge: string;
+  waterHeaterSpecificAge: string;
+  waterHeaterLastServiced: string;
   waterHeaterCondition: string;
-  waterHeaterNotes: string;
-  sidingType: string;
-  sidingCondition: string;
-  sidingNotes: string;
-  additionalNotes: string;
-  
-  // Comps
-  pendingComps: string[];
-  soldComps: string[];
-  rentalComps: string[];
-  newConstructionComps: string[];
-  asIsComps: string[];
   
   // Occupancy
-  occupancy: string;
-  leaseTerms: string;
+  currentOccupancy: string;
+  closingOccupancy: string;
   
-  // Access
-  access: string;
-  lockboxCode: string;
+  // Financial Snapshot
+  includeFinancialBreakdown: boolean;
+  arv: string;
+  rehabEstimate: string;
+  allIn: string;
+  grossProfit: string;
+  exitStrategy: string;
   
-  // Contact
+  // Comps
+  comps: Array<{
+    address: string;
+    zillowLink: string;
+    bedrooms: string;
+    bathrooms: string;
+    squareFootage: string;
+    compType: string;
+    conditionLabel: string;
+    assetType: string;
+  }>;
+  
+  // Contact Info
   contactName: string;
   contactPhone: string;
   contactEmail: string;
-  contactImage: string | null; // Base64 data URL
+  officeNumber: string;
   businessHours: string;
+  contactImage: string | null; // Base64 data URL
+  website: string;
   
-  // EMD
-  emdAmount: number;
-  emdDueDate: string;
+  // Legal Disclosures
   memoFiled: boolean;
-  
-  // Other
-  photoLink: string;
-  exitStrategy: string;
-  rentalBackup: boolean;
-  rentalBackupDetails: string;
-  closingDate: Date | undefined;
+  emdAmount: string;
+  emdDueDate: string;
+  postPossession: boolean;
+  additionalDisclosures: string;
 }
 
 // PDF Styles
@@ -307,19 +327,17 @@ const styles = StyleSheet.create({
 
 // PDF Document Component
 const PDFDocument: React.FC<{ data: PDFData }> = ({ data }) => {
-  // Calculate derived values - only if financial data is included
-  const totalInvestment = (data.purchasePrice || 0) + (data.rehabEstimate || 0);
-  const grossProfit = (data.arv || 0) - totalInvestment;
-  const sellingCostAmount = Math.round((data.arv || 0) * ((data.sellingCosts || 0) / 100));
-  
   return (
     <Document>
       <Page size="A4" style={styles.page} wrap>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.title}>{data.title}</Text>
+          <Text style={styles.title}>{data.selectedTitle || data.title}</Text>
           <Text style={styles.subtitle}>{data.subtitle}</Text>
           <Text style={styles.address}>{data.address}</Text>
+          <Text style={styles.text}>Asking Price: {data.askingPrice}</Text>
+          <Text style={styles.text}>Financing: {data.financingTypes.join(', ')}</Text>
+          <Text style={styles.text}>Closing: {data.closingDate}</Text>
         </View>
 
         {/* Financial Section - Only show if included */}
@@ -328,26 +346,21 @@ const PDFDocument: React.FC<{ data: PDFData }> = ({ data }) => {
             <Text style={styles.financialTitle}>Financial Breakdown</Text>
             <View style={styles.financialGrid}>
               <View style={styles.financialItem}>
-                <Text style={styles.financialLabel}>Purchase Price</Text>
-                <Text style={styles.financialValue}>${(data.purchasePrice || 0).toLocaleString()}</Text>
+                <Text style={styles.financialLabel}>ARV</Text>
+                <Text style={styles.financialValue}>{data.arv || 'TBD'}</Text>
               </View>
               <View style={styles.financialItem}>
                 <Text style={styles.financialLabel}>Rehab Estimate</Text>
-                <Text style={styles.financialValue}>${(data.rehabEstimate || 0).toLocaleString()}</Text>
+                <Text style={styles.financialValue}>{data.rehabEstimate || 'TBD'}</Text>
               </View>
               <View style={styles.financialItem}>
-                <Text style={styles.financialLabel}>Total Investment</Text>
-                <Text style={styles.financialValue}>${totalInvestment.toLocaleString()}</Text>
+                <Text style={styles.financialLabel}>All-In Cost</Text>
+                <Text style={styles.financialValue}>{data.allIn || 'TBD'}</Text>
               </View>
               <View style={styles.financialItem}>
-                <Text style={styles.financialLabel}>After Repair Value</Text>
-                <Text style={styles.financialValue}>${(data.arv || 0).toLocaleString()}</Text>
+                <Text style={styles.financialLabel}>Gross Profit</Text>
+                <Text style={styles.financialValue}>{data.grossProfit || 'TBD'}</Text>
               </View>
-            </View>
-            
-            <View style={styles.grossProfit}>
-              <Text style={styles.financialLabel}>Gross Profit</Text>
-              <Text style={styles.grossProfitValue}>${grossProfit.toLocaleString()}</Text>
             </View>
           </View>
         )}
@@ -357,30 +370,52 @@ const PDFDocument: React.FC<{ data: PDFData }> = ({ data }) => {
           <Text style={styles.sectionTitle}>Property Overview</Text>
           <View style={styles.propertyGrid}>
             <View style={styles.propertyItem}>
-              <Text style={styles.propertyValue}>{data.beds || 'TBD'}</Text>
+              <Text style={styles.propertyValue}>{data.bedrooms || 'TBD'}</Text>
               <Text style={styles.propertyLabel}>Bedrooms</Text>
             </View>
             <View style={styles.propertyItem}>
-              <Text style={styles.propertyValue}>{data.baths || 'TBD'}</Text>
+              <Text style={styles.propertyValue}>{data.bathrooms || 'TBD'}</Text>
               <Text style={styles.propertyLabel}>Bathrooms</Text>
             </View>
             <View style={styles.propertyItem}>
-              <Text style={styles.propertyValue}>{data.sqft ? data.sqft.toLocaleString() : 'TBD'}</Text>
+              <Text style={styles.propertyValue}>{data.squareFootage || 'TBD'}</Text>
               <Text style={styles.propertyLabel}>Square Feet</Text>
-            </View>
-            <View style={styles.propertyItem}>
-              <Text style={styles.propertyValue}>{data.lotSize || 'TBD'}</Text>
-              <Text style={styles.propertyLabel}>Acre Lot</Text>
             </View>
             <View style={styles.propertyItem}>
               <Text style={styles.propertyValue}>{data.yearBuilt || 'TBD'}</Text>
               <Text style={styles.propertyLabel}>Year Built</Text>
             </View>
-            <View style={styles.propertyItem}>
-              <Text style={styles.propertyValue}>{data.zoning}</Text>
-              <Text style={styles.propertyLabel}>Zoning</Text>
-            </View>
+            {data.zoning && (
+              <View style={styles.propertyItem}>
+                <Text style={styles.propertyValue}>{data.zoning}</Text>
+                <Text style={styles.propertyLabel}>Zoning</Text>
+              </View>
+            )}
+            {data.lotSize && (
+              <View style={styles.propertyItem}>
+                <Text style={styles.propertyValue}>{data.lotSize}</Text>
+                <Text style={styles.propertyLabel}>Lot Size</Text>
+              </View>
+            )}
           </View>
+          
+          {/* Additional property details */}
+          {(data.foundationType || data.utilities.length > 0 || data.garage || data.pool) && (
+            <View style={{ marginTop: 10 }}>
+              {data.foundationType && (
+                <Text style={styles.text}>Foundation: {data.foundationType}</Text>
+              )}
+              {data.utilities.length > 0 && (
+                <Text style={styles.text}>Utilities: {data.utilities.join(', ')}</Text>
+              )}
+              {data.garage && (
+                <Text style={styles.text}>Garage: {data.garage}</Text>
+              )}
+              {data.pool && (
+                <Text style={styles.text}>Pool: Yes</Text>
+              )}
+            </View>
+          )}
         </View>
 
         {/* Photo Link - Only if exists */}
@@ -392,63 +427,36 @@ const PDFDocument: React.FC<{ data: PDFData }> = ({ data }) => {
         )}
 
         {/* Property Details */}
-        {(data.roofAge || data.roofCondition || data.roofNotes || 
-          data.hvacAge || data.hvacCondition || data.hvacNotes ||
-          data.waterHeaterAge || data.waterHeaterCondition || data.waterHeaterNotes ||
-          data.sidingType || data.sidingCondition || data.sidingNotes ||
-          data.additionalNotes) && (
-          <View style={styles.section} break={false}>
-            <Text style={styles.sectionTitle}>Property Details</Text>
-            {(data.roofAge || data.roofCondition || data.roofNotes) && (
-              <View style={styles.detailItem}>
-                <Text style={styles.text}>
-                  <Text style={{ fontWeight: 'bold' }}>Roof: </Text>
-                  {data.roofAge && `Age: ${data.roofAge} `}
-                  {data.roofCondition && `| Condition: ${data.roofCondition}`}
-                </Text>
-                {data.roofNotes && <Text style={styles.text}>   {data.roofNotes}</Text>}
-              </View>
-            )}
-            {(data.hvacAge || data.hvacCondition || data.hvacNotes) && (
-              <View style={styles.detailItem}>
-                <Text style={styles.text}>
-                  <Text style={{ fontWeight: 'bold' }}>HVAC: </Text>
-                  {data.hvacAge && `Age: ${data.hvacAge} `}
-                  {data.hvacCondition && `| Condition: ${data.hvacCondition}`}
-                </Text>
-                {data.hvacNotes && <Text style={styles.text}>   {data.hvacNotes}</Text>}
-              </View>
-            )}
-            {(data.waterHeaterAge || data.waterHeaterCondition || data.waterHeaterNotes) && (
-              <View style={styles.detailItem}>
-                <Text style={styles.text}>
-                  <Text style={{ fontWeight: 'bold' }}>Hot Water Heater: </Text>
-                  {data.waterHeaterAge && `Age: ${data.waterHeaterAge} `}
-                  {data.waterHeaterCondition && `| Condition: ${data.waterHeaterCondition}`}
-                </Text>
-                {data.waterHeaterNotes && <Text style={styles.text}>   {data.waterHeaterNotes}</Text>}
-              </View>
-            )}
-            {(data.sidingType || data.sidingCondition || data.sidingNotes) && (
-              <View style={styles.detailItem}>
-                <Text style={styles.text}>
-                  <Text style={{ fontWeight: 'bold' }}>Siding: </Text>
-                  {data.sidingType && `Type: ${data.sidingType} `}
-                  {data.sidingCondition && `| Condition: ${data.sidingCondition}`}
-                </Text>
-                {data.sidingNotes && <Text style={styles.text}>   {data.sidingNotes}</Text>}
-              </View>
-            )}
-            {data.additionalNotes && (
-              <View style={styles.detailItem}>
-                <Text style={styles.text}>
-                  <Text style={{ fontWeight: 'bold' }}>Additional Notes: </Text>
-                  {data.additionalNotes}
-                </Text>
-              </View>
-            )}
+        <View style={styles.section} break={false}>
+          <Text style={styles.sectionTitle}>Property Details</Text>
+          
+          {/* Roof */}
+          <View style={styles.detailItem}>
+            <Text style={styles.text}>
+              <Text style={{ fontWeight: 'bold' }}>Roof: </Text>
+              Age: {data.roofSpecificAge || data.roofAge || 'Unknown'} | Condition: {data.roofCondition || 'Unknown'}
+              {data.roofLastServiced && ` | Last Serviced: ${data.roofLastServiced}`}
+            </Text>
           </View>
-        )}
+          
+          {/* HVAC */}
+          <View style={styles.detailItem}>
+            <Text style={styles.text}>
+              <Text style={{ fontWeight: 'bold' }}>HVAC: </Text>
+              Age: {data.hvacSpecificAge || data.hvacAge || 'Unknown'} | Condition: {data.hvacCondition || 'Unknown'}
+              {data.hvacLastServiced && ` | Last Serviced: ${data.hvacLastServiced}`}
+            </Text>
+          </View>
+          
+          {/* Water Heater */}
+          <View style={styles.detailItem}>
+            <Text style={styles.text}>
+              <Text style={{ fontWeight: 'bold' }}>Water Heater: </Text>
+              Age: {data.waterHeaterSpecificAge || data.waterHeaterAge || 'Unknown'} | Condition: {data.waterHeaterCondition || 'Unknown'}
+              {data.waterHeaterLastServiced && ` | Last Serviced: ${data.waterHeaterLastServiced}`}
+            </Text>
+          </View>
+        </View>
 
         {/* Exit Strategy */}
         {data.exitStrategy && (
@@ -458,96 +466,44 @@ const PDFDocument: React.FC<{ data: PDFData }> = ({ data }) => {
           </View>
         )}
 
-        {/* Comps - All comp types in one unified section */}
-        {[data.pendingComps, data.soldComps, data.rentalComps, data.newConstructionComps, data.asIsComps]
-          .some(comps => comps.some(comp => comp.trim())) && (
+        {/* Comps */}
+        {data.comps.some(comp => comp.address.trim()) && (
           <View style={styles.section} break={false}>
             <Text style={styles.sectionTitle}>Comps</Text>
             
-            {data.pendingComps.some(comp => comp.trim()) && (
-              <View style={styles.compSection}>
-                <Text style={styles.compTitle}>Pending Flipped Comps</Text>
-                {data.pendingComps.filter(comp => comp.trim()).map((comp, index) => (
-                  <Text key={index} style={styles.compItem}>{index + 1}. {comp}</Text>
-                ))}
-              </View>
-            )}
-            
-            {data.soldComps.some(comp => comp.trim()) && (
-              <View style={styles.compSection}>
-                <Text style={styles.compTitle}>Sold Flipped Comps</Text>
-                {data.soldComps.filter(comp => comp.trim()).map((comp, index) => (
-                  <Text key={index} style={styles.compItem}>{index + 1}. {comp}</Text>
-                ))}
-              </View>
-            )}
-            
-            {data.rentalComps.some(comp => comp.trim()) && (
-              <View style={styles.compSection}>
-                <Text style={styles.compTitle}>Rental Comps</Text>
-                {data.rentalComps.filter(comp => comp.trim()).map((comp, index) => (
-                  <Text key={index} style={styles.compItem}>{index + 1}. {comp}</Text>
-                ))}
-              </View>
-            )}
-            
-            {data.newConstructionComps.some(comp => comp.trim()) && (
-              <View style={styles.compSection}>
-                <Text style={styles.compTitle}>New Construction Comps</Text>
-                {data.newConstructionComps.filter(comp => comp.trim()).map((comp, index) => (
-                  <Text key={index} style={styles.compItem}>{index + 1}. {comp}</Text>
-                ))}
-              </View>
-            )}
-            
-            {data.asIsComps.some(comp => comp.trim()) && (
-              <View style={styles.compSection}>
-                <Text style={styles.compTitle}>Sold As-Is Comps</Text>
-                {data.asIsComps.filter(comp => comp.trim()).map((comp, index) => (
-                  <Text key={index} style={styles.compItem}>{index + 1}. {comp}</Text>
-                ))}
-              </View>
-            )}
+            {/* Group comps by type */}
+            {['Flip Comp', 'Cash Comp', 'Pending', 'Active'].map(compType => {
+              const filteredComps = data.comps.filter(comp => comp.compType === compType && comp.address.trim());
+              if (filteredComps.length === 0) return null;
+              
+              return (
+                <View key={compType} style={styles.compSection}>
+                  <Text style={styles.compTitle}>{compType}s</Text>
+                  {filteredComps.map((comp, index) => (
+                    <Text key={index} style={styles.compItem}>
+                      {index + 1}. {comp.address} - {comp.bedrooms}br/{comp.bathrooms}ba - {comp.squareFootage} sqft
+                      {comp.conditionLabel && ` - ${comp.conditionLabel}`}
+                      {comp.zillowLink && ` - Link: ${comp.zillowLink}`}
+                    </Text>
+                  ))}
+                </View>
+              );
+            })}
           </View>
         )}
 
         {/* Occupancy */}
-        {data.occupancy && (
-          <View style={styles.section} break={false}>
-            <Text style={styles.sectionTitle}>Occupancy</Text>
-            <Text style={styles.text}>
-              <Text style={{ fontWeight: 'bold' }}>
-                {data.occupancy.replace(/-/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())}
-              </Text>
-            </Text>
-            {data.leaseTerms && (
-              <Text style={styles.text}>Lease Terms: {data.leaseTerms}</Text>
-            )}
-          </View>
-        )}
-
-        {/* Access */}
-        {data.access && (
-          <View style={styles.section} break={false}>
-            <Text style={styles.sectionTitle}>Access</Text>
-            <Text style={styles.text}>
-              <Text style={{ fontWeight: 'bold' }}>
-                {data.access.replace(/-/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())}
-              </Text>
-            </Text>
-            {data.lockboxCode && (
-              <Text style={styles.text}>Lockbox Code: {data.lockboxCode}</Text>
-            )}
-          </View>
-        )}
-
-        {/* Rental Backup */}
-        {data.rentalBackup && (
-          <View style={[styles.section, { backgroundColor: '#ECFDF5', borderLeftColor: '#10B981' }]} break={false}>
-            <Text style={[styles.sectionTitle, { color: '#059669' }]}>Bonus: Rental Backup Plan</Text>
-            <Text style={styles.text}>{data.rentalBackupDetails}</Text>
-          </View>
-        )}
+        <View style={styles.section} break={false}>
+          <Text style={styles.sectionTitle}>Occupancy</Text>
+          <Text style={styles.text}>
+            <Text style={{ fontWeight: 'bold' }}>Current: </Text>
+            {data.currentOccupancy || 'Unknown'}
+          </Text>
+          <Text style={styles.text}>
+            <Text style={{ fontWeight: 'bold' }}>At Closing: </Text>
+            {data.closingOccupancy || 'Unknown'}
+          </Text>
+        </View>
 
         {/* Memo Alert */}
         {data.memoFiled && (
@@ -555,6 +511,19 @@ const PDFDocument: React.FC<{ data: PDFData }> = ({ data }) => {
             <Text style={[styles.text, { fontWeight: 'bold', textAlign: 'center', color: '#92400E' }]}>
               WARNING: MEMORANDUM OF CONTRACT FILED ON THIS PROPERTY TO PROTECT THE FINANCIAL INTEREST OF SELLER AND BUYER
             </Text>
+          </View>
+        )}
+
+        {/* Additional Disclosures */}
+        {(data.postPossession || data.additionalDisclosures) && (
+          <View style={styles.section} break={false}>
+            <Text style={styles.sectionTitle}>Additional Disclosures</Text>
+            {data.postPossession && (
+              <Text style={styles.text}>• Post-possession disclosure applies</Text>
+            )}
+            {data.additionalDisclosures && (
+              <Text style={styles.text}>{data.additionalDisclosures}</Text>
+            )}
           </View>
         )}
 
@@ -571,21 +540,37 @@ const PDFDocument: React.FC<{ data: PDFData }> = ({ data }) => {
           
           <View style={styles.contactGrid}>
             <View style={styles.contactItem}>
-              <Text style={styles.contactLabel}>Name/Company</Text>
-              <Text style={styles.contactValue}>{data.contactName}</Text>
+              <Text style={styles.contactLabel}>Name</Text>
+              <Text style={styles.contactValue}>{data.contactName || 'Contact Us'}</Text>
             </View>
             <View style={styles.contactItem}>
               <Text style={styles.contactLabel}>Phone</Text>
-              <Text style={styles.contactValue}>{data.contactPhone}</Text>
+              <Text style={styles.contactValue}>{data.contactPhone || 'TBD'}</Text>
             </View>
-            <View style={styles.contactItem}>
-              <Text style={styles.contactLabel}>Email</Text>
-              <Text style={styles.contactValue}>{data.contactEmail}</Text>
-            </View>
-            <View style={styles.contactItem}>
-              <Text style={styles.contactLabel}>Business Hours</Text>
-              <Text style={styles.contactValue}>{data.businessHours}</Text>
-            </View>
+            {data.contactEmail && (
+              <View style={styles.contactItem}>
+                <Text style={styles.contactLabel}>Email</Text>
+                <Text style={styles.contactValue}>{data.contactEmail}</Text>
+              </View>
+            )}
+            {data.businessHours && (
+              <View style={styles.contactItem}>
+                <Text style={styles.contactLabel}>Hours</Text>
+                <Text style={styles.contactValue}>{data.businessHours}</Text>
+              </View>
+            )}
+            {data.officeNumber && (
+              <View style={styles.contactItem}>
+                <Text style={styles.contactLabel}>Office</Text>
+                <Text style={styles.contactValue}>{data.officeNumber}</Text>
+              </View>
+            )}
+            {data.website && (
+              <View style={styles.contactItem}>
+                <Text style={styles.contactLabel}>Website</Text>
+                <Text style={styles.contactValue}>{data.website}</Text>
+              </View>
+            )}
           </View>
         </View>
 
@@ -594,46 +579,31 @@ const PDFDocument: React.FC<{ data: PDFData }> = ({ data }) => {
           <Text style={styles.ctaTitle}>THIS DEAL WILL NOT LAST LONG</Text>
           <Text style={styles.text}>PUT YOUR OFFER IN TODAY</Text>
           
-          <View style={[styles.financialGrid, { marginTop: 15 }]}>
-            <View style={styles.financialItem}>
-              <Text style={styles.contactLabel}>EMD Amount</Text>
-              <Text style={styles.contactValue}>${data.emdAmount.toLocaleString()}</Text>
-            </View>
-            <View style={styles.financialItem}>
-              <Text style={styles.contactLabel}>Closing Date</Text>
-              <Text style={styles.contactValue}>{data.closingDate ? data.closingDate.toLocaleDateString() : 'TBD'}</Text>
-            </View>
-          </View>
-          
-          <Text style={[styles.text, { fontWeight: 'bold', textAlign: 'center', marginTop: 10 }]}>
-            EMD DUE WITHIN 24HR OF EXECUTED CONTRACT
-          </Text>
+          {data.emdAmount && (
+            <Text style={styles.text}>EMD: {data.emdAmount}</Text>
+          )}
+          {data.emdDueDate && (
+            <Text style={styles.text}>EMD Due: {data.emdDueDate}</Text>
+          )}
         </View>
       </Page>
     </Document>
   );
 };
 
-export const generatePDF = async (data: PDFData): Promise<void> => {
-  try {
-    // Generate PDF blob
-    const blob = await pdf(<PDFDocument data={data} />).toBlob();
-    
-    // Create download link
-    const fileName = `Fix-Flip-Flyer-${data.address.replace(/[^a-zA-Z0-9]/g, '-')}-${new Date().toISOString().split('T')[0]}.pdf`;
-    const url = URL.createObjectURL(blob);
-    
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = fileName;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    // Clean up
-    URL.revokeObjectURL(url);
-  } catch (error) {
-    console.error('PDF generation failed:', error);
-    throw error;
-  }
+// Export the generate PDF function
+export const generatePDF = async (data: PDFData) => {
+  const blob = await pdf(<PDFDocument data={data} />).toBlob();
+  const url = URL.createObjectURL(blob);
+  
+  // Create download link
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `${data.city || 'Property'}_${data.dealType || 'Investment'}_Flyer.pdf`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  
+  // Clean up the object URL
+  URL.revokeObjectURL(url);
 };
