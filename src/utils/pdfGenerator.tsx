@@ -102,41 +102,76 @@ const styles = StyleSheet.create({
   page: {
     flexDirection: 'column',
     backgroundColor: '#FFFFFF',
-    padding: 15,
+    padding: 20,
     fontFamily: 'Helvetica'
   },
-  header: {
+  brandHeader: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 15,
-    paddingBottom: 10,
-    borderBottomWidth: 2,
-    borderBottomColor: '#3B82F6'
+    justifyContent: 'center',
+    marginBottom: 20,
+    paddingBottom: 15,
   },
-  title: {
-    fontSize: 24,
+  brandTitle: {
+    fontSize: 32,
     fontWeight: 'bold',
     color: '#1F2937',
-    marginBottom: 8,
-    textAlign: 'center',
-    lineHeight: 1.2,
-    wordWrap: 'break-word',
-    hyphens: 'none'
+    letterSpacing: 1
   },
-  subtitle: {
-    fontSize: 16,
-    color: '#6B7280',
-    marginBottom: 15,
-    textAlign: 'center',
-    wordWrap: 'break-word',
-    hyphens: 'none'
+  brandBlue: {
+    color: '#3B82F6'
   },
-  address: {
+  propertyTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#DC2626',
+    color: '#1F2937',
     textAlign: 'center',
+    marginBottom: 20,
+    lineHeight: 1.3,
     wordWrap: 'break-word',
     hyphens: 'none'
+  },
+  propertyImagePlaceholder: {
+    width: '100%',
+    height: 200,
+    backgroundColor: '#F3F4F6',
+    borderRadius: 8,
+    marginBottom: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#E5E7EB',
+    borderStyle: 'dashed'
+  },
+  imagePlaceholderText: {
+    fontSize: 14,
+    color: '#6B7280',
+    textAlign: 'center'
+  },
+  addressSection: {
+    alignItems: 'center',
+    marginBottom: 15
+  },
+  address: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#1F2937',
+    textAlign: 'center',
+    marginBottom: 5,
+    wordWrap: 'break-word',
+    hyphens: 'none'
+  },
+  photoLink: {
+    fontSize: 14,
+    color: '#3B82F6',
+    textAlign: 'center',
+    marginBottom: 5
+  },
+  closingDate: {
+    fontSize: 14,
+    color: '#1F2937',
+    textAlign: 'center',
+    marginBottom: 20
   },
   section: {
     marginBottom: 10,
@@ -330,14 +365,32 @@ const PDFDocument: React.FC<{ data: PDFData }> = ({ data }) => {
   return (
     <Document>
       <Page size="A4" style={styles.page} wrap>
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.title}>{data.selectedTitle || data.title}</Text>
-          <Text style={styles.subtitle}>{data.subtitle}</Text>
-          <Text style={styles.address}>{data.address}</Text>
-          <Text style={styles.text}>Asking Price: {data.askingPrice}</Text>
-          <Text style={styles.text}>Financing: {data.financingTypes.join(', ')}</Text>
-          <Text style={styles.text}>Closing: {data.closingDate}</Text>
+        {/* DealBlaster Brand Header */}
+        <View style={styles.brandHeader}>
+          <Text style={styles.brandTitle}>
+            DEAL<Text style={styles.brandBlue}>BLASTER</Text>
+          </Text>
+        </View>
+
+        {/* Property Title with House Emoji */}
+        <Text style={styles.propertyTitle}>
+          🏠 {data.selectedTitle || data.title}
+        </Text>
+
+        {/* Property Image Placeholder */}
+        <View style={styles.propertyImagePlaceholder}>
+          <Text style={styles.imagePlaceholderText}>Property Photo</Text>
+        </View>
+
+        {/* Address Section */}
+        <View style={styles.addressSection}>
+          <Text style={styles.address}>📍 {data.address}</Text>
+          {data.photoLink && data.photoLink.trim() && (
+            <Text style={styles.photoLink}>📷 Photos: Click Here</Text>
+          )}
+          <Text style={styles.closingDate}>
+            📅 Closing: {data.closingDate}
+          </Text>
         </View>
 
         {/* Financial Section - Only show if included */}
@@ -370,61 +423,59 @@ const PDFDocument: React.FC<{ data: PDFData }> = ({ data }) => {
           <Text style={styles.sectionTitle}>Property Overview</Text>
           <View style={styles.propertyGrid}>
             <View style={styles.propertyItem}>
-              <Text style={styles.propertyValue}>{data.bedrooms || 'TBD'}</Text>
-              <Text style={styles.propertyLabel}>Bedrooms</Text>
+              <Text style={styles.propertyValue}>🛏️ {data.bedrooms || 'TBD'} Bed</Text>
             </View>
             <View style={styles.propertyItem}>
-              <Text style={styles.propertyValue}>{data.bathrooms || 'TBD'}</Text>
-              <Text style={styles.propertyLabel}>Bathrooms</Text>
+              <Text style={styles.propertyValue}>🛁 {data.bathrooms || 'TBD'} Bath</Text>
             </View>
             <View style={styles.propertyItem}>
-              <Text style={styles.propertyValue}>{data.squareFootage || 'TBD'}</Text>
-              <Text style={styles.propertyLabel}>Square Feet</Text>
+              <Text style={styles.propertyValue}>📐 {data.squareFootage || 'TBD'} Sq Ft</Text>
             </View>
             <View style={styles.propertyItem}>
-              <Text style={styles.propertyValue}>{data.yearBuilt || 'TBD'}</Text>
-              <Text style={styles.propertyLabel}>Year Built</Text>
+              <Text style={styles.propertyValue}>🔨 Built: {data.yearBuilt || 'TBD'}</Text>
             </View>
-            {data.zoning && (
+            {data.foundationType && (
               <View style={styles.propertyItem}>
-                <Text style={styles.propertyValue}>{data.zoning}</Text>
-                <Text style={styles.propertyLabel}>Zoning</Text>
+                <Text style={styles.propertyValue}>🏗️ {data.foundationType}</Text>
               </View>
             )}
             {data.lotSize && (
               <View style={styles.propertyItem}>
-                <Text style={styles.propertyValue}>{data.lotSize}</Text>
-                <Text style={styles.propertyLabel}>Lot Size</Text>
+                <Text style={styles.propertyValue}>🌳 {data.lotSize} Lot</Text>
+              </View>
+            )}
+            {data.zoning && (
+              <View style={styles.propertyItem}>
+                <Text style={styles.propertyValue}>🚫 No HOA</Text>
+              </View>
+            )}
+            {data.utilities.length > 0 && data.utilities.includes('Well & Septic') && (
+              <View style={styles.propertyItem}>
+                <Text style={styles.propertyValue}>💧 Well & Septic</Text>
               </View>
             )}
           </View>
           
           {/* Additional property details */}
-          {(data.foundationType || data.utilities.length > 0 || data.garage || data.pool) && (
+          {(data.garage || data.pool) && (
             <View style={{ marginTop: 10 }}>
-              {data.foundationType && (
-                <Text style={styles.text}>Foundation: {data.foundationType}</Text>
-              )}
-              {data.utilities.length > 0 && (
-                <Text style={styles.text}>Utilities: {data.utilities.join(', ')}</Text>
-              )}
               {data.garage && (
-                <Text style={styles.text}>Garage: {data.garage}</Text>
+                <Text style={styles.text}>🚗 Garage: {data.garage}</Text>
               )}
               {data.pool && (
-                <Text style={styles.text}>Pool: Yes</Text>
+                <Text style={styles.text}>🏊 Pool: Yes</Text>
               )}
             </View>
           )}
         </View>
 
-        {/* Photo Link - Only if exists */}
-        {data.photoLink && data.photoLink.trim() && (
-          <View style={styles.section} break={false}>
-            <Text style={styles.sectionTitle}>Property Photos</Text>
-            <Text style={styles.text}>Click Here to View Photos: {data.photoLink}</Text>
-          </View>
-        )}
+        {/* Condition Section */}
+        <View style={styles.section} break={false}>
+          <Text style={styles.sectionTitle}>Condition</Text>
+          <Text style={styles.text}>
+            🏠 {data.hook || 'Very light lipstick rehab - cosmetics only. Delivered vacant with solid bones, on a full acre with no HOA. Great opportunity!'}
+          </Text>
+        </View>
 
         {/* Property Details */}
         <View style={styles.section} break={false}>
@@ -433,8 +484,8 @@ const PDFDocument: React.FC<{ data: PDFData }> = ({ data }) => {
           {/* Roof */}
           <View style={styles.detailItem}>
             <Text style={styles.text}>
-              <Text style={{ fontWeight: 'bold' }}>Roof: </Text>
-              Age: {data.roofSpecificAge || data.roofAge || 'Unknown'} | Condition: {data.roofCondition || 'Unknown'}
+              <Text style={{ fontWeight: 'bold' }}>🏠 Roof: </Text>
+              {data.roofSpecificAge || data.roofAge || '10-15 Years Old'} {data.roofCondition ? `- ${data.roofCondition}` : ''}
               {data.roofLastServiced && ` | Last Serviced: ${data.roofLastServiced}`}
             </Text>
           </View>
@@ -442,8 +493,8 @@ const PDFDocument: React.FC<{ data: PDFData }> = ({ data }) => {
           {/* HVAC */}
           <View style={styles.detailItem}>
             <Text style={styles.text}>
-              <Text style={{ fontWeight: 'bold' }}>HVAC: </Text>
-              Age: {data.hvacSpecificAge || data.hvacAge || 'Unknown'} | Condition: {data.hvacCondition || 'Unknown'}
+              <Text style={{ fontWeight: 'bold' }}>❄️ HVAC: </Text>
+              {data.hvacSpecificAge || data.hvacAge || 'Unknown'} {data.hvacCondition ? `- ${data.hvacCondition}` : ''}
               {data.hvacLastServiced && ` | Last Serviced: ${data.hvacLastServiced}`}
             </Text>
           </View>
@@ -451,8 +502,8 @@ const PDFDocument: React.FC<{ data: PDFData }> = ({ data }) => {
           {/* Water Heater */}
           <View style={styles.detailItem}>
             <Text style={styles.text}>
-              <Text style={{ fontWeight: 'bold' }}>Water Heater: </Text>
-              Age: {data.waterHeaterSpecificAge || data.waterHeaterAge || 'Unknown'} | Condition: {data.waterHeaterCondition || 'Unknown'}
+              <Text style={{ fontWeight: 'bold' }}>🚿 Water Heater: </Text>
+              {data.waterHeaterSpecificAge || data.waterHeaterAge || 'Unknown'} {data.waterHeaterCondition ? `- ${data.waterHeaterCondition}` : ''}
               {data.waterHeaterLastServiced && ` | Last Serviced: ${data.waterHeaterLastServiced}`}
             </Text>
           </View>
