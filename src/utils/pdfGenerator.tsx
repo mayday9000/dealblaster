@@ -1,4 +1,14 @@
-import jsPDF from 'jspdf';
+import { 
+  Document, 
+  Page, 
+  Text, 
+  View, 
+  StyleSheet, 
+  PDFDownloadLink,
+  pdf,
+  Image
+} from '@react-pdf/renderer';
+import React from 'react';
 
 interface PDFData {
   title: string;
@@ -87,458 +97,513 @@ interface PDFData {
   additionalDisclosures: string;
 }
 
-class RealEstateListingPDF {
-  private doc: jsPDF | null = null;
-  private pageWidth = 8.5 * 72; // 8.5 inches in points
-  private pageHeight = 11 * 72; // 11 inches in points
-  private margin = 72; // 1 inch margin in points
-  private contentWidth = this.pageWidth - (2 * this.margin);
-  private currentY = this.margin;
-  private lineHeight = 14;
-  private sectionSpacing = 20;
-
-  generatePDF(formData: PDFData) {
-    this.doc = new jsPDF('p', 'pt', 'letter');
-    this.currentY = this.margin;
-
-    // Generate sections
-    this.addHeader(formData);
-    this.addPropertyImage(formData);
-    this.addBasicInfo(formData);
-    this.addPropertyOverview(formData);
-    this.addBigTicketSystems(formData);
-    this.addOccupancyInfo(formData);
-    this.addFinancialSnapshot(formData);
-    this.addComparables(formData);
-    this.addContactInfo(formData);
-    this.addLegalDisclosures(formData);
-
-    return this.doc;
+// PDF Styles
+const styles = StyleSheet.create({
+  page: {
+    flexDirection: 'column',
+    backgroundColor: '#FFFFFF',
+    padding: 15,
+    fontFamily: 'Helvetica'
+  },
+  header: {
+    alignItems: 'center',
+    marginBottom: 15,
+    paddingBottom: 10,
+    borderBottomWidth: 2,
+    borderBottomColor: '#3B82F6'
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#1F2937',
+    marginBottom: 8,
+    textAlign: 'center',
+    lineHeight: 1.2,
+    wordWrap: 'break-word',
+    hyphens: 'none'
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#6B7280',
+    marginBottom: 15,
+    textAlign: 'center',
+    wordWrap: 'break-word',
+    hyphens: 'none'
+  },
+  address: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#DC2626',
+    textAlign: 'center',
+    wordWrap: 'break-word',
+    hyphens: 'none'
+  },
+  section: {
+    marginBottom: 10,
+    padding: 10,
+    backgroundColor: '#F9FAFB',
+    borderRadius: 6,
+    borderLeftWidth: 3,
+    borderLeftColor: '#3B82F6',
+    orphans: 2,
+    widows: 2,
+    minHeight: 40
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#1F2937',
+    marginBottom: 8,
+    orphans: 2,
+    widows: 2
+  },
+  financialSection: {
+    backgroundColor: '#10B981',
+    color: 'white',
+    padding: 12,
+    borderRadius: 6,
+    marginBottom: 10,
+    alignItems: 'center',
+    orphans: 2,
+    widows: 2
+  },
+  financialTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 15,
+    color: 'white'
+  },
+  financialGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    marginBottom: 15
+  },
+  financialItem: {
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    padding: 12,
+    borderRadius: 6,
+    minWidth: '22%',
+    marginBottom: 8
+  },
+  financialLabel: {
+    fontSize: 11,
+    marginBottom: 4,
+    color: 'white'
+  },
+  financialValue: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: 'white'
+  },
+  grossProfit: {
+    backgroundColor: '#F59E0B',
+    padding: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 10
+  },
+  grossProfitValue: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: 'white'
+  },
+  propertyGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap'
+  },
+  propertyItem: {
+    backgroundColor: '#F8FAFC',
+    padding: 12,
+    borderRadius: 6,
+    alignItems: 'center',
+    minWidth: '15%',
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: '#E2E8F0'
+  },
+  propertyValue: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#1F2937',
+    marginBottom: 2
+  },
+  propertyLabel: {
+    fontSize: 10,
+    color: '#6B7280',
+    textTransform: 'uppercase'
+  },
+  detailItem: {
+    marginBottom: 8,
+    fontSize: 12,
+    lineHeight: 1.4,
+    wordWrap: 'break-word',
+    hyphens: 'none'
+  },
+  contactSection: {
+    backgroundColor: '#3B82F6',
+    color: 'white',
+    padding: 12,
+    borderRadius: 6,
+    marginTop: 10,
+    orphans: 2,
+    widows: 2
+  },
+  contactGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    marginTop: 10
+  },
+  contactItem: {
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    padding: 10,
+    borderRadius: 6,
+    minWidth: '22%',
+    marginBottom: 8
+  },
+  contactLabel: {
+    fontSize: 10,
+    marginBottom: 3,
+    color: 'white'
+  },
+  contactValue: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: 'white'
+  },
+  contactImageContainer: {
+    alignItems: 'center',
+    marginBottom: 10
+  },
+  contactImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    marginBottom: 8
+  },
+  ctaSection: {
+    backgroundColor: '#DC2626',
+    color: 'white',
+    padding: 12,
+    borderRadius: 6,
+    alignItems: 'center',
+    marginTop: 10,
+    orphans: 2,
+    widows: 2
+  },
+  ctaTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10
+  },
+  text: {
+    fontSize: 12,
+    lineHeight: 1.4,
+    marginBottom: 4,
+    wordWrap: 'break-word',
+    hyphens: 'none'
+  },
+  compSection: {
+    marginBottom: 15,
+    orphans: 2,
+    widows: 2
+  },
+  compTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    color: '#1F2937'
+  },
+  compItem: {
+    fontSize: 11,
+    marginBottom: 4,
+    color: '#3B82F6',
+    wordWrap: 'break-word',
+    hyphens: 'none'
   }
+});
 
-  private addHeader(formData: PDFData) {
-    // Add house emoji or icon
-    this.doc!.setFontSize(24);
-    this.doc!.text('🏠', this.margin, this.currentY + 20);
-    
-    // Main headline
-    this.doc!.setFontSize(18);
-    this.doc!.setFont(undefined, 'bold');
-    
-    const title = formData.selectedTitle || this.generateDefaultTitle(formData);
-    const titleLines = this.wrapText(title, this.contentWidth - 40, 18);
-    
-    titleLines.forEach((line, index) => {
-      this.doc!.text(line, this.margin + 40, this.currentY + 20 + (index * 22));
-    });
-    
-    this.currentY += 20 + (titleLines.length * 22) + this.sectionSpacing;
-  }
+// PDF Document Component
+const PDFDocument: React.FC<{ data: PDFData }> = ({ data }) => {
+  return (
+    <Document>
+      <Page size="A4" style={styles.page} wrap>
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.title}>{data.selectedTitle || data.title}</Text>
+          <Text style={styles.subtitle}>{data.subtitle}</Text>
+          <Text style={styles.address}>{data.address}</Text>
+          <Text style={styles.text}>Asking Price: {data.askingPrice}</Text>
+          <Text style={styles.text}>Financing: {data.financingTypes.join(', ')}</Text>
+          <Text style={styles.text}>Closing: {data.closingDate}</Text>
+        </View>
 
-  private generateDefaultTitle(formData: PDFData) {
-    const parts = [];
-    if (formData.city) parts.push(`(${formData.city})`);
-    if (formData.bedrooms) parts.push(`${formData.bedrooms} Bed`);
-    if (formData.bathrooms) parts.push(`${formData.bathrooms} Bath`);
-    if (formData.lotSize) parts.push(`on ${formData.lotSize}`);
-    if (formData.dealType) parts.push(`${formData.dealType} Opportunity`);
-    if (formData.hook) parts.push(`🔥`);
-    
-    return parts.join(' ');
-  }
+        {/* Financial Section - Only show if included */}
+        {data.includeFinancialBreakdown && (
+          <View style={styles.financialSection} break={false}>
+            <Text style={styles.financialTitle}>Financial Breakdown</Text>
+            <View style={styles.financialGrid}>
+              <View style={styles.financialItem}>
+                <Text style={styles.financialLabel}>ARV</Text>
+                <Text style={styles.financialValue}>{data.arv || 'TBD'}</Text>
+              </View>
+              <View style={styles.financialItem}>
+                <Text style={styles.financialLabel}>Rehab Estimate</Text>
+                <Text style={styles.financialValue}>{data.rehabEstimate || 'TBD'}</Text>
+              </View>
+              <View style={styles.financialItem}>
+                <Text style={styles.financialLabel}>All-In Cost</Text>
+                <Text style={styles.financialValue}>{data.allIn || 'TBD'}</Text>
+              </View>
+              <View style={styles.financialItem}>
+                <Text style={styles.financialLabel}>Gross Profit</Text>
+                <Text style={styles.financialValue}>{data.grossProfit || 'TBD'}</Text>
+              </View>
+            </View>
+          </View>
+        )}
 
-  private addPropertyImage(formData: PDFData) {
-    if (formData.frontPhoto) {
-      // Add image placeholder or actual image
-      this.doc!.setDrawColor(200, 200, 200);
-      this.doc!.setFillColor(245, 245, 245);
-      this.doc!.rect(this.margin, this.currentY, this.contentWidth, 200, 'FD');
-      
-      this.doc!.setFontSize(12);
-      this.doc!.setFont(undefined, 'normal');
-      this.doc!.text('[Property Image]', this.margin + (this.contentWidth / 2) - 40, this.currentY + 100);
-      
-      this.currentY += 220;
-    }
-
-    // Address and photos link
-    this.doc!.setFontSize(16);
-    this.doc!.setFont(undefined, 'bold');
-    this.doc!.text(`📍 ${formData.address}`, this.margin, this.currentY);
-    this.currentY += 25;
-
-    if (formData.photoLink) {
-      this.doc!.setFontSize(12);
-      this.doc!.setFont(undefined, 'normal');
-      this.doc!.setTextColor(0, 100, 200);
-      this.doc!.text(`📷 Photos: ${formData.photoLink}`, this.margin, this.currentY);
-      this.doc!.setTextColor(0, 0, 0);
-      this.currentY += 20;
-    }
-
-    // Closing date
-    if (formData.closingDate) {
-      this.doc!.setFontSize(12);
-      this.doc!.text(`📅 Closing: ${formData.closingDate}`, this.margin, this.currentY);
-      this.currentY += this.sectionSpacing;
-    }
-  }
-
-  private addBasicInfo(formData: PDFData) {
-    // Asking price and financing
-    if (formData.askingPrice) {
-      this.doc!.setFontSize(14);
-      this.doc!.setFont(undefined, 'bold');
-      this.doc!.text(`💰 Asking Price: ${formData.askingPrice}`, this.margin, this.currentY);
-      this.currentY += 20;
-    }
-
-    if (formData.financingTypes && formData.financingTypes.length > 0) {
-      this.doc!.setFontSize(12);
-      this.doc!.setFont(undefined, 'normal');
-      this.doc!.text(`Financing: ${formData.financingTypes.join(', ')}`, this.margin, this.currentY);
-      this.currentY += this.sectionSpacing;
-    }
-  }
-
-  private addPropertyOverview(formData: PDFData) {
-    this.addSectionHeader('Property Overview');
-
-    // Basic specs in grid format
-    const specs = [];
-    if (formData.bedrooms) specs.push(`🛏️ ${formData.bedrooms} Bed`);
-    if (formData.bathrooms) specs.push(`🚿 ${formData.bathrooms} Bath`);
-    if (formData.squareFootage) specs.push(`📐 ${formData.squareFootage} Sq Ft`);
-    if (formData.yearBuilt) specs.push(`🏗️ Built: ${formData.yearBuilt}`);
-    if (formData.foundationType) specs.push(`🏢 ${formData.foundationType}`);
-    if (formData.lotSize) specs.push(`🌿 ${formData.lotSize} Lot`);
-
-    // Display specs in 2-column layout
-    specs.forEach((spec, index) => {
-      const x = (index % 2 === 0) ? this.margin : this.margin + (this.contentWidth / 2);
-      const y = this.currentY + Math.floor(index / 2) * this.lineHeight;
-      this.doc!.text(spec, x, y);
-    });
-
-    this.currentY += Math.ceil(specs.length / 2) * this.lineHeight + 10;
-
-    // Additional details
-    if (formData.utilities && formData.utilities.length > 0) {
-      this.doc!.text(`💧 ${formData.utilities.join(' & ')}`, this.margin, this.currentY);
-      this.currentY += this.lineHeight;
-    }
-
-    if (formData.zoning) {
-      this.doc!.text(`⚖️ Zoning: ${formData.zoning}`, this.margin, this.currentY);
-      this.currentY += this.lineHeight;
-    }
-
-    if (formData.garage) {
-      this.doc!.text(`🚗 ${formData.garage}`, this.margin, this.currentY);
-      this.currentY += this.lineHeight;
-    }
-
-    if (formData.pool) {
-      this.doc!.text(`🏊 Pool`, this.margin, this.currentY);
-      this.currentY += this.lineHeight;
-    }
-
-    this.currentY += this.sectionSpacing;
-  }
-
-  private addBigTicketSystems(formData: PDFData) {
-    const systems = [
-      { name: 'Roof', prefix: 'roof', icon: '🏠' },
-      { name: 'HVAC', prefix: 'hvac', icon: '❄️' },
-      { name: 'Water Heater', prefix: 'waterHeater', icon: '🚿' }
-    ];
-
-    let hasSystemData = false;
-
-    systems.forEach(system => {
-      const age = formData[`${system.prefix}Age` as keyof PDFData] as string;
-      const condition = formData[`${system.prefix}Condition` as keyof PDFData] as string;
-      
-      if (age || condition) {
-        if (!hasSystemData) {
-          this.addSectionHeader('Big Ticket Systems');
-          hasSystemData = true;
-        }
-
-        let systemText = `${system.icon} ${system.name}:`;
-        if (age) systemText += ` ${age} Years Old`;
-        if (condition) systemText += ` • ${condition}`;
-        
-        this.doc!.text(systemText, this.margin, this.currentY);
-        this.currentY += this.lineHeight;
-
-        // Additional details
-        const specificAge = formData[`${system.prefix}SpecificAge` as keyof PDFData] as string;
-        const lastServiced = formData[`${system.prefix}LastServiced` as keyof PDFData] as string;
-        
-        if (specificAge || lastServiced) {
-          let details = '';
-          if (specificAge) details += `Specific Age: ${specificAge}`;
-          if (lastServiced) details += `${details ? ' • ' : ''}Last Serviced: ${lastServiced}`;
+        {/* Property Overview */}
+        <View style={styles.section} break={false}>
+          <Text style={styles.sectionTitle}>Property Overview</Text>
+          <View style={styles.propertyGrid}>
+            <View style={styles.propertyItem}>
+              <Text style={styles.propertyValue}>{data.bedrooms || 'TBD'}</Text>
+              <Text style={styles.propertyLabel}>Bedrooms</Text>
+            </View>
+            <View style={styles.propertyItem}>
+              <Text style={styles.propertyValue}>{data.bathrooms || 'TBD'}</Text>
+              <Text style={styles.propertyLabel}>Bathrooms</Text>
+            </View>
+            <View style={styles.propertyItem}>
+              <Text style={styles.propertyValue}>{data.squareFootage || 'TBD'}</Text>
+              <Text style={styles.propertyLabel}>Square Feet</Text>
+            </View>
+            <View style={styles.propertyItem}>
+              <Text style={styles.propertyValue}>{data.yearBuilt || 'TBD'}</Text>
+              <Text style={styles.propertyLabel}>Year Built</Text>
+            </View>
+            {data.zoning && (
+              <View style={styles.propertyItem}>
+                <Text style={styles.propertyValue}>{data.zoning}</Text>
+                <Text style={styles.propertyLabel}>Zoning</Text>
+              </View>
+            )}
+            {data.lotSize && (
+              <View style={styles.propertyItem}>
+                <Text style={styles.propertyValue}>{data.lotSize}</Text>
+                <Text style={styles.propertyLabel}>Lot Size</Text>
+              </View>
+            )}
+          </View>
           
-          this.doc!.setFontSize(10);
-          this.doc!.text(details, this.margin + 20, this.currentY);
-          this.doc!.setFontSize(12);
-          this.currentY += this.lineHeight;
-        }
-      }
-    });
+          {/* Additional property details */}
+          {(data.foundationType || data.utilities.length > 0 || data.garage || data.pool) && (
+            <View style={{ marginTop: 10 }}>
+              {data.foundationType && (
+                <Text style={styles.text}>Foundation: {data.foundationType}</Text>
+              )}
+              {data.utilities.length > 0 && (
+                <Text style={styles.text}>Utilities: {data.utilities.join(', ')}</Text>
+              )}
+              {data.garage && (
+                <Text style={styles.text}>Garage: {data.garage}</Text>
+              )}
+              {data.pool && (
+                <Text style={styles.text}>Pool: Yes</Text>
+              )}
+            </View>
+          )}
+        </View>
 
-    if (hasSystemData) {
-      this.currentY += this.sectionSpacing;
-    }
-  }
+        {/* Photo Link - Only if exists */}
+        {data.photoLink && data.photoLink.trim() && (
+          <View style={styles.section} break={false}>
+            <Text style={styles.sectionTitle}>Property Photos</Text>
+            <Text style={styles.text}>Click Here to View Photos: {data.photoLink}</Text>
+          </View>
+        )}
 
-  private addOccupancyInfo(formData: PDFData) {
-    if (formData.currentOccupancy || formData.closingOccupancy) {
-      this.addSectionHeader('Occupancy Information');
+        {/* Property Details */}
+        <View style={styles.section} break={false}>
+          <Text style={styles.sectionTitle}>Property Details</Text>
+          
+          {/* Roof */}
+          <View style={styles.detailItem}>
+            <Text style={styles.text}>
+              <Text style={{ fontWeight: 'bold' }}>Roof: </Text>
+              Age: {data.roofSpecificAge || data.roofAge || 'Unknown'} | Condition: {data.roofCondition || 'Unknown'}
+              {data.roofLastServiced && ` | Last Serviced: ${data.roofLastServiced}`}
+            </Text>
+          </View>
+          
+          {/* HVAC */}
+          <View style={styles.detailItem}>
+            <Text style={styles.text}>
+              <Text style={{ fontWeight: 'bold' }}>HVAC: </Text>
+              Age: {data.hvacSpecificAge || data.hvacAge || 'Unknown'} | Condition: {data.hvacCondition || 'Unknown'}
+              {data.hvacLastServiced && ` | Last Serviced: ${data.hvacLastServiced}`}
+            </Text>
+          </View>
+          
+          {/* Water Heater */}
+          <View style={styles.detailItem}>
+            <Text style={styles.text}>
+              <Text style={{ fontWeight: 'bold' }}>Water Heater: </Text>
+              Age: {data.waterHeaterSpecificAge || data.waterHeaterAge || 'Unknown'} | Condition: {data.waterHeaterCondition || 'Unknown'}
+              {data.waterHeaterLastServiced && ` | Last Serviced: ${data.waterHeaterLastServiced}`}
+            </Text>
+          </View>
+        </View>
 
-      if (formData.currentOccupancy) {
-        this.doc!.text(`Current: ${formData.currentOccupancy}`, this.margin, this.currentY);
-        this.currentY += this.lineHeight;
-      }
+        {/* Exit Strategy */}
+        {data.exitStrategy && (
+          <View style={styles.section} break={false}>
+            <Text style={styles.sectionTitle}>Exit Strategy Notes</Text>
+            <Text style={styles.text}>{data.exitStrategy}</Text>
+          </View>
+        )}
 
-      if (formData.closingOccupancy) {
-        this.doc!.text(`At Closing: ${formData.closingOccupancy}`, this.margin, this.currentY);
-        this.currentY += this.lineHeight;
-      }
+        {/* Comps */}
+        {data.comps.some(comp => comp.address.trim()) && (
+          <View style={styles.section} break={false}>
+            <Text style={styles.sectionTitle}>Comps</Text>
+            
+            {/* Group comps by type */}
+            {['Flip Comp', 'Cash Comp', 'Pending', 'Active'].map(compType => {
+              const filteredComps = data.comps.filter(comp => comp.compType === compType && comp.address.trim());
+              if (filteredComps.length === 0) return null;
+              
+              return (
+                <View key={compType} style={styles.compSection}>
+                  <Text style={styles.compTitle}>{compType}s</Text>
+                  {filteredComps.map((comp, index) => (
+                    <Text key={index} style={styles.compItem}>
+                      {index + 1}. {comp.address} - {comp.bedrooms}br/{comp.bathrooms}ba - {comp.squareFootage} sqft
+                      {comp.conditionLabel && ` - ${comp.conditionLabel}`}
+                      {comp.zillowLink && ` - Link: ${comp.zillowLink}`}
+                    </Text>
+                  ))}
+                </View>
+              );
+            })}
+          </View>
+        )}
 
-      this.currentY += this.sectionSpacing;
-    }
-  }
+        {/* Occupancy */}
+        <View style={styles.section} break={false}>
+          <Text style={styles.sectionTitle}>Occupancy</Text>
+          <Text style={styles.text}>
+            <Text style={{ fontWeight: 'bold' }}>Current: </Text>
+            {data.currentOccupancy || 'Unknown'}
+          </Text>
+          <Text style={styles.text}>
+            <Text style={{ fontWeight: 'bold' }}>At Closing: </Text>
+            {data.closingOccupancy || 'Unknown'}
+          </Text>
+        </View>
 
-  private addFinancialSnapshot(formData: PDFData) {
-    if (formData.includeFinancialBreakdown && 
-        (formData.arv || formData.rehabEstimate || formData.allIn || formData.grossProfit)) {
-      
-      this.checkPageBreak(120);
-      this.addSectionHeader('Financial Snapshot');
+        {/* Memo Alert */}
+        {data.memoFiled && (
+          <View style={[styles.section, { backgroundColor: '#FEF3C7', borderLeftColor: '#F59E0B' }]} break={false}>
+            <Text style={[styles.text, { fontWeight: 'bold', textAlign: 'center', color: '#92400E' }]}>
+              WARNING: MEMORANDUM OF CONTRACT FILED ON THIS PROPERTY TO PROTECT THE FINANCIAL INTEREST OF SELLER AND BUYER
+            </Text>
+          </View>
+        )}
 
-      if (formData.arv) {
-        this.doc!.text(`ARV: ${formData.arv}`, this.margin, this.currentY);
-        this.currentY += this.lineHeight;
-      }
+        {/* Additional Disclosures */}
+        {(data.postPossession || data.additionalDisclosures) && (
+          <View style={styles.section} break={false}>
+            <Text style={styles.sectionTitle}>Additional Disclosures</Text>
+            {data.postPossession && (
+              <Text style={styles.text}>• Post-possession disclosure applies</Text>
+            )}
+            {data.additionalDisclosures && (
+              <Text style={styles.text}>{data.additionalDisclosures}</Text>
+            )}
+          </View>
+        )}
 
-      if (formData.rehabEstimate) {
-        this.doc!.text(`Rehab Estimate: ${formData.rehabEstimate}`, this.margin, this.currentY);
-        this.currentY += this.lineHeight;
-      }
+        {/* Contact Info */}
+        <View style={styles.contactSection} break={false}>
+          <Text style={styles.financialTitle}>Contact Information</Text>
+          
+          {/* Profile Image */}
+          {data.contactImage && (
+            <View style={styles.contactImageContainer}>
+              <Image style={styles.contactImage} src={data.contactImage} />
+            </View>
+          )}
+          
+          <View style={styles.contactGrid}>
+            <View style={styles.contactItem}>
+              <Text style={styles.contactLabel}>Name</Text>
+              <Text style={styles.contactValue}>{data.contactName || 'Contact Us'}</Text>
+            </View>
+            <View style={styles.contactItem}>
+              <Text style={styles.contactLabel}>Phone</Text>
+              <Text style={styles.contactValue}>{data.contactPhone || 'TBD'}</Text>
+            </View>
+            {data.contactEmail && (
+              <View style={styles.contactItem}>
+                <Text style={styles.contactLabel}>Email</Text>
+                <Text style={styles.contactValue}>{data.contactEmail}</Text>
+              </View>
+            )}
+            {data.businessHours && (
+              <View style={styles.contactItem}>
+                <Text style={styles.contactLabel}>Hours</Text>
+                <Text style={styles.contactValue}>{data.businessHours}</Text>
+              </View>
+            )}
+            {data.officeNumber && (
+              <View style={styles.contactItem}>
+                <Text style={styles.contactLabel}>Office</Text>
+                <Text style={styles.contactValue}>{data.officeNumber}</Text>
+              </View>
+            )}
+            {data.website && (
+              <View style={styles.contactItem}>
+                <Text style={styles.contactLabel}>Website</Text>
+                <Text style={styles.contactValue}>{data.website}</Text>
+              </View>
+            )}
+          </View>
+        </View>
 
-      if (formData.allIn) {
-        this.doc!.text(`All-In Cost: ${formData.allIn}`, this.margin, this.currentY);
-        this.currentY += this.lineHeight;
-      }
-
-      if (formData.grossProfit) {
-        this.doc!.setFont(undefined, 'bold');
-        this.doc!.text(`Gross Profit: ${formData.grossProfit}`, this.margin, this.currentY);
-        this.doc!.setFont(undefined, 'normal');
-        this.currentY += this.lineHeight;
-      }
-
-      if (formData.exitStrategy) {
-        this.currentY += 10;
-        this.doc!.text('Exit Strategy:', this.margin, this.currentY);
-        this.currentY += this.lineHeight;
-        
-        const strategyLines = this.wrapText(formData.exitStrategy, this.contentWidth, 12);
-        strategyLines.forEach(line => {
-          this.doc!.text(line, this.margin, this.currentY);
-          this.currentY += this.lineHeight;
-        });
-      }
-
-      this.currentY += this.sectionSpacing;
-    }
-  }
-
-  private addComparables(formData: PDFData) {
-    if (formData.comps && formData.comps.length > 0) {
-      this.checkPageBreak(100 + (formData.comps.length * 40));
-      this.addSectionHeader('Comparable Properties');
-
-      formData.comps.forEach((comp, index) => {
-        this.doc!.setFont(undefined, 'bold');
-        this.doc!.text(`Comp ${index + 1}:`, this.margin, this.currentY);
-        this.doc!.setFont(undefined, 'normal');
-        this.currentY += this.lineHeight;
-
-        if (comp.address) {
-          this.doc!.text(`Address: ${comp.address}`, this.margin + 10, this.currentY);
-          this.currentY += this.lineHeight;
-        }
-
-        const compDetails = [];
-        if (comp.bedrooms) compDetails.push(`${comp.bedrooms} Bed`);
-        if (comp.bathrooms) compDetails.push(`${comp.bathrooms} Bath`);
-        if (comp.squareFootage) compDetails.push(`${comp.squareFootage} Sq Ft`);
-        if (comp.compType) compDetails.push(comp.compType);
-
-        if (compDetails.length > 0) {
-          this.doc!.text(compDetails.join(' • '), this.margin + 10, this.currentY);
-          this.currentY += this.lineHeight;
-        }
-
-        if (comp.conditionLabel) {
-          this.doc!.text(`Condition: ${comp.conditionLabel}`, this.margin + 10, this.currentY);
-          this.currentY += this.lineHeight;
-        }
-
-        if (comp.zillowLink) {
-          this.doc!.setTextColor(0, 100, 200);
-          this.doc!.text(`Zillow: ${comp.zillowLink}`, this.margin + 10, this.currentY);
-          this.doc!.setTextColor(0, 0, 0);
-          this.currentY += this.lineHeight;
-        }
-
-        this.currentY += 10;
-      });
-
-      this.currentY += this.sectionSpacing;
-    }
-  }
-
-  private addContactInfo(formData: PDFData) {
-    this.checkPageBreak(120);
-    this.addSectionHeader('Contact Information');
-
-    if (formData.contactName) {
-      this.doc!.setFont(undefined, 'bold');
-      this.doc!.text(formData.contactName, this.margin, this.currentY);
-      this.doc!.setFont(undefined, 'normal');
-      this.currentY += this.lineHeight + 5;
-    }
-
-    if (formData.contactPhone) {
-      this.doc!.text(`📞 ${formData.contactPhone}`, this.margin, this.currentY);
-      this.currentY += this.lineHeight;
-    }
-
-    if (formData.contactEmail) {
-      this.doc!.text(`📧 ${formData.contactEmail}`, this.margin, this.currentY);
-      this.currentY += this.lineHeight;
-    }
-
-    if (formData.officeNumber) {
-      this.doc!.text(`🏢 Office: ${formData.officeNumber}`, this.margin, this.currentY);
-      this.currentY += this.lineHeight;
-    }
-
-    if (formData.website) {
-      this.doc!.setTextColor(0, 100, 200);
-      this.doc!.text(`🌐 ${formData.website}`, this.margin, this.currentY);
-      this.doc!.setTextColor(0, 0, 0);
-      this.currentY += this.lineHeight;
-    }
-
-    if (formData.businessHours) {
-      this.doc!.text(`🕐 Hours: ${formData.businessHours}`, this.margin, this.currentY);
-      this.currentY += this.lineHeight;
-    }
-
-    this.currentY += this.sectionSpacing;
-  }
-
-  private addLegalDisclosures(formData: PDFData) {
-    if (formData.emdAmount || formData.emdDueDate || formData.memoFiled || 
-        formData.postPossession || formData.additionalDisclosures) {
-      
-      this.checkPageBreak(100);
-      this.addSectionHeader('Legal Disclosures');
-
-      if (formData.emdAmount) {
-        this.doc!.text(`EMD Amount: ${formData.emdAmount}`, this.margin, this.currentY);
-        this.currentY += this.lineHeight;
-      }
-
-      if (formData.emdDueDate) {
-        this.doc!.text(`EMD Due Date: ${formData.emdDueDate}`, this.margin, this.currentY);
-        this.currentY += this.lineHeight;
-      }
-
-      if (formData.memoFiled) {
-        this.doc!.text('✓ Memo of Contract Filed', this.margin, this.currentY);
-        this.currentY += this.lineHeight;
-      }
-
-      if (formData.postPossession) {
-        this.doc!.text('✓ Post-Possession Agreement', this.margin, this.currentY);
-        this.currentY += this.lineHeight;
-      }
-
-      if (formData.additionalDisclosures) {
-        this.currentY += 5;
-        this.doc!.text('Additional Disclosures:', this.margin, this.currentY);
-        this.currentY += this.lineHeight;
-        
-        const disclosureLines = this.wrapText(formData.additionalDisclosures, this.contentWidth, 12);
-        disclosureLines.forEach(line => {
-          this.doc!.text(line, this.margin, this.currentY);
-          this.currentY += this.lineHeight;
-        });
-      }
-    }
-  }
-
-  private addSectionHeader(title: string) {
-    this.currentY += 10;
-    this.doc!.setFontSize(14);
-    this.doc!.setFont(undefined, 'bold');
-    this.doc!.text(title, this.margin, this.currentY);
-    this.doc!.setFontSize(12);
-    this.doc!.setFont(undefined, 'normal');
-    this.currentY += 20;
-  }
-
-  private checkPageBreak(requiredSpace: number) {
-    if (this.currentY + requiredSpace > this.pageHeight - this.margin) {
-      this.doc!.addPage();
-      this.currentY = this.margin;
-    }
-  }
-
-  private wrapText(text: string, maxWidth: number, fontSize: number) {
-    this.doc!.setFontSize(fontSize);
-    const words = text.split(' ');
-    const lines = [];
-    let currentLine = '';
-
-    words.forEach(word => {
-      const testLine = currentLine + (currentLine ? ' ' : '') + word;
-      const width = this.doc!.getTextWidth(testLine);
-      
-      if (width > maxWidth && currentLine) {
-        lines.push(currentLine);
-        currentLine = word;
-      } else {
-        currentLine = testLine;
-      }
-    });
-
-    if (currentLine) {
-      lines.push(currentLine);
-    }
-
-    return lines;
-  }
-
-  // Public method to generate and download PDF
-  static generateAndDownload(formData: PDFData, filename = 'property-listing.pdf') {
-    const generator = new RealEstateListingPDF();
-    const pdf = generator.generatePDF(formData);
-    pdf.save(filename);
-  }
-}
-
-// Export function to maintain compatibility with existing form code
-export const generatePDF = async (data: PDFData) => {
-  const filename = `${data.city || 'Property'}_${data.dealType || 'Investment'}_Flyer.pdf`;
-  RealEstateListingPDF.generateAndDownload(data, filename);
+        {/* CTA Section */}
+        <View style={styles.ctaSection} break={false}>
+          <Text style={styles.ctaTitle}>THIS DEAL WILL NOT LAST LONG</Text>
+          <Text style={styles.text}>PUT YOUR OFFER IN TODAY</Text>
+          
+          {data.emdAmount && (
+            <Text style={styles.text}>EMD: {data.emdAmount}</Text>
+          )}
+          {data.emdDueDate && (
+            <Text style={styles.text}>EMD Due: {data.emdDueDate}</Text>
+          )}
+        </View>
+      </Page>
+    </Document>
+  );
 };
 
-export default RealEstateListingPDF;
+// Export the generate PDF function
+export const generatePDF = async (data: PDFData) => {
+  const blob = await pdf(<PDFDocument data={data} />).toBlob();
+  const url = URL.createObjectURL(blob);
+  
+  // Create download link
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `${data.city || 'Property'}_${data.dealType || 'Investment'}_Flyer.pdf`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  
+  // Clean up the object URL
+  URL.revokeObjectURL(url);
+};
