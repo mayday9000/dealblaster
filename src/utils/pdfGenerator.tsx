@@ -97,23 +97,29 @@ interface PDFData {
   additionalDisclosures: string;
 }
 
-// PDF Styles
+// PDF Styles - Redesigned to prevent breaks
 const styles = StyleSheet.create({
   page: {
     flexDirection: 'column',
     backgroundColor: '#FFFFFF',
-    padding: 20,
-    fontFamily: 'Helvetica'
+    padding: 15,
+    fontFamily: 'Helvetica',
+    fontSize: 11,
+    lineHeight: 1.3
   },
+  
+  // Header Section
   brandHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 20,
-    paddingBottom: 15,
+    marginBottom: 15,
+    paddingBottom: 10,
+    borderBottomWidth: 2,
+    borderBottomColor: '#3B82F6'
   },
   brandTitle: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: 'bold',
     color: '#1F2937',
     letterSpacing: 1
@@ -121,420 +127,475 @@ const styles = StyleSheet.create({
   brandBlue: {
     color: '#3B82F6'
   },
-  propertyTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#1F2937',
-    textAlign: 'center',
-    marginBottom: 20,
-    lineHeight: 1.3,
-    wordWrap: 'break-word',
-    hyphens: 'none'
+  
+  // Title Section - Keep together
+  titleSection: {
+    marginBottom: 15,
+    break: false,
+    minHeight: 60
   },
-  propertyImagePlaceholder: {
-    width: '100%',
-    height: 200,
-    backgroundColor: '#F3F4F6',
-    borderRadius: 8,
-    marginBottom: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: '#E5E7EB',
-    borderStyle: 'dashed'
-  },
-  imagePlaceholderText: {
-    fontSize: 14,
-    color: '#6B7280',
-    textAlign: 'center'
-  },
-  addressSection: {
-    alignItems: 'center',
-    marginBottom: 15
-  },
-  address: {
+  mainTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#1F2937',
     textAlign: 'center',
-    marginBottom: 5,
-    wordWrap: 'break-word',
-    hyphens: 'none'
+    marginBottom: 8,
+    lineHeight: 1.2
   },
-  photoLink: {
+  subtitle: {
     fontSize: 14,
-    color: '#3B82F6',
+    color: '#6B7280',
     textAlign: 'center',
-    marginBottom: 5
+    fontStyle: 'italic',
+    marginBottom: 10
   },
-  closingDate: {
-    fontSize: 14,
-    color: '#1F2937',
-    textAlign: 'center',
-    marginBottom: 20
+  
+  // Property Info Section - Keep together
+  propertyInfoSection: {
+    marginBottom: 15,
+    break: false,
+    minHeight: 80
   },
-  section: {
-    marginBottom: 10,
-    padding: 10,
-    backgroundColor: '#F9FAFB',
-    borderRadius: 6,
-    borderLeftWidth: 3,
-    borderLeftColor: '#3B82F6',
-    orphans: 2,
-    widows: 2,
-    minHeight: 40
-  },
-  sectionTitle: {
+  address: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#1F2937',
-    marginBottom: 8,
-    orphans: 2,
-    widows: 2
+    textAlign: 'center',
+    marginBottom: 8
   },
+  photoLinkContainer: {
+    alignItems: 'center',
+    marginBottom: 8
+  },
+  photoLink: {
+    fontSize: 12,
+    color: '#3B82F6',
+    textDecoration: 'underline'
+  },
+  
+  // Financial Section - Single block
   financialSection: {
     backgroundColor: '#10B981',
     color: 'white',
-    padding: 12,
-    borderRadius: 6,
-    marginBottom: 10,
-    alignItems: 'center',
-    orphans: 2,
-    widows: 2
-  },
-  financialTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 15,
-    color: 'white'
-  },
-  financialGrid: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    flexWrap: 'wrap',
-    marginBottom: 15
-  },
-  financialItem: {
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    padding: 12,
-    borderRadius: 6,
-    minWidth: '22%',
-    marginBottom: 8
-  },
-  financialLabel: {
-    fontSize: 11,
-    marginBottom: 4,
-    color: 'white'
-  },
-  financialValue: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: 'white'
-  },
-  grossProfit: {
-    backgroundColor: '#F59E0B',
     padding: 15,
     borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 10
+    marginBottom: 15,
+    break: false,
+    minHeight: 120
   },
-  grossProfitValue: {
-    fontSize: 28,
+  financialTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 12,
+    color: 'white',
+    textAlign: 'center'
+  },
+  financialRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 8
+  },
+  financialItem: {
+    flex: 1,
+    marginHorizontal: 5
+  },
+  financialLabel: {
+    fontSize: 10,
+    marginBottom: 3,
+    color: 'rgba(255,255,255,0.8)'
+  },
+  financialValue: {
+    fontSize: 14,
     fontWeight: 'bold',
     color: 'white'
   },
+  
+  // Property Overview - Compact grid
+  propertyOverviewSection: {
+    marginBottom: 15,
+    break: false,
+    minHeight: 100
+  },
+  sectionTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#1F2937',
+    marginBottom: 10,
+    textAlign: 'center',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5
+  },
   propertyGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between'
+  },
+  propertyGridItem: {
+    width: '30%',
+    marginBottom: 8,
+    alignItems: 'center'
+  },
+  propertyValue: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#1F2937',
+    textAlign: 'center'
+  },
+  
+  // Property Details - Compact format
+  detailsSection: {
+    marginBottom: 15,
+    break: false,
+    minHeight: 120
+  },
+  detailsGrid: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     flexWrap: 'wrap'
   },
-  propertyItem: {
-    backgroundColor: '#F8FAFC',
-    padding: 12,
-    borderRadius: 6,
-    alignItems: 'center',
-    minWidth: '15%',
-    marginBottom: 8,
-    borderWidth: 1,
-    borderColor: '#E2E8F0'
+  systemDetail: {
+    width: '48%',
+    marginBottom: 8
   },
-  propertyValue: {
-    fontSize: 16,
+  systemTitle: {
+    fontSize: 11,
     fontWeight: 'bold',
     color: '#1F2937',
-    marginBottom: 2
+    marginBottom: 3
   },
-  propertyLabel: {
+  systemInfo: {
     fontSize: 10,
-    color: '#6B7280',
-    textTransform: 'uppercase'
+    color: '#4B5563',
+    lineHeight: 1.2
   },
-  detailItem: {
-    marginBottom: 8,
+  
+  // Comps Section - Organized by type
+  compsSection: {
+    marginBottom: 15,
+    break: false,
+    minHeight: 100
+  },
+  compTypeTitle: {
     fontSize: 12,
-    lineHeight: 1.4,
-    wordWrap: 'break-word',
-    hyphens: 'none'
+    fontWeight: 'bold',
+    color: '#3B82F6',
+    marginBottom: 5,
+    marginTop: 8
   },
+  compItem: {
+    fontSize: 10,
+    color: '#4B5563',
+    marginBottom: 3,
+    paddingLeft: 10
+  },
+  
+  // Occupancy & Access - Compact
+  infoSection: {
+    marginBottom: 15,
+    break: false,
+    minHeight: 60
+  },
+  infoGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between'
+  },
+  infoColumn: {
+    width: '48%'
+  },
+  infoTitle: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: '#1F2937',
+    marginBottom: 5
+  },
+  infoText: {
+    fontSize: 10,
+    color: '#4B5563',
+    lineHeight: 1.3
+  },
+  
+  // Contact Section
   contactSection: {
     backgroundColor: '#3B82F6',
     color: 'white',
     padding: 12,
-    borderRadius: 6,
-    marginTop: 10,
-    orphans: 2,
-    widows: 2
+    borderRadius: 8,
+    marginBottom: 15,
+    break: false,
+    minHeight: 80
+  },
+  contactTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    color: 'white',
+    textAlign: 'center'
   },
   contactGrid: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    flexWrap: 'wrap',
-    marginTop: 10
+    flexWrap: 'wrap'
   },
   contactItem: {
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    padding: 10,
-    borderRadius: 6,
-    minWidth: '22%',
-    marginBottom: 8
+    width: '48%',
+    marginBottom: 5
   },
   contactLabel: {
-    fontSize: 10,
-    marginBottom: 3,
-    color: 'white'
+    fontSize: 9,
+    color: 'rgba(255,255,255,0.8)',
+    marginBottom: 2
   },
   contactValue: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: 'bold',
     color: 'white'
   },
-  contactImageContainer: {
-    alignItems: 'center',
-    marginBottom: 10
-  },
-  contactImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    marginBottom: 8
-  },
-  ctaSection: {
+  
+  // EMD Section
+  emdSection: {
     backgroundColor: '#DC2626',
     color: 'white',
-    padding: 12,
-    borderRadius: 6,
+    padding: 10,
+    borderRadius: 8,
     alignItems: 'center',
-    marginTop: 10,
-    orphans: 2,
-    widows: 2
+    break: false,
+    minHeight: 60
   },
-  ctaTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10
-  },
-  text: {
-    fontSize: 12,
-    lineHeight: 1.4,
-    marginBottom: 4,
-    wordWrap: 'break-word',
-    hyphens: 'none'
-  },
-  compSection: {
-    marginBottom: 15,
-    orphans: 2,
-    widows: 2
-  },
-  compTitle: {
+  emdTitle: {
     fontSize: 14,
     fontWeight: 'bold',
     marginBottom: 8,
-    color: '#1F2937'
+    textAlign: 'center'
   },
-  compItem: {
+  emdInfo: {
     fontSize: 11,
-    marginBottom: 4,
-    color: '#3B82F6',
-    wordWrap: 'break-word',
-    hyphens: 'none'
+    textAlign: 'center',
+    marginBottom: 3
+  },
+  
+  // Warning Section
+  warningSection: {
+    backgroundColor: '#FEF3C7',
+    borderLeftWidth: 4,
+    borderLeftColor: '#F59E0B',
+    padding: 10,
+    marginBottom: 15,
+    break: false
+  },
+  warningText: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: '#92400E',
+    textAlign: 'center',
+    textTransform: 'uppercase'
+  },
+  
+  // General text
+  bodyText: {
+    fontSize: 10,
+    color: '#374151',
+    lineHeight: 1.3,
+    marginBottom: 3
+  },
+  
+  // Checkbox simulation
+  checkbox: {
+    width: 8,
+    height: 8,
+    borderWidth: 1,
+    borderColor: '#6B7280',
+    marginRight: 5,
+    backgroundColor: '#FFFFFF'
+  },
+  checkboxRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 3
   }
 });
 
 // PDF Document Component
 const PDFDocument: React.FC<{ data: PDFData }> = ({ data }) => {
+  // Helper function to format financial values
+  const formatCurrency = (value: string) => {
+    if (!value || value.trim() === '') return 'TBD';
+    if (value.includes('$')) return value;
+    return `$${value}`;
+  };
+
+  // Helper function to get age display
+  const getAgeDisplay = (specificAge: string, generalAge: string) => {
+    if (specificAge && specificAge.trim()) return specificAge;
+    if (generalAge && generalAge.trim()) return generalAge;
+    return 'Unknown';
+  };
+
   return (
     <Document>
-      <Page size="A4" style={styles.page} wrap>
-        {/* DealBlaster Brand Header */}
+      <Page size="A4" style={styles.page}>
+        {/* Brand Header */}
         <View style={styles.brandHeader}>
           <Text style={styles.brandTitle}>
             DEAL<Text style={styles.brandBlue}>BLASTER</Text>
           </Text>
         </View>
 
-        {/* Property Title with House Emoji */}
-        <Text style={styles.propertyTitle}>
-          🏠 {data.selectedTitle || data.title}
-        </Text>
-
-        {/* Property Image Placeholder */}
-        <View style={styles.propertyImagePlaceholder}>
-          <Text style={styles.imagePlaceholderText}>Property Photo</Text>
-        </View>
-
-        {/* Address Section */}
-        <View style={styles.addressSection}>
-          <Text style={styles.address}>📍 {data.address}</Text>
-          {data.photoLink && data.photoLink.trim() && (
-            <Text style={styles.photoLink}>📷 Photos: Click Here</Text>
-          )}
-          <Text style={styles.closingDate}>
-            📅 Closing: {data.closingDate}
+        {/* Title Section */}
+        <View style={styles.titleSection}>
+          <Text style={styles.mainTitle}>
+            💸 ({data.city}) {data.selectedTitle || data.title}
           </Text>
+          {data.hook && (
+            <Text style={styles.subtitle}>
+              📍 {data.hook}
+            </Text>
+          )}
         </View>
 
-        {/* Financial Section - Only show if included */}
+        {/* Property Address & Photo */}
+        <View style={styles.propertyInfoSection}>
+          <Text style={styles.address}>
+            📍 {data.address}
+          </Text>
+          {data.photoLink && data.photoLink.trim() && (
+            <View style={styles.photoLinkContainer}>
+              <Text style={styles.photoLink}>
+                📸 Photo Link: Click Here
+              </Text>
+            </View>
+          )}
+        </View>
+
+        {/* Financial Breakdown */}
         {data.includeFinancialBreakdown && (
-          <View style={styles.financialSection} break={false}>
-            <Text style={styles.financialTitle}>Financial Breakdown</Text>
-            <View style={styles.financialGrid}>
+          <View style={styles.financialSection}>
+            <Text style={styles.financialTitle}>💰 Financial Breakdown</Text>
+            <View style={styles.financialRow}>
               <View style={styles.financialItem}>
-                <Text style={styles.financialLabel}>ARV</Text>
-                <Text style={styles.financialValue}>{data.arv || 'TBD'}</Text>
+                <Text style={styles.financialLabel}>Purchase Price:</Text>
+                <Text style={styles.financialValue}>{formatCurrency(data.askingPrice)}</Text>
               </View>
               <View style={styles.financialItem}>
-                <Text style={styles.financialLabel}>Rehab Estimate</Text>
-                <Text style={styles.financialValue}>{data.rehabEstimate || 'TBD'}</Text>
+                <Text style={styles.financialLabel}>🔧 Estimated Rehab:</Text>
+                <Text style={styles.financialValue}>{formatCurrency(data.rehabEstimate)}</Text>
+              </View>
+            </View>
+            <View style={styles.financialRow}>
+              <View style={styles.financialItem}>
+                <Text style={styles.financialLabel}>🏡 After Repair Value (ARV):</Text>
+                <Text style={styles.financialValue}>{formatCurrency(data.arv)}</Text>
               </View>
               <View style={styles.financialItem}>
-                <Text style={styles.financialLabel}>All-In Cost</Text>
-                <Text style={styles.financialValue}>{data.allIn || 'TBD'}</Text>
-              </View>
-              <View style={styles.financialItem}>
-                <Text style={styles.financialLabel}>Gross Profit</Text>
-                <Text style={styles.financialValue}>{data.grossProfit || 'TBD'}</Text>
+                <Text style={styles.financialLabel}>💵 Gross Profit:</Text>
+                <Text style={styles.financialValue}>{formatCurrency(data.grossProfit)}</Text>
               </View>
             </View>
           </View>
         )}
 
         {/* Property Overview */}
-        <View style={styles.section} break={false}>
-          <Text style={styles.sectionTitle}>Property Overview</Text>
+        <View style={styles.propertyOverviewSection}>
+          <Text style={styles.sectionTitle}>🏠 Property Overview</Text>
           <View style={styles.propertyGrid}>
-            <View style={styles.propertyItem}>
-              <Text style={styles.propertyValue}>🛏️ {data.bedrooms || 'TBD'} Bed</Text>
+            <View style={styles.propertyGridItem}>
+              <Text style={styles.propertyValue}>🛏 {data.bedrooms || 'TBD'} Bedrooms</Text>
             </View>
-            <View style={styles.propertyItem}>
-              <Text style={styles.propertyValue}>🛁 {data.bathrooms || 'TBD'} Bath</Text>
+            <View style={styles.propertyGridItem}>
+              <Text style={styles.propertyValue}>🛁 {data.bathrooms || 'TBD'} Bathrooms</Text>
             </View>
-            <View style={styles.propertyItem}>
+            <View style={styles.propertyGridItem}>
               <Text style={styles.propertyValue}>📐 {data.squareFootage || 'TBD'} Sq Ft</Text>
             </View>
-            <View style={styles.propertyItem}>
-              <Text style={styles.propertyValue}>🔨 Built: {data.yearBuilt || 'TBD'}</Text>
+            <View style={styles.propertyGridItem}>
+              <Text style={styles.propertyValue}>📏 {data.lotSize || 'TBD'} Lot</Text>
             </View>
-            {data.foundationType && (
-              <View style={styles.propertyItem}>
-                <Text style={styles.propertyValue}>🏗️ {data.foundationType}</Text>
-              </View>
-            )}
-            {data.lotSize && (
-              <View style={styles.propertyItem}>
-                <Text style={styles.propertyValue}>🌳 {data.lotSize} Lot</Text>
-              </View>
-            )}
-            {data.zoning && (
-              <View style={styles.propertyItem}>
-                <Text style={styles.propertyValue}>🚫 No HOA</Text>
-              </View>
-            )}
-            {data.utilities.length > 0 && data.utilities.includes('Well & Septic') && (
-              <View style={styles.propertyItem}>
-                <Text style={styles.propertyValue}>💧 Well & Septic</Text>
-              </View>
-            )}
+            <View style={styles.propertyGridItem}>
+              <Text style={styles.propertyValue}>📚 {data.zoning || 'TBD'} Zoning</Text>
+            </View>
+            <View style={styles.propertyGridItem}>
+              <Text style={styles.propertyValue}>🏗️ Built: {data.yearBuilt || 'TBD'}</Text>
+            </View>
           </View>
-          
-          {/* Additional property details */}
-          {(data.garage || data.pool) && (
-            <View style={{ marginTop: 10 }}>
-              {data.garage && (
-                <Text style={styles.text}>🚗 Garage: {data.garage}</Text>
-              )}
-              {data.pool && (
-                <Text style={styles.text}>🏊 Pool: Yes</Text>
-              )}
-            </View>
-          )}
-        </View>
-
-        {/* Condition Section */}
-        <View style={styles.section} break={false}>
-          <Text style={styles.sectionTitle}>Condition</Text>
-          <Text style={styles.text}>
-            🏠 {data.hook || 'Very light lipstick rehab - cosmetics only. Delivered vacant with solid bones, on a full acre with no HOA. Great opportunity!'}
-          </Text>
         </View>
 
         {/* Property Details */}
-        <View style={styles.section} break={false}>
-          <Text style={styles.sectionTitle}>Property Details</Text>
-          
-          {/* Roof */}
-          <View style={styles.detailItem}>
-            <Text style={styles.text}>
-              <Text style={{ fontWeight: 'bold' }}>🏠 Roof: </Text>
-              {data.roofSpecificAge || data.roofAge || '10-15 Years Old'} {data.roofCondition ? `- ${data.roofCondition}` : ''}
-              {data.roofLastServiced && ` | Last Serviced: ${data.roofLastServiced}`}
-            </Text>
-          </View>
-          
-          {/* HVAC */}
-          <View style={styles.detailItem}>
-            <Text style={styles.text}>
-              <Text style={{ fontWeight: 'bold' }}>❄️ HVAC: </Text>
-              {data.hvacSpecificAge || data.hvacAge || 'Unknown'} {data.hvacCondition ? `- ${data.hvacCondition}` : ''}
-              {data.hvacLastServiced && ` | Last Serviced: ${data.hvacLastServiced}`}
-            </Text>
-          </View>
-          
-          {/* Water Heater */}
-          <View style={styles.detailItem}>
-            <Text style={styles.text}>
-              <Text style={{ fontWeight: 'bold' }}>🚿 Water Heater: </Text>
-              {data.waterHeaterSpecificAge || data.waterHeaterAge || 'Unknown'} {data.waterHeaterCondition ? `- ${data.waterHeaterCondition}` : ''}
-              {data.waterHeaterLastServiced && ` | Last Serviced: ${data.waterHeaterLastServiced}`}
-            </Text>
+        <View style={styles.detailsSection}>
+          <Text style={styles.sectionTitle}>🔍 Property Details</Text>
+          <View style={styles.detailsGrid}>
+            {/* Roof */}
+            <View style={styles.systemDetail}>
+              <Text style={styles.systemTitle}>🏠 Roof:</Text>
+              <Text style={styles.systemInfo}>
+                Age: {getAgeDisplay(data.roofSpecificAge, data.roofAge)}
+              </Text>
+              <Text style={styles.systemInfo}>
+                Condition: {data.roofCondition || 'Unknown'}
+              </Text>
+              {data.roofLastServiced && (
+                <Text style={styles.systemInfo}>Last Serviced: {data.roofLastServiced}</Text>
+              )}
+            </View>
+
+            {/* HVAC */}
+            <View style={styles.systemDetail}>
+              <Text style={styles.systemTitle}>❄️ HVAC:</Text>
+              <Text style={styles.systemInfo}>
+                Age: {getAgeDisplay(data.hvacSpecificAge, data.hvacAge)}
+              </Text>
+              <Text style={styles.systemInfo}>
+                Condition: {data.hvacCondition || 'Unknown'}
+              </Text>
+              {data.hvacLastServiced && (
+                <Text style={styles.systemInfo}>Last Serviced: {data.hvacLastServiced}</Text>
+              )}
+            </View>
+
+            {/* Water Heater */}
+            <View style={styles.systemDetail}>
+              <Text style={styles.systemTitle}>🚿 Hot Water Heater:</Text>
+              <Text style={styles.systemInfo}>
+                Age: {getAgeDisplay(data.waterHeaterSpecificAge, data.waterHeaterAge)}
+              </Text>
+              <Text style={styles.systemInfo}>
+                Condition: {data.waterHeaterCondition || 'Unknown'}
+              </Text>
+              {data.waterHeaterLastServiced && (
+                <Text style={styles.systemInfo}>Last Serviced: {data.waterHeaterLastServiced}</Text>
+              )}
+            </View>
+
+            {/* Foundation */}
+            {data.foundationType && (
+              <View style={styles.systemDetail}>
+                <Text style={styles.systemTitle}>🏗️ Foundation:</Text>
+                <Text style={styles.systemInfo}>Type: {data.foundationType}</Text>
+              </View>
+            )}
           </View>
         </View>
 
-        {/* Exit Strategy */}
-        {data.exitStrategy && (
-          <View style={styles.section} break={false}>
-            <Text style={styles.sectionTitle}>Exit Strategy Notes</Text>
-            <Text style={styles.text}>{data.exitStrategy}</Text>
-          </View>
-        )}
-
         {/* Comps */}
         {data.comps.some(comp => comp.address.trim()) && (
-          <View style={styles.section} break={false}>
-            <Text style={styles.sectionTitle}>Comps</Text>
+          <View style={styles.compsSection}>
+            <Text style={styles.sectionTitle}>📊 Comps</Text>
             
-            {/* Group comps by type */}
+            {/* Group and display comps by type */}
             {['Flip Comp', 'Cash Comp', 'Pending', 'Active'].map(compType => {
               const filteredComps = data.comps.filter(comp => comp.compType === compType && comp.address.trim());
               if (filteredComps.length === 0) return null;
               
               return (
-                <View key={compType} style={styles.compSection}>
-                  <Text style={styles.compTitle}>{compType}s</Text>
+                <View key={compType}>
+                  <Text style={styles.compTypeTitle}>
+                    {compType === 'Flip Comp' ? 'Sold Flipped Comps:' : 
+                     compType === 'Cash Comp' ? 'Sold As-Is Comps:' :
+                     compType === 'Pending' ? 'Pending Flipped Comps:' : 
+                     'Active Comps:'}
+                  </Text>
                   {filteredComps.map((comp, index) => (
                     <Text key={index} style={styles.compItem}>
                       {index + 1}. {comp.address} - {comp.bedrooms}br/{comp.bathrooms}ba - {comp.squareFootage} sqft
                       {comp.conditionLabel && ` - ${comp.conditionLabel}`}
-                      {comp.zillowLink && ` - Link: ${comp.zillowLink}`}
                     </Text>
                   ))}
                 </View>
@@ -543,99 +604,67 @@ const PDFDocument: React.FC<{ data: PDFData }> = ({ data }) => {
           </View>
         )}
 
-        {/* Occupancy */}
-        <View style={styles.section} break={false}>
-          <Text style={styles.sectionTitle}>Occupancy</Text>
-          <Text style={styles.text}>
-            <Text style={{ fontWeight: 'bold' }}>Current: </Text>
-            {data.currentOccupancy || 'Unknown'}
-          </Text>
-          <Text style={styles.text}>
-            <Text style={{ fontWeight: 'bold' }}>At Closing: </Text>
-            {data.closingOccupancy || 'Unknown'}
-          </Text>
+        {/* Occupancy & Access */}
+        <View style={styles.infoSection}>
+          <View style={styles.infoGrid}>
+            <View style={styles.infoColumn}>
+              <Text style={styles.infoTitle}>🏡 Occupancy</Text>
+              <Text style={styles.infoText}>Current: {data.currentOccupancy || 'Unknown'}</Text>
+              <Text style={styles.infoText}>At Closing: {data.closingOccupancy || 'Unknown'}</Text>
+            </View>
+            <View style={styles.infoColumn}>
+              <Text style={styles.infoTitle}>🔐 Access</Text>
+              <Text style={styles.infoText}>Contact for showing details</Text>
+            </View>
+          </View>
         </View>
 
-        {/* Memo Alert */}
+        {/* Memo Warning */}
         {data.memoFiled && (
-          <View style={[styles.section, { backgroundColor: '#FEF3C7', borderLeftColor: '#F59E0B' }]} break={false}>
-            <Text style={[styles.text, { fontWeight: 'bold', textAlign: 'center', color: '#92400E' }]}>
-              WARNING: MEMORANDUM OF CONTRACT FILED ON THIS PROPERTY TO PROTECT THE FINANCIAL INTEREST OF SELLER AND BUYER
+          <View style={styles.warningSection}>
+            <Text style={styles.warningText}>
+              ☐ Memorandum Filed - Legal interest protected
             </Text>
           </View>
         )}
 
-        {/* Additional Disclosures */}
-        {(data.postPossession || data.additionalDisclosures) && (
-          <View style={styles.section} break={false}>
-            <Text style={styles.sectionTitle}>Additional Disclosures</Text>
-            {data.postPossession && (
-              <Text style={styles.text}>• Post-possession disclosure applies</Text>
-            )}
-            {data.additionalDisclosures && (
-              <Text style={styles.text}>{data.additionalDisclosures}</Text>
-            )}
-          </View>
-        )}
-
         {/* Contact Info */}
-        <View style={styles.contactSection} break={false}>
-          <Text style={styles.financialTitle}>Contact Information</Text>
-          
-          {/* Profile Image */}
-          {data.contactImage && (
-            <View style={styles.contactImageContainer}>
-              <Image style={styles.contactImage} src={data.contactImage} />
-            </View>
-          )}
-          
+        <View style={styles.contactSection}>
+          <Text style={styles.contactTitle}>📞 Contact Info</Text>
           <View style={styles.contactGrid}>
             <View style={styles.contactItem}>
-              <Text style={styles.contactLabel}>Name</Text>
+              <Text style={styles.contactLabel}>Name / Company:</Text>
               <Text style={styles.contactValue}>{data.contactName || 'Contact Us'}</Text>
             </View>
             <View style={styles.contactItem}>
-              <Text style={styles.contactLabel}>Phone</Text>
+              <Text style={styles.contactLabel}>Phone:</Text>
               <Text style={styles.contactValue}>{data.contactPhone || 'TBD'}</Text>
             </View>
             {data.contactEmail && (
               <View style={styles.contactItem}>
-                <Text style={styles.contactLabel}>Email</Text>
+                <Text style={styles.contactLabel}>Email:</Text>
                 <Text style={styles.contactValue}>{data.contactEmail}</Text>
               </View>
             )}
             {data.businessHours && (
               <View style={styles.contactItem}>
-                <Text style={styles.contactLabel}>Hours</Text>
+                <Text style={styles.contactLabel}>Business Hours:</Text>
                 <Text style={styles.contactValue}>{data.businessHours}</Text>
-              </View>
-            )}
-            {data.officeNumber && (
-              <View style={styles.contactItem}>
-                <Text style={styles.contactLabel}>Office</Text>
-                <Text style={styles.contactValue}>{data.officeNumber}</Text>
-              </View>
-            )}
-            {data.website && (
-              <View style={styles.contactItem}>
-                <Text style={styles.contactLabel}>Website</Text>
-                <Text style={styles.contactValue}>{data.website}</Text>
               </View>
             )}
           </View>
         </View>
 
-        {/* CTA Section */}
-        <View style={styles.ctaSection} break={false}>
-          <Text style={styles.ctaTitle}>THIS DEAL WILL NOT LAST LONG</Text>
-          <Text style={styles.text}>PUT YOUR OFFER IN TODAY</Text>
-          
+        {/* EMD Info */}
+        <View style={styles.emdSection}>
+          <Text style={styles.emdTitle}>💵 EMD Info</Text>
           {data.emdAmount && (
-            <Text style={styles.text}>EMD: {data.emdAmount}</Text>
+            <Text style={styles.emdInfo}>Amount Due: {formatCurrency(data.emdAmount)}</Text>
           )}
           {data.emdDueDate && (
-            <Text style={styles.text}>EMD Due: {data.emdDueDate}</Text>
+            <Text style={styles.emdInfo}>Due Date: {data.emdDueDate}</Text>
           )}
+          <Text style={styles.emdInfo}>THIS DEAL WILL NOT LAST LONG - PUT YOUR OFFER IN TODAY</Text>
         </View>
       </Page>
     </Document>
