@@ -301,6 +301,9 @@ const Index = () => {
   };
 
   const handleGeneratePDF = async () => {
+    // Log all form inputs as JSON
+    console.log('Form Data:', JSON.stringify(formData, null, 2));
+    
     const validationErrors = validateRequiredFields();
     
     if (validationErrors.length > 0) {
