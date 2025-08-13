@@ -338,20 +338,27 @@ const Index = () => {
         subtitle: `${formData.dealType} Investment Property - ${formData.address}`
       };
 
-      // Send data to webhook
+      // Send data to webhook with 60 second timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+
       const response = await fetch('https://mayday.app.n8n.cloud/webhook-test/dealblaster', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(webhookData),
+        signal: controller.signal,
       });
+
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const htmlResult = await response.text();
+      const jsonResult = await response.json();
+      const htmlResult = jsonResult.html;
       setHtmlContent(htmlResult);
       setShowPreview(true);
       
