@@ -199,8 +199,6 @@ const Index = () => {
   });
 
   const [isGenerating, setIsGenerating] = useState(false);
-  const [htmlContent, setHtmlContent] = useState<string | null>(null);
-  const [showPreview, setShowPreview] = useState(false);
 
   const updateFormData = (field: keyof FormData, value: any) => {
     setFormData(prev => ({
@@ -358,12 +356,18 @@ const Index = () => {
       }
 
       const htmlResult = await response.text();
-      setHtmlContent(htmlResult);
-      setShowPreview(true);
+      
+      // Open HTML in new tab
+      const newWindow = window.open('', '_blank');
+      if (newWindow) {
+        newWindow.document.write(htmlResult);
+        newWindow.document.close();
+        newWindow.focus();
+      }
       
       toast({
-        title: "Flyer Generated Successfully!",
-        description: "Your property flyer is ready for preview.",
+        title: "Flyer opened in new tab",
+        description: "Your property flyer has been generated and opened in a new tab.",
       });
     } catch (error) {
       console.error('Error generating flyer:', error);
@@ -377,41 +381,6 @@ const Index = () => {
     }
   };
 
-  // HTML Preview Component
-  const HtmlPreview = () => (
-    <div className="min-h-screen bg-white">
-      <div className="bg-gradient-to-br from-blue-50 to-indigo-100 p-4 border-b">
-        <div className="max-w-4xl mx-auto flex items-center gap-4">
-          <Button
-            onClick={() => {
-              setShowPreview(false);
-              setHtmlContent(null);
-            }}
-            variant="outline"
-            className="flex items-center gap-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Form
-          </Button>
-          <h1 className="text-2xl font-bold text-gray-900">Property Flyer Preview</h1>
-        </div>
-      </div>
-      
-      <div className="w-full h-full">
-        {htmlContent && (
-          <div 
-            dangerouslySetInnerHTML={{ __html: htmlContent }}
-            className="w-full"
-          />
-        )}
-      </div>
-    </div>
-  );
-
-  // Show preview if we have HTML content and showPreview is true
-  if (showPreview && htmlContent) {
-    return <HtmlPreview />;
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
