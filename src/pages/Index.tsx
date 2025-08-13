@@ -357,8 +357,7 @@ const Index = () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const jsonResult = await response.json();
-      const htmlResult = jsonResult.html;
+      const htmlResult = await response.text();
       setHtmlContent(htmlResult);
       setShowPreview(true);
       
