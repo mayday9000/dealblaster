@@ -81,10 +81,6 @@ interface FormData {
     compType: string;
     conditionLabel: string;
     assetType: string;
-    soldListedDate: string;
-    soldListedPrice: string;
-    yearBuilt: string;
-    lotSize: string;
   }>;
   
   // Contact Info
@@ -172,10 +168,6 @@ const Index = () => {
         compType: '',
         conditionLabel: '',
         assetType: '',
-        soldListedDate: '',
-        soldListedPrice: '',
-        yearBuilt: '',
-        lotSize: '',
       },
       {
         address: '',
@@ -186,10 +178,6 @@ const Index = () => {
         compType: '',
         conditionLabel: '',
         assetType: '',
-        soldListedDate: '',
-        soldListedPrice: '',
-        yearBuilt: '',
-        lotSize: '',
       }
     ],
     
@@ -240,10 +228,6 @@ const Index = () => {
         compType: '',
         conditionLabel: '',
         assetType: '',
-        soldListedDate: '',
-        soldListedPrice: '',
-        yearBuilt: '',
-        lotSize: '',
       }]
     }));
   };
@@ -1116,42 +1100,6 @@ const Index = () => {
                           <SelectItem value="Other">Other</SelectItem>
                         </SelectContent>
                       </Select>
-                    </div>
-                    
-                    <div>
-                      <Label>Sold/Listed Date (Optional)</Label>
-                      <Input
-                        placeholder="MM/DD/YYYY"
-                        value={comp.soldListedDate}
-                        onChange={(e) => updateComp(index, 'soldListedDate', e.target.value)}
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label>Sold/Listed Price (Optional)</Label>
-                      <Input
-                        placeholder="$250,000"
-                        value={comp.soldListedPrice}
-                        onChange={(e) => updateComp(index, 'soldListedPrice', e.target.value)}
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label>Year Built (Optional)</Label>
-                      <Input
-                        placeholder="1985"
-                        value={comp.yearBuilt}
-                        onChange={(e) => updateComp(index, 'yearBuilt', e.target.value)}
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label>Lot Size (Optional)</Label>
-                      <Input
-                        placeholder="0.25 acres"
-                        value={comp.lotSize}
-                        onChange={(e) => updateComp(index, 'lotSize', e.target.value)}
-                      />
                     </div>
                   </div>
                 </div>
