@@ -350,7 +350,7 @@ const Index = () => {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 60000);
 
-      const response = await fetch('https://mayday.app.n8n.cloud/webhook-test/dealblaster', {
+      const response = await fetch('https://mayday.app.n8n.cloud/webhook/dealblaster', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
