@@ -10,10 +10,14 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { CalendarIcon, Download, FileText, DollarSign, Home, MapPin, Phone, Mail, Building, Calculator, Plus, Minus, Wrench, Users, Lock, Upload, User, Sparkles, ArrowLeft } from 'lucide-react';
+import SuccessModal from '@/components/SuccessModal';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 import { generatePDF } from '@/utils/pdfGenerator';
+import { supabase } from '@/integrations/supabase/client';
+import { slugify } from '@/utils/slugify';
+import { useNavigate } from 'react-router-dom';
 
 interface FormData {
   // Listing Headline
@@ -101,6 +105,7 @@ interface FormData {
 }
 
 const Index = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<FormData>({
     // Listing Headline
     city: '',
@@ -199,6 +204,8 @@ const Index = () => {
   });
 
   const [isGenerating, setIsGenerating] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [shareUrl, setShareUrl] = useState('');
 
   const updateFormData = (field: keyof FormData, value: any) => {
     setFormData(prev => ({
@@ -327,7 +334,82 @@ const Index = () => {
         contactImageBase64 = await convertFileToBase64(formData.contactImage);
       }
 
-      // Prepare data for webhook
+      // Create address slug
+      const addressSlug = slugify(formData.address);
+
+      // Save to Supabase
+      const propertyData = {
+        address_slug: addressSlug,
+        city: formData.city,
+        deal_type: formData.dealType,
+        hook: formData.hook,
+        generated_titles: formData.generatedTitles,
+        selected_title: formData.selectedTitle,
+        address: formData.address,
+        asking_price: formData.askingPrice,
+        financing_types: formData.financingTypes,
+        closing_date: formData.closingDate,
+        photo_link: formData.photoLink,
+        front_photo: frontPhotoBase64,
+        bedrooms: formData.bedrooms,
+        bathrooms: formData.bathrooms,
+        square_footage: formData.squareFootage,
+        year_built: formData.yearBuilt,
+        zoning: formData.zoning,
+        lot_size: formData.lotSize,
+        foundation_type: formData.foundationType,
+        utilities: formData.utilities,
+        garage: formData.garage,
+        pool: formData.pool,
+        roof_age: formData.roofAge,
+        roof_specific_age: formData.roofSpecificAge,
+        roof_last_serviced: formData.roofLastServiced,
+        roof_condition: formData.roofCondition,
+        hvac_age: formData.hvacAge,
+        hvac_specific_age: formData.hvacSpecificAge,
+        hvac_last_serviced: formData.hvacLastServiced,
+        hvac_condition: formData.hvacCondition,
+        water_heater_age: formData.waterHeaterAge,
+        water_heater_specific_age: formData.waterHeaterSpecificAge,
+        water_heater_last_serviced: formData.waterHeaterLastServiced,
+        water_heater_condition: formData.waterHeaterCondition,
+        current_occupancy: formData.currentOccupancy,
+        closing_occupancy: formData.closingOccupancy,
+        include_financial_breakdown: formData.includeFinancialBreakdown,
+        arv: formData.arv,
+        rehab_estimate: formData.rehabEstimate,
+        all_in: formData.allIn,
+        gross_profit: formData.grossProfit,
+        exit_strategy: formData.exitStrategy,
+        comps: formData.comps,
+        contact_name: formData.contactName,
+        contact_phone: formData.contactPhone,
+        contact_email: formData.contactEmail,
+        office_number: formData.officeNumber,
+        business_hours: formData.businessHours,
+        contact_image: contactImageBase64,
+        website: formData.website,
+        memo_filed: formData.memoFiled,
+        emd_amount: formData.emdAmount,
+        emd_due_date: formData.emdDueDate,
+        post_possession: formData.postPossession,
+        additional_disclosures: formData.additionalDisclosures,
+      };
+
+      // Upsert to Supabase
+      const { error: supabaseError } = await supabase
+        .from('properties')
+        .upsert(propertyData, { 
+          onConflict: 'address_slug',
+          ignoreDuplicates: false 
+        });
+
+      if (supabaseError) {
+        console.error('Supabase error:', supabaseError);
+        throw new Error('Failed to save property data');
+      }
+
+      // Prepare data for webhook (same as before)
       const webhookData = {
         ...formData,
         frontPhoto: frontPhotoBase64,
@@ -338,7 +420,7 @@ const Index = () => {
 
       // Send data to webhook with 60 second timeout
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 60000);
 
       const response = await fetch('https://mayday.app.n8n.cloud/webhook-test/dealblaster', {
         method: 'POST',
@@ -357,6 +439,11 @@ const Index = () => {
 
       const htmlResult = await response.text();
       
+      // Create share URL and show success modal
+      const shareLink = `/property?address=${encodeURIComponent(addressSlug)}`;
+      setShareUrl(shareLink);
+      setShowSuccessModal(true);
+      
       // Open HTML in new tab
       const newWindow = window.open('', '_blank');
       if (newWindow) {
@@ -365,10 +452,6 @@ const Index = () => {
         newWindow.focus();
       }
       
-      toast({
-        title: "Flyer opened in new tab",
-        description: "Your property flyer has been generated and opened in a new tab.",
-      });
     } catch (error) {
       console.error('Error generating flyer:', error);
       toast({
@@ -378,6 +461,23 @@ const Index = () => {
       });
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const copyShareUrl = async () => {
+    const fullUrl = `${window.location.origin}${shareUrl}`;
+    try {
+      await navigator.clipboard.writeText(fullUrl);
+      toast({
+        title: "Link copied!",
+        description: "Share URL copied to clipboard.",
+      });
+    } catch (err) {
+      toast({
+        title: "Copy failed",
+        description: "Please copy the URL manually.",
+        variant: "destructive"
+      });
     }
   };
 
@@ -1320,6 +1420,14 @@ const Index = () => {
             </CardContent>
           </Card>
         </div>
+        
+        <SuccessModal
+          open={showSuccessModal}
+          onOpenChange={setShowSuccessModal}
+          shareUrl={shareUrl}
+          onCopyUrl={copyShareUrl}
+          onViewProperty={() => navigate(shareUrl)}
+        />
       </div>
     </div>
   );
