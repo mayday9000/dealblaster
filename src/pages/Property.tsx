@@ -3,6 +3,7 @@ import { useSearchParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Download, ArrowLeft, Printer } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 
 const Property = () => {
@@ -22,11 +23,88 @@ const Property = () => {
       }
 
       try {
-        // Call backend to get pre-rendered HTML
-        const response = await fetch(`https://mayday.app.n8n.cloud/webhook-test/dealblaster/property?address=${encodeURIComponent(addressSlug)}`);
+        // First, get property data from Supabase
+        const { data: propertyData, error: supabaseError } = await supabase
+          .from('properties')
+          .select('*')
+          .eq('address_slug', addressSlug)
+          .single();
+
+        if (supabaseError || !propertyData) {
+          throw new Error('Property not found in database');
+        }
+
+        // Convert Supabase data back to webhook format
+        const webhookData = {
+          city: propertyData.city,
+          dealType: propertyData.deal_type,
+          hook: propertyData.hook,
+          generatedTitles: propertyData.generated_titles,
+          selectedTitle: propertyData.selected_title,
+          address: propertyData.address,
+          askingPrice: propertyData.asking_price,
+          financingTypes: propertyData.financing_types,
+          closingDate: propertyData.closing_date,
+          photoLink: propertyData.photo_link,
+          frontPhoto: propertyData.front_photo,
+          bedrooms: propertyData.bedrooms,
+          bathrooms: propertyData.bathrooms,
+          squareFootage: propertyData.square_footage,
+          yearBuilt: propertyData.year_built,
+          zoning: propertyData.zoning,
+          lotSize: propertyData.lot_size,
+          foundationType: propertyData.foundation_type,
+          utilities: propertyData.utilities,
+          garage: propertyData.garage,
+          pool: propertyData.pool,
+          roofAge: propertyData.roof_age,
+          roofSpecificAge: propertyData.roof_specific_age,
+          roofLastServiced: propertyData.roof_last_serviced,
+          roofCondition: propertyData.roof_condition,
+          hvacAge: propertyData.hvac_age,
+          hvacSpecificAge: propertyData.hvac_specific_age,
+          hvacLastServiced: propertyData.hvac_last_serviced,
+          hvacCondition: propertyData.hvac_condition,
+          waterHeaterAge: propertyData.water_heater_age,
+          waterHeaterSpecificAge: propertyData.water_heater_specific_age,
+          waterHeaterLastServiced: propertyData.water_heater_last_serviced,
+          waterHeaterCondition: propertyData.water_heater_condition,
+          currentOccupancy: propertyData.current_occupancy,
+          closingOccupancy: propertyData.closing_occupancy,
+          includeFinancialBreakdown: propertyData.include_financial_breakdown,
+          arv: propertyData.arv,
+          rehabEstimate: propertyData.rehab_estimate,
+          allIn: propertyData.all_in,
+          grossProfit: propertyData.gross_profit,
+          exitStrategy: propertyData.exit_strategy,
+          comps: propertyData.comps,
+          contactName: propertyData.contact_name,
+          contactPhone: propertyData.contact_phone,
+          contactEmail: propertyData.contact_email,
+          officeNumber: propertyData.office_number,
+          businessHours: propertyData.business_hours,
+          contactImage: propertyData.contact_image,
+          website: propertyData.website,
+          memoFiled: propertyData.memo_filed,
+          emdAmount: propertyData.emd_amount,
+          emdDueDate: propertyData.emd_due_date,
+          postPossession: propertyData.post_possession,
+          additionalDisclosures: propertyData.additional_disclosures,
+          title: propertyData.selected_title || `${propertyData.city} ${propertyData.deal_type} Opportunity`,
+          subtitle: `${propertyData.deal_type} Investment Property - ${propertyData.address}`
+        };
+
+        // Generate HTML using the webhook
+        const response = await fetch('https://mayday.app.n8n.cloud/webhook-test/dealblaster', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(webhookData),
+        });
         
         if (!response.ok) {
-          throw new Error(`Property not found: ${response.status}`);
+          throw new Error(`Failed to generate HTML: ${response.status}`);
         }
 
         const html = await response.text();
@@ -44,31 +122,16 @@ const Property = () => {
 
   const handleDownloadPDF = async () => {
     try {
-      // Try API endpoint first
-      const pdfResponse = await fetch(`https://mayday.app.n8n.cloud/webhook-test/dealblaster/pdf?address=${encodeURIComponent(addressSlug || '')}`);
-      
-      if (pdfResponse.ok) {
-        const blob = await pdfResponse.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `property-${addressSlug}.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-        
-        toast({
-          title: "PDF Downloaded",
-          description: "Property flyer downloaded successfully.",
-        });
-      } else {
-        // Fallback to print
-        window.print();
-      }
-    } catch (error) {
-      console.error('PDF download failed, using print fallback:', error);
+      // For now, just use the print functionality
+      // The PDF endpoint would need to be implemented on the backend
       window.print();
+    } catch (error) {
+      console.error('Print failed:', error);
+      toast({
+        title: "Print Error",
+        description: "Unable to print the document.",
+        variant: "destructive"
+      });
     }
   };
 
