@@ -23,10 +23,10 @@ const Property = () => {
       }
 
       try {
-        // First, get property data from Supabase
+        // Get property HTML from Supabase
         const { data: propertyData, error: supabaseError } = await supabase
           .from('properties')
-          .select('*')
+          .select('html_content')
           .eq('address_slug', addressSlug)
           .single();
 
@@ -34,81 +34,11 @@ const Property = () => {
           throw new Error('Property not found in database');
         }
 
-        // Convert Supabase data back to webhook format
-        const webhookData = {
-          city: propertyData.city,
-          dealType: propertyData.deal_type,
-          hook: propertyData.hook,
-          generatedTitles: propertyData.generated_titles,
-          selectedTitle: propertyData.selected_title,
-          address: propertyData.address,
-          askingPrice: propertyData.asking_price,
-          financingTypes: propertyData.financing_types,
-          closingDate: propertyData.closing_date,
-          photoLink: propertyData.photo_link,
-          frontPhoto: propertyData.front_photo,
-          bedrooms: propertyData.bedrooms,
-          bathrooms: propertyData.bathrooms,
-          squareFootage: propertyData.square_footage,
-          yearBuilt: propertyData.year_built,
-          zoning: propertyData.zoning,
-          lotSize: propertyData.lot_size,
-          foundationType: propertyData.foundation_type,
-          utilities: propertyData.utilities,
-          garage: propertyData.garage,
-          pool: propertyData.pool,
-          roofAge: propertyData.roof_age,
-          roofSpecificAge: propertyData.roof_specific_age,
-          roofLastServiced: propertyData.roof_last_serviced,
-          roofCondition: propertyData.roof_condition,
-          hvacAge: propertyData.hvac_age,
-          hvacSpecificAge: propertyData.hvac_specific_age,
-          hvacLastServiced: propertyData.hvac_last_serviced,
-          hvacCondition: propertyData.hvac_condition,
-          waterHeaterAge: propertyData.water_heater_age,
-          waterHeaterSpecificAge: propertyData.water_heater_specific_age,
-          waterHeaterLastServiced: propertyData.water_heater_last_serviced,
-          waterHeaterCondition: propertyData.water_heater_condition,
-          currentOccupancy: propertyData.current_occupancy,
-          closingOccupancy: propertyData.closing_occupancy,
-          includeFinancialBreakdown: propertyData.include_financial_breakdown,
-          arv: propertyData.arv,
-          rehabEstimate: propertyData.rehab_estimate,
-          allIn: propertyData.all_in,
-          grossProfit: propertyData.gross_profit,
-          exitStrategy: propertyData.exit_strategy,
-          comps: propertyData.comps,
-          contactName: propertyData.contact_name,
-          contactPhone: propertyData.contact_phone,
-          contactEmail: propertyData.contact_email,
-          officeNumber: propertyData.office_number,
-          businessHours: propertyData.business_hours,
-          contactImage: propertyData.contact_image,
-          website: propertyData.website,
-          memoFiled: propertyData.memo_filed,
-          emdAmount: propertyData.emd_amount,
-          emdDueDate: propertyData.emd_due_date,
-          postPossession: propertyData.post_possession,
-          additionalDisclosures: propertyData.additional_disclosures,
-          title: propertyData.selected_title || `${propertyData.city} ${propertyData.deal_type} Opportunity`,
-          subtitle: `${propertyData.deal_type} Investment Property - ${propertyData.address}`
-        };
-
-        // Generate HTML using the webhook
-        const response = await fetch('https://mayday.app.n8n.cloud/webhook-test/dealblaster', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(webhookData),
-        });
-        
-        if (!response.ok) {
-          throw new Error(`Failed to generate HTML: ${response.status}`);
+        if (!propertyData.html_content) {
+          throw new Error('Property HTML not generated yet');
         }
 
-        const html = await response.text();
-        setHtmlContent(html);
+        setHtmlContent(propertyData.html_content);
       } catch (err) {
         console.error('Error fetching property:', err);
         setError('Property listing not found');

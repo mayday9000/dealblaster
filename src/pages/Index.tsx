@@ -337,9 +337,40 @@ const Index = () => {
       // Create address slug
       const addressSlug = slugify(formData.address);
 
-      // Save to Supabase
+      // Prepare data for webhook
+      const webhookData = {
+        ...formData,
+        frontPhoto: frontPhotoBase64,
+        contactImage: contactImageBase64,
+        title: formData.selectedTitle || formData.generatedTitles[0] || `${formData.city} ${formData.dealType} Opportunity`,
+        subtitle: `${formData.dealType} Investment Property - ${formData.address}`
+      };
+
+      // Send data to webhook with 60 second timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 60000);
+
+      const response = await fetch('https://mayday.app.n8n.cloud/webhook-test/dealblaster', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(webhookData),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const htmlResult = await response.text();
+
+      // Save all data including the generated HTML to Supabase
       const propertyData = {
         address_slug: addressSlug,
+        html_content: htmlResult, // Store the generated HTML
         city: formData.city,
         deal_type: formData.dealType,
         hook: formData.hook,
@@ -408,36 +439,6 @@ const Index = () => {
         console.error('Supabase error:', supabaseError);
         throw new Error('Failed to save property data');
       }
-
-      // Prepare data for webhook (same as before)
-      const webhookData = {
-        ...formData,
-        frontPhoto: frontPhotoBase64,
-        contactImage: contactImageBase64,
-        title: formData.selectedTitle || formData.generatedTitles[0] || `${formData.city} ${formData.dealType} Opportunity`,
-        subtitle: `${formData.dealType} Investment Property - ${formData.address}`
-      };
-
-      // Send data to webhook with 60 second timeout
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 60000);
-
-      const response = await fetch('https://mayday.app.n8n.cloud/webhook-test/dealblaster', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(webhookData),
-        signal: controller.signal,
-      });
-
-      clearTimeout(timeoutId);
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const htmlResult = await response.text();
       
       // Create share URL and show success modal
       const shareLink = `/property?address=${encodeURIComponent(addressSlug)}`;

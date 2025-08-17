@@ -46,6 +46,7 @@ export type Database = {
           generated_titles: string[] | null
           gross_profit: string | null
           hook: string | null
+          html_content: string | null
           hvac_age: string | null
           hvac_condition: string | null
           hvac_last_serviced: string | null
@@ -106,6 +107,7 @@ export type Database = {
           generated_titles?: string[] | null
           gross_profit?: string | null
           hook?: string | null
+          html_content?: string | null
           hvac_age?: string | null
           hvac_condition?: string | null
           hvac_last_serviced?: string | null
@@ -166,6 +168,7 @@ export type Database = {
           generated_titles?: string[] | null
           gross_profit?: string | null
           hook?: string | null
+          html_content?: string | null
           hvac_age?: string | null
           hvac_condition?: string | null
           hvac_last_serviced?: string | null
