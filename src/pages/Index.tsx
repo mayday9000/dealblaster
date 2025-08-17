@@ -82,9 +82,13 @@ interface FormData {
     bedrooms: string;
     bathrooms: string;
     squareFootage: string;
+    lotSize: string;
     compType: string;
     conditionLabel: string;
     assetType: string;
+    soldListedPrice: string;
+    soldListedDate: string;
+    pendingDate: string;
   }>;
   
   // Contact Info
@@ -170,9 +174,13 @@ const Index = () => {
         bedrooms: '',
         bathrooms: '',
         squareFootage: '',
+        lotSize: '',
         compType: '',
         conditionLabel: '',
         assetType: '',
+        soldListedPrice: '',
+        soldListedDate: '',
+        pendingDate: '',
       },
       {
         address: '',
@@ -180,9 +188,13 @@ const Index = () => {
         bedrooms: '',
         bathrooms: '',
         squareFootage: '',
+        lotSize: '',
         compType: '',
         conditionLabel: '',
         assetType: '',
+        soldListedPrice: '',
+        soldListedDate: '',
+        pendingDate: '',
       }
     ],
     
@@ -232,9 +244,13 @@ const Index = () => {
         bedrooms: '',
         bathrooms: '',
         squareFootage: '',
+        lotSize: '',
         compType: '',
         conditionLabel: '',
         assetType: '',
+        soldListedPrice: '',
+        soldListedDate: '',
+        pendingDate: '',
       }]
     }));
   };
@@ -1157,6 +1173,15 @@ const Index = () => {
                     </div>
                     
                     <div>
+                      <Label>Lot Size (Optional)</Label>
+                      <Input
+                        placeholder="0.25 acres or 10,890 sq ft"
+                        value={comp.lotSize}
+                        onChange={(e) => updateComp(index, 'lotSize', e.target.value)}
+                      />
+                    </div>
+                    
+                    <div>
                       <Label>Comp Type *</Label>
                       <Select value={comp.compType} onValueChange={(value) => updateComp(index, 'compType', value)}>
                         <SelectTrigger>
@@ -1193,6 +1218,33 @@ const Index = () => {
                           <SelectItem value="Other">Other</SelectItem>
                         </SelectContent>
                       </Select>
+                    </div>
+                    
+                    <div>
+                      <Label>Sold/Listed Price (Optional)</Label>
+                      <Input
+                        placeholder="$250,000"
+                        value={comp.soldListedPrice}
+                        onChange={(e) => updateComp(index, 'soldListedPrice', e.target.value)}
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label>Sold/Listed Date (Optional)</Label>
+                      <Input
+                        type="date"
+                        value={comp.soldListedDate}
+                        onChange={(e) => updateComp(index, 'soldListedDate', e.target.value)}
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label>Pending Date (Optional)</Label>
+                      <Input
+                        type="date"
+                        value={comp.pendingDate}
+                        onChange={(e) => updateComp(index, 'pendingDate', e.target.value)}
+                      />
                     </div>
                   </div>
                 </div>
