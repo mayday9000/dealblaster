@@ -445,14 +445,6 @@ const Index = () => {
       setShareUrl(shareLink);
       setShowSuccessModal(true);
       
-      // Open HTML in new tab
-      const newWindow = window.open('', '_blank');
-      if (newWindow) {
-        newWindow.document.write(htmlResult);
-        newWindow.document.close();
-        newWindow.focus();
-      }
-      
     } catch (error) {
       console.error('Error generating flyer:', error);
       toast({
