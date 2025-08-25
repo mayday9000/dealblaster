@@ -22,16 +22,21 @@ import { useNavigate } from 'react-router-dom';
 interface FormData {
   // Listing Headline
   city: string;
+  state: string;
+  zip: string;
   dealType: string;
   hook: string;
   generatedTitles: string[];
   selectedTitle: string;
+  isPremarket: boolean;
   
   // Basic Info
   address: string;
   askingPrice: string;
   financingTypes: string[];
+  financingOther: string;
   closingDate: string;
+  closingDateType: 'exact' | 'onBefore';
   
   // Photo Section
   photoLink: string;
@@ -46,26 +51,23 @@ interface FormData {
   lotSize: string;
   foundationType: string;
   utilities: string[];
-  garage: string;
+  utilitiesOther: string;
+  garageSpaces: string;
+  garageType: 'attached' | 'detached' | '';
   pool: boolean;
   
   // Big Ticket Systems
-  roofAge: string;
-  roofSpecificAge: string;
-  roofLastServiced: string;
-  roofCondition: string;
-  hvacAge: string;
-  hvacSpecificAge: string;
-  hvacLastServiced: string;
-  hvacCondition: string;
-  waterHeaterAge: string;
-  waterHeaterSpecificAge: string;
-  waterHeaterLastServiced: string;
-  waterHeaterCondition: string;
+  bigTicketItems: Array<{
+    type: string;
+    age: string;
+    ageType: 'range' | 'specific';
+    specificYear: string;
+    condition: string;
+    lastServiced: string;
+  }>;
   
   // Occupancy
-  currentOccupancy: string;
-  closingOccupancy: string;
+  occupancy: string;
   
   // Financial Snapshot
   includeFinancialBreakdown: boolean;
@@ -86,9 +88,11 @@ interface FormData {
     compType: string;
     conditionLabel: string;
     assetType: string;
+    status: string;
     soldListedPrice: string;
     soldListedDate: string;
     pendingDate: string;
+    rentPrice: string;
   }>;
   
   // Contact Info
@@ -96,12 +100,14 @@ interface FormData {
   contactPhone: string;
   contactEmail: string;
   officeNumber: string;
-  businessHours: string;
+  businessHoursStart: string;
+  businessHoursEnd: string;
+  businessHoursTimezone: string;
   contactImage: File | null;
+  companyLogo: File | null;
   website: string;
   
   // Legal Disclosures
-  memoFiled: boolean;
   emdAmount: string;
   emdDueDate: string;
   postPossession: boolean;
@@ -113,16 +119,21 @@ const Index = () => {
   const [formData, setFormData] = useState<FormData>({
     // Listing Headline
     city: '',
+    state: '',
+    zip: '',
     dealType: '',
     hook: '',
     generatedTitles: [],
     selectedTitle: '',
+    isPremarket: false,
     
     // Basic Info
     address: '',
     askingPrice: '',
     financingTypes: [],
+    financingOther: '',
     closingDate: '',
+    closingDateType: 'exact',
     
     // Photo Section
     photoLink: '',
@@ -137,26 +148,20 @@ const Index = () => {
     lotSize: '',
     foundationType: '',
     utilities: [],
-    garage: '',
+    utilitiesOther: '',
+    garageSpaces: '',
+    garageType: '',
     pool: false,
     
     // Big Ticket Systems
-    roofAge: '',
-    roofSpecificAge: '',
-    roofLastServiced: '',
-    roofCondition: '',
-    hvacAge: '',
-    hvacSpecificAge: '',
-    hvacLastServiced: '',
-    hvacCondition: '',
-    waterHeaterAge: '',
-    waterHeaterSpecificAge: '',
-    waterHeaterLastServiced: '',
-    waterHeaterCondition: '',
+    bigTicketItems: [
+      { type: 'Roof', age: '', ageType: 'range', specificYear: '', condition: '', lastServiced: '' },
+      { type: 'HVAC', age: '', ageType: 'range', specificYear: '', condition: '', lastServiced: '' },
+      { type: 'Water Heater', age: '', ageType: 'range', specificYear: '', condition: '', lastServiced: '' }
+    ],
     
     // Occupancy
-    currentOccupancy: '',
-    closingOccupancy: '',
+    occupancy: '',
     
     // Financial Snapshot
     includeFinancialBreakdown: false,
@@ -178,9 +183,11 @@ const Index = () => {
         compType: '',
         conditionLabel: '',
         assetType: '',
+        status: '',
         soldListedPrice: '',
         soldListedDate: '',
         pendingDate: '',
+        rentPrice: '',
       },
       {
         address: '',
@@ -192,9 +199,11 @@ const Index = () => {
         compType: '',
         conditionLabel: '',
         assetType: '',
+        status: '',
         soldListedPrice: '',
         soldListedDate: '',
         pendingDate: '',
+        rentPrice: '',
       }
     ],
     
@@ -203,12 +212,14 @@ const Index = () => {
     contactPhone: '',
     contactEmail: '',
     officeNumber: '',
-    businessHours: '',
+    businessHoursStart: '',
+    businessHoursEnd: '',
+    businessHoursTimezone: '',
     contactImage: null,
+    companyLogo: null,
     website: '',
     
     // Legal Disclosures
-    memoFiled: false,
     emdAmount: '',
     emdDueDate: '',
     postPossession: false,
@@ -248,9 +259,11 @@ const Index = () => {
         compType: '',
         conditionLabel: '',
         assetType: '',
+        status: '',
         soldListedPrice: '',
         soldListedDate: '',
         pendingDate: '',
+        rentPrice: '',
       }]
     }));
   };
@@ -264,13 +277,45 @@ const Index = () => {
     }
   };
 
+  const addBigTicketItem = () => {
+    setFormData(prev => ({
+      ...prev,
+      bigTicketItems: [...prev.bigTicketItems, {
+        type: '',
+        age: '',
+        ageType: 'range',
+        specificYear: '',
+        condition: '',
+        lastServiced: ''
+      }]
+    }));
+  };
+
+  const removeBigTicketItem = (index: number) => {
+    if (formData.bigTicketItems.length > 3) {
+      setFormData(prev => ({
+        ...prev,
+        bigTicketItems: prev.bigTicketItems.filter((_, i) => i !== index)
+      }));
+    }
+  };
+
+  const updateBigTicketItem = (index: number, field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      bigTicketItems: prev.bigTicketItems.map((item, i) => 
+        i === index ? { ...item, [field]: value } : item
+      )
+    }));
+  };
+
   const generateTitles = () => {
     const city = formData.city || 'Prime Location';
     const dealType = formData.dealType || 'Investment';
     const hook = formData.hook || 'Great Opportunity';
     
     const titles = [
-      `${city}, NC - ${hook} ${dealType} Deal!`,
+      `${city}, ${formData.state || 'NC'} - ${hook} ${dealType} Deal!`,
       `${dealType} Opportunity in ${city} - ${hook}`,
       `${city} ${dealType} - ${hook} Investment Property`
     ];
@@ -288,12 +333,29 @@ const Index = () => {
     });
   };
 
+  const formatAskingPrice = (value: string) => {
+    // Remove all non-numeric characters
+    const numbers = value.replace(/[^\d]/g, '');
+    
+    if (numbers === '') return '';
+    
+    // Format with commas and dollar sign
+    const formatted = '$' + parseInt(numbers).toLocaleString();
+    return formatted;
+  };
+
+  const handleAskingPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatAskingPrice(e.target.value);
+    updateFormData('askingPrice', formatted);
+  };
+
   const validateRequiredFields = () => {
     const errors = [];
     
     if (!formData.city) errors.push('City');
+    if (!formData.state) errors.push('State');
     if (!formData.dealType) errors.push('Deal Type');
-    if (!formData.address) errors.push('Full Address');
+    if (!formData.isPremarket && !formData.address) errors.push('Full Address (unless premarket)');
     if (!formData.askingPrice) errors.push('Asking Price');
     if (!formData.financingTypes.length) errors.push('Financing Types');
     if (!formData.closingDate) errors.push('Closing Date');
@@ -302,17 +364,18 @@ const Index = () => {
     if (!formData.bathrooms) errors.push('Bathrooms');
     if (!formData.squareFootage) errors.push('Square Footage');
     if (!formData.yearBuilt) errors.push('Year Built');
-    if (!formData.roofAge) errors.push('Roof Age');
-    if (!formData.roofCondition) errors.push('Roof Condition');
-    if (!formData.hvacAge) errors.push('HVAC Age');
-    if (!formData.hvacCondition) errors.push('HVAC Condition');
-    if (!formData.waterHeaterAge) errors.push('Water Heater Age');
-    if (!formData.waterHeaterCondition) errors.push('Water Heater Condition');
-    if (!formData.currentOccupancy) errors.push('Current Occupancy');
-    if (!formData.closingOccupancy) errors.push('Closing Occupancy');
+    if (!formData.occupancy) errors.push('Occupancy');
     if (!formData.contactName) errors.push('Contact Name');
     if (!formData.contactPhone) errors.push('Contact Phone');
-    if (!formData.emdAmount) errors.push('EMD Amount');
+    
+    // Validate big ticket systems (at least first 3 required items)
+    const requiredBigTicketTypes = ['Roof', 'HVAC', 'Water Heater'];
+    for (const requiredType of requiredBigTicketTypes) {
+      const item = formData.bigTicketItems.find(item => item.type === requiredType);
+      if (!item || !item.age || !item.condition) {
+        errors.push(`${requiredType} age and condition`);
+      }
+    }
     
     // Validate at least 2 comps with required fields
     const validComps = formData.comps.filter(comp => 
@@ -341,6 +404,7 @@ const Index = () => {
       // Convert files to base64 for JSON transmission
       let frontPhotoBase64: string | null = null;
       let contactImageBase64: string | null = null;
+      let companyLogoBase64: string | null = null;
       
       if (formData.frontPhoto) {
         frontPhotoBase64 = await convertFileToBase64(formData.frontPhoto);
@@ -350,16 +414,23 @@ const Index = () => {
         contactImageBase64 = await convertFileToBase64(formData.contactImage);
       }
 
+      if (formData.companyLogo) {
+        companyLogoBase64 = await convertFileToBase64(formData.companyLogo);
+      }
+
       // Create address slug
-      const addressSlug = slugify(formData.address);
+      const addressSlug = formData.isPremarket ? 
+        slugify(`${formData.city}-${formData.state}-premarket-${Date.now()}`) :
+        slugify(formData.address);
 
       // Prepare data for webhook
       const webhookData = {
         ...formData,
         frontPhoto: frontPhotoBase64,
         contactImage: contactImageBase64,
+        companyLogo: companyLogoBase64,
         title: formData.selectedTitle || formData.generatedTitles[0] || `${formData.city} ${formData.dealType} Opportunity`,
-        subtitle: `${formData.dealType} Investment Property - ${formData.address}`
+        subtitle: `${formData.dealType} Investment Property - ${formData.isPremarket ? `${formData.city}, ${formData.state}` : formData.address}`
       };
 
       // Send data to webhook with 60 second timeout
@@ -383,10 +454,18 @@ const Index = () => {
 
       const htmlResult = await response.text();
 
+      // Create garage display string
+      const garageDisplay = formData.garageSpaces ? 
+        `${formData.garageType} ${formData.garageSpaces}-car garage` : '';
+
+      // Create business hours display string
+      const businessHoursDisplay = formData.businessHoursStart && formData.businessHoursEnd && formData.businessHoursTimezone ?
+        `${formData.businessHoursStart} - ${formData.businessHoursEnd} ${formData.businessHoursTimezone}` : '';
+
       // Save all data including the generated HTML to Supabase
       const propertyData = {
         address_slug: addressSlug,
-        html_content: htmlResult, // Store the generated HTML
+        html_content: htmlResult,
         city: formData.city,
         deal_type: formData.dealType,
         hook: formData.hook,
@@ -406,22 +485,10 @@ const Index = () => {
         lot_size: formData.lotSize,
         foundation_type: formData.foundationType,
         utilities: formData.utilities,
-        garage: formData.garage,
+        garage: garageDisplay,
         pool: formData.pool,
-        roof_age: formData.roofAge,
-        roof_specific_age: formData.roofSpecificAge,
-        roof_last_serviced: formData.roofLastServiced,
-        roof_condition: formData.roofCondition,
-        hvac_age: formData.hvacAge,
-        hvac_specific_age: formData.hvacSpecificAge,
-        hvac_last_serviced: formData.hvacLastServiced,
-        hvac_condition: formData.hvacCondition,
-        water_heater_age: formData.waterHeaterAge,
-        water_heater_specific_age: formData.waterHeaterSpecificAge,
-        water_heater_last_serviced: formData.waterHeaterLastServiced,
-        water_heater_condition: formData.waterHeaterCondition,
-        current_occupancy: formData.currentOccupancy,
-        closing_occupancy: formData.closingOccupancy,
+        current_occupancy: formData.occupancy,
+        closing_occupancy: formData.occupancy,
         include_financial_breakdown: formData.includeFinancialBreakdown,
         arv: formData.arv,
         rehab_estimate: formData.rehabEstimate,
@@ -433,10 +500,9 @@ const Index = () => {
         contact_phone: formData.contactPhone,
         contact_email: formData.contactEmail,
         office_number: formData.officeNumber,
-        business_hours: formData.businessHours,
+        business_hours: businessHoursDisplay,
         contact_image: contactImageBase64,
         website: formData.website,
-        memo_filed: formData.memoFiled,
         emd_amount: formData.emdAmount,
         emd_due_date: formData.emdDueDate,
         post_possession: formData.postPossession,
@@ -490,7 +556,6 @@ const Index = () => {
     }
   };
 
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
       <div className="max-w-4xl mx-auto">
@@ -499,33 +564,48 @@ const Index = () => {
             <Building className="h-8 w-8 text-blue-600" />
             Property Flyer Generator
           </h1>
-          <p className="text-lg text-gray-600">
-            Create professional investment property flyers in minutes
-          </p>
+          <p className="text-gray-600">Create professional investment property flyers in minutes</p>
         </div>
 
-        <div className="grid gap-6">
-          {/* Listing Headline */}
+        <div className="space-y-6">
+          {/* Listing Headline Section */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Sparkles className="h-5 w-5" />
                 Listing Headline
               </CardTitle>
-              <CardDescription>AI-powered headline generation</CardDescription>
+              <CardDescription>Create an eye-catching title for your property listing</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="city">City *</Label>
                   <Input
                     id="city"
-                    placeholder="Raleigh"
+                    placeholder="Hudson"
                     value={formData.city}
                     onChange={(e) => updateFormData('city', e.target.value)}
                   />
                 </div>
-                
+                <div>
+                  <Label htmlFor="state">State *</Label>
+                  <Input
+                    id="state"
+                    placeholder="FL"
+                    value={formData.state}
+                    onChange={(e) => updateFormData('state', e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="zip">Zip Code (Optional for Premarket)</Label>
+                  <Input
+                    id="zip"
+                    placeholder="34667"
+                    value={formData.zip}
+                    onChange={(e) => updateFormData('zip', e.target.value)}
+                  />
+                </div>
                 <div>
                   <Label htmlFor="dealType">Deal Type *</Label>
                   <Select value={formData.dealType} onValueChange={(value) => updateFormData('dealType', value)}>
@@ -533,114 +613,96 @@ const Index = () => {
                       <SelectValue placeholder="Select deal type" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Fix & Flip">Fix & Flip</SelectItem>
-                      <SelectItem value="Buy & Hold">Buy & Hold</SelectItem>
-                      <SelectItem value="BRRRR">BRRRR</SelectItem>
+                      <SelectItem value="Flip">Flip</SelectItem>
                       <SelectItem value="Wholesale">Wholesale</SelectItem>
-                      <SelectItem value="Rental">Rental</SelectItem>
-                      <SelectItem value="Land">Land</SelectItem>
-                      <SelectItem value="New Construction">New Construction</SelectItem>
+                      <SelectItem value="BRRRR">BRRRR</SelectItem>
+                      <SelectItem value="Buy & Hold">Buy & Hold</SelectItem>
+                      <SelectItem value="Creative Finance">Creative Finance</SelectItem>
+                      <SelectItem value="Development">Development</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
-                
-                <div>
-                  <Label htmlFor="hook">Key Hook/Profit Angle</Label>
-                  <Input
-                    id="hook"
-                    placeholder="$60K spread, vacant, turnkey"
-                    value={formData.hook}
-                    onChange={(e) => updateFormData('hook', e.target.value)}
-                  />
-                </div>
               </div>
-              
-              <Button 
-                onClick={generateTitles} 
-                variant="outline" 
-                className="w-full"
-                disabled={!formData.city || !formData.dealType}
-              >
-                <Sparkles className="w-4 h-4 mr-2" />
-                Generate AI Titles
+
+              <div>
+                <Label htmlFor="hook">Hook/Selling Point</Label>
+                <Input
+                  id="hook"
+                  placeholder="e.g., Under Market Value, Quick Close, Great Cash Flow"
+                  value={formData.hook}
+                  onChange={(e) => updateFormData('hook', e.target.value)}
+                />
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="premarket" 
+                  checked={formData.isPremarket}
+                  onCheckedChange={(checked) => updateFormData('isPremarket', checked)}
+                />
+                <Label htmlFor="premarket" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                  PREMARKET - Deal without specific address (City + State required)
+                </Label>
+              </div>
+
+              <Button onClick={generateTitles} variant="outline" className="w-full">
+                Generate Title Options
               </Button>
-              
+
               {formData.generatedTitles.length > 0 && (
-                <div className="space-y-3">
-                  <Label>Select or Edit Title:</Label>
-                  {formData.generatedTitles.map((title, index) => (
-                    <div key={index} className="flex items-center space-x-2">
-                      <input
-                        type="radio"
-                        id={`title-${index}`}
-                        name="selectedTitle"
-                        checked={formData.selectedTitle === title}
-                        onChange={() => updateFormData('selectedTitle', title)}
-                      />
-                      <Input
-                        value={formData.selectedTitle === title ? formData.selectedTitle : title}
-                        onChange={(e) => {
-                          if (formData.selectedTitle === title) {
-                            updateFormData('selectedTitle', e.target.value);
-                          }
-                        }}
-                        className="flex-1"
-                      />
-                    </div>
-                  ))}
+                <div>
+                  <Label>Select Your Title</Label>
+                  <RadioGroup value={formData.selectedTitle} onValueChange={(value) => updateFormData('selectedTitle', value)}>
+                    {formData.generatedTitles.map((title, index) => (
+                      <div key={index} className="flex items-center space-x-2">
+                        <RadioGroupItem value={title} id={`title-${index}`} />
+                        <Label htmlFor={`title-${index}`} className="text-sm">{title}</Label>
+                      </div>
+                    ))}
+                  </RadioGroup>
                 </div>
               )}
             </CardContent>
           </Card>
 
-          {/* Basic Info */}
+          {/* Basic Property Info */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <MapPin className="h-5 w-5" />
-                Basic Information
+                <Home className="h-5 w-5" />
+                Basic Property Information
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              {!formData.isPremarket && (
+                <div>
+                  <Label htmlFor="address">Full Address *</Label>
+                  <Input
+                    id="address"
+                    placeholder="14832 Atlantic Ave, Hudson, FL 34667"
+                    value={formData.address}
+                    onChange={(e) => updateFormData('address', e.target.value)}
+                  />
+                </div>
+              )}
+
               <div>
-                <Label htmlFor="address">Full Property Address *</Label>
+                <Label htmlFor="askingPrice">Asking Price * (Numbers only)</Label>
                 <Input
-                  id="address"
-                  placeholder="1309 Plymouth Ct, Raleigh, NC 27610"
-                  value={formData.address}
-                  onChange={(e) => updateFormData('address', e.target.value)}
+                  id="askingPrice"
+                  placeholder="250000"
+                  value={formData.askingPrice}
+                  onChange={handleAskingPriceChange}
                 />
               </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="askingPrice">Asking Price *</Label>
-                  <Input
-                    id="askingPrice"
-                    placeholder="$195,000"
-                    value={formData.askingPrice}
-                    onChange={(e) => updateFormData('askingPrice', e.target.value)}
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="closingDate">Closing Date/Deadline *</Label>
-                  <Input
-                    id="closingDate"
-                    placeholder="mm/dd/yyyy or 'flexible'"
-                    value={formData.closingDate}
-                    onChange={(e) => updateFormData('closingDate', e.target.value)}
-                  />
-                </div>
-              </div>
-              
+
               <div>
                 <Label>Financing Types Accepted *</Label>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
-                  {['Cash', 'Conventional', 'FHA', 'VA', 'As-Is', 'Other'].map((type) => (
+                  {['Cash', 'Conventional', 'FHA', 'VA', 'As-Is'].map((type) => (
                     <div key={type} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={`financing-${type}`}
+                      <Checkbox 
+                        id={type}
                         checked={formData.financingTypes.includes(type)}
                         onCheckedChange={(checked) => {
                           if (checked) {
@@ -650,9 +712,56 @@ const Index = () => {
                           }
                         }}
                       />
-                      <Label htmlFor={`financing-${type}`}>{type}</Label>
+                      <Label htmlFor={type}>{type}</Label>
                     </div>
                   ))}
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="financingOther"
+                      checked={formData.financingTypes.includes('Other')}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          updateFormData('financingTypes', [...formData.financingTypes, 'Other']);
+                        } else {
+                          updateFormData('financingTypes', formData.financingTypes.filter(t => t !== 'Other'));
+                          updateFormData('financingOther', '');
+                        }
+                      }}
+                    />
+                    <Label htmlFor="financingOther">Other</Label>
+                  </div>
+                </div>
+                {formData.financingTypes.includes('Other') && (
+                  <Input
+                    className="mt-2"
+                    placeholder="Specify other financing type"
+                    value={formData.financingOther}
+                    onChange={(e) => updateFormData('financingOther', e.target.value)}
+                  />
+                )}
+              </div>
+
+              <div>
+                <Label>Closing Date/Deadline *</Label>
+                <div className="space-y-2">
+                  <RadioGroup 
+                    value={formData.closingDateType} 
+                    onValueChange={(value) => updateFormData('closingDateType', value as 'exact' | 'onBefore')}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="exact" id="exact" />
+                      <Label htmlFor="exact">Exact Date</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="onBefore" id="onBefore" />
+                      <Label htmlFor="onBefore">On/Before Date</Label>
+                    </div>
+                  </RadioGroup>
+                  <Input
+                    type="date"
+                    value={formData.closingDate}
+                    onChange={(e) => updateFormData('closingDate', e.target.value)}
+                  />
                 </div>
               </div>
             </CardContent>
@@ -661,29 +770,29 @@ const Index = () => {
           {/* Photo Section */}
           <Card>
             <CardHeader>
-              <CardTitle>Property Photos</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <Upload className="h-5 w-5" />
+                Property Photos
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label htmlFor="photoLink">Drive/Dropbox Photo Folder Link *</Label>
+                <Label htmlFor="photoLink">PHOTO LINK *</Label>
                 <Input
                   id="photoLink"
-                  placeholder="https://drive.google.com/folder/..."
+                  placeholder="https://photos.zillowstatic.com/..."
                   value={formData.photoLink}
                   onChange={(e) => updateFormData('photoLink', e.target.value)}
                 />
               </div>
-              
+
               <div>
                 <Label htmlFor="frontPhoto">Upload Front Photo (Optional)</Label>
                 <Input
                   id="frontPhoto"
                   type="file"
                   accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0] || null;
-                    updateFormData('frontPhoto', file);
-                  }}
+                  onChange={(e) => updateFormData('frontPhoto', e.target.files?.[0] || null)}
                 />
               </div>
             </CardContent>
@@ -693,99 +802,90 @@ const Index = () => {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Home className="h-5 w-5" />
+                <Building className="h-5 w-5" />
                 Property Overview
               </CardTitle>
             </CardHeader>
-            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="bedrooms">Bedrooms *</Label>
-                <Input
-                  id="bedrooms"
-                  value={formData.bedrooms}
-                  onChange={(e) => updateFormData('bedrooms', e.target.value)}
-                />
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div>
+                  <Label htmlFor="bedrooms">Bedrooms *</Label>
+                  <Input
+                    id="bedrooms"
+                    placeholder="3"
+                    value={formData.bedrooms}
+                    onChange={(e) => updateFormData('bedrooms', e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="bathrooms">Bathrooms *</Label>
+                  <Input
+                    id="bathrooms"
+                    placeholder="2"
+                    value={formData.bathrooms}
+                    onChange={(e) => updateFormData('bathrooms', e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="squareFootage">Square Footage *</Label>
+                  <Input
+                    id="squareFootage"
+                    placeholder="1,200"
+                    value={formData.squareFootage}
+                    onChange={(e) => updateFormData('squareFootage', e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="yearBuilt">Year Built *</Label>
+                  <Input
+                    id="yearBuilt"
+                    placeholder="1985"
+                    value={formData.yearBuilt}
+                    onChange={(e) => updateFormData('yearBuilt', e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="zoning">Zoning</Label>
+                  <Input
+                    id="zoning"
+                    placeholder="Residential"
+                    value={formData.zoning}
+                    onChange={(e) => updateFormData('zoning', e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="lotSize">Lot Size</Label>
+                  <Input
+                    id="lotSize"
+                    placeholder="0.25 acres"
+                    value={formData.lotSize}
+                    onChange={(e) => updateFormData('lotSize', e.target.value)}
+                  />
+                </div>
               </div>
-              
-              <div>
-                <Label htmlFor="bathrooms">Bathrooms *</Label>
-                <Input
-                  id="bathrooms"
-                  value={formData.bathrooms}
-                  onChange={(e) => updateFormData('bathrooms', e.target.value)}
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="squareFootage">Square Footage *</Label>
-                <Input
-                  id="squareFootage"
-                  value={formData.squareFootage}
-                  onChange={(e) => updateFormData('squareFootage', e.target.value)}
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="yearBuilt">Year Built *</Label>
-                <Input
-                  id="yearBuilt"
-                  value={formData.yearBuilt}
-                  onChange={(e) => updateFormData('yearBuilt', e.target.value)}
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="zoning">Zoning (Optional)</Label>
-                <Input
-                  id="zoning"
-                  placeholder="R-6"
-                  value={formData.zoning}
-                  onChange={(e) => updateFormData('zoning', e.target.value)}
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="lotSize">Lot Size (Optional)</Label>
-                <Input
-                  id="lotSize"
-                  placeholder="0.25 acres"
-                  value={formData.lotSize}
-                  onChange={(e) => updateFormData('lotSize', e.target.value)}
-                />
-              </div>
-              
+
               <div>
                 <Label htmlFor="foundationType">Foundation Type</Label>
                 <Select value={formData.foundationType} onValueChange={(value) => updateFormData('foundationType', value)}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select foundation" />
+                    <SelectValue placeholder="Select foundation type" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Slab">Slab</SelectItem>
-                    <SelectItem value="Crawl">Crawl</SelectItem>
+                    <SelectItem value="Crawl Space">Crawl Space</SelectItem>
                     <SelectItem value="Basement">Basement</SelectItem>
-                    <SelectItem value="Unknown">Unknown</SelectItem>
+                    <SelectItem value="Pier & Beam">Pier & Beam</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-              
+
               <div>
-                <Label htmlFor="garage">Garage</Label>
-                <Input
-                  id="garage"
-                  placeholder="2-car garage or None"
-                  value={formData.garage}
-                  onChange={(e) => updateFormData('garage', e.target.value)}
-                />
-              </div>
-              
-              <div className="md:col-span-2">
                 <Label>Utilities</Label>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2">
-                  {['City Water', 'Sewer', 'Septic', 'Well'].map((utility) => (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
+                  {['City Water', 'City Sewer', 'Septic', 'Well'].map((utility) => (
                     <div key={utility} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={`utility-${utility}`}
+                      <Checkbox 
+                        id={utility}
                         checked={formData.utilities.includes(utility)}
                         onCheckedChange={(checked) => {
                           if (checked) {
@@ -795,21 +895,74 @@ const Index = () => {
                           }
                         }}
                       />
-                      <Label htmlFor={`utility-${utility}`}>{utility}</Label>
+                      <Label htmlFor={utility}>{utility}</Label>
                     </div>
                   ))}
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="utilitiesOther"
+                      checked={formData.utilities.includes('Other')}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          updateFormData('utilities', [...formData.utilities, 'Other']);
+                        } else {
+                          updateFormData('utilities', formData.utilities.filter(u => u !== 'Other'));
+                          updateFormData('utilitiesOther', '');
+                        }
+                      }}
+                    />
+                    <Label htmlFor="utilitiesOther">Other</Label>
+                  </div>
                 </div>
-              </div>
-              
-              <div className="md:col-span-2">
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="pool"
-                    checked={formData.pool}
-                    onCheckedChange={(checked) => updateFormData('pool', checked)}
+                {formData.utilities.includes('Other') && (
+                  <Input
+                    className="mt-2"
+                    placeholder="Specify other utilities"
+                    value={formData.utilitiesOther}
+                    onChange={(e) => updateFormData('utilitiesOther', e.target.value)}
                   />
-                  <Label htmlFor="pool">Pool</Label>
+                )}
+              </div>
+
+              <div>
+                <Label>Garage</Label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                  <div>
+                    <Label htmlFor="garageSpaces">Number of Spaces</Label>
+                    <Input
+                      id="garageSpaces"
+                      placeholder="2"
+                      value={formData.garageSpaces}
+                      onChange={(e) => updateFormData('garageSpaces', e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="garageType">Type</Label>
+                    <Select value={formData.garageType} onValueChange={(value) => updateFormData('garageType', value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="attached">Attached</SelectItem>
+                        <SelectItem value="detached">Detached</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
+                {formData.garageSpaces && formData.garageType && (
+                  <p className="text-sm text-gray-600 mt-2">
+                    Display: "{formData.garageType.charAt(0).toUpperCase() + formData.garageType.slice(1)} {formData.garageSpaces}-car garage"
+                  </p>
+                )}
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="pool" 
+                  checked={formData.pool}
+                  onCheckedChange={(checked) => updateFormData('pool', checked)}
+                />
+                <Label htmlFor="pool">Pool</Label>
               </div>
             </CardContent>
           </Card>
@@ -819,174 +972,115 @@ const Index = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Wrench className="h-5 w-5" />
-                Big Ticket Systems
+                Big Ticket Systems (Required)
               </CardTitle>
+              <CardDescription>Information about major home systems</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Roof */}
-              <div className="space-y-3">
-                <Label className="text-base font-semibold">Roof</Label>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label>Age *</Label>
-                    <Select value={formData.roofAge} onValueChange={(value) => updateFormData('roofAge', value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select age range" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="<5">Less than 5 years</SelectItem>
-                        <SelectItem value="5-10">5-10 years</SelectItem>
-                        <SelectItem value="10-15">10-15 years</SelectItem>
-                        <SelectItem value="15+">15+ years</SelectItem>
-                        <SelectItem value="Unknown">Unknown</SelectItem>
-                      </SelectContent>
-                    </Select>
+              {formData.bigTicketItems.map((item, index) => (
+                <div key={index} className="border rounded-lg p-4 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <Label htmlFor={`item-type-${index}`}>System Type *</Label>
+                      {index < 3 ? (
+                        <Input
+                          id={`item-type-${index}`}
+                          value={item.type}
+                          disabled
+                          className="bg-gray-100"
+                        />
+                      ) : (
+                        <Input
+                          id={`item-type-${index}`}
+                          placeholder="e.g., Furnace, Solar System"
+                          value={item.type}
+                          onChange={(e) => updateBigTicketItem(index, 'type', e.target.value)}
+                        />
+                      )}
+                    </div>
+                    {index >= 3 && (
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => removeBigTicketItem(index)}
+                        className="ml-2"
+                      >
+                        <Minus className="h-4 w-4" />
+                      </Button>
+                    )}
                   </div>
-                  
-                  <div>
-                    <Label>Condition *</Label>
-                    <Select value={formData.roofCondition} onValueChange={(value) => updateFormData('roofCondition', value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select condition" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Working">Working</SelectItem>
-                        <SelectItem value="Leaking">Leaking</SelectItem>
-                        <SelectItem value="Needs Replacement">Needs Replacement</SelectItem>
-                        <SelectItem value="Unknown">Unknown</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div>
-                    <Label>Specific Age/Year (Optional)</Label>
-                    <Input
-                      placeholder="2019 or 5 years"
-                      value={formData.roofSpecificAge}
-                      onChange={(e) => updateFormData('roofSpecificAge', e.target.value)}
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label>Last Serviced (Optional)</Label>
-                    <Input
-                      placeholder="mm/yyyy"
-                      value={formData.roofLastServiced}
-                      onChange={(e) => updateFormData('roofLastServiced', e.target.value)}
-                    />
-                  </div>
-                </div>
-              </div>
 
-              {/* HVAC */}
-              <div className="space-y-3">
-                <Label className="text-base font-semibold">HVAC</Label>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label>Age *</Label>
-                    <Select value={formData.hvacAge} onValueChange={(value) => updateFormData('hvacAge', value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select age range" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="<5">Less than 5 years</SelectItem>
-                        <SelectItem value="5-10">5-10 years</SelectItem>
-                        <SelectItem value="10-15">10-15 years</SelectItem>
-                        <SelectItem value="15+">15+ years</SelectItem>
-                        <SelectItem value="Unknown">Unknown</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div>
-                    <Label>Condition *</Label>
-                    <Select value={formData.hvacCondition} onValueChange={(value) => updateFormData('hvacCondition', value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select condition" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Working">Working</SelectItem>
-                        <SelectItem value="Leaking">Leaking</SelectItem>
-                        <SelectItem value="Needs Replacement">Needs Replacement</SelectItem>
-                        <SelectItem value="Unknown">Unknown</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div>
-                    <Label>Specific Age/Year (Optional)</Label>
-                    <Input
-                      placeholder="2019 or 5 years"
-                      value={formData.hvacSpecificAge}
-                      onChange={(e) => updateFormData('hvacSpecificAge', e.target.value)}
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label>Last Serviced (Optional)</Label>
-                    <Input
-                      placeholder="mm/yyyy"
-                      value={formData.hvacLastServiced}
-                      onChange={(e) => updateFormData('hvacLastServiced', e.target.value)}
-                    />
-                  </div>
-                </div>
-              </div>
+                    <RadioGroup 
+                      value={item.ageType} 
+                      onValueChange={(value) => updateBigTicketItem(index, 'ageType', value)}
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="range" id={`range-${index}`} />
+                        <Label htmlFor={`range-${index}`}>Age Range</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="specific" id={`specific-${index}`} />
+                        <Label htmlFor={`specific-${index}`}>Specific Year</Label>
+                      </div>
+                    </RadioGroup>
 
-              {/* Water Heater */}
-              <div className="space-y-3">
-                <Label className="text-base font-semibold">Water Heater</Label>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label>Age *</Label>
-                    <Select value={formData.waterHeaterAge} onValueChange={(value) => updateFormData('waterHeaterAge', value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select age range" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="<5">Less than 5 years</SelectItem>
-                        <SelectItem value="5-10">5-10 years</SelectItem>
-                        <SelectItem value="10-15">10-15 years</SelectItem>
-                        <SelectItem value="15+">15+ years</SelectItem>
-                        <SelectItem value="Unknown">Unknown</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    {item.ageType === 'range' ? (
+                      <Select value={item.age} onValueChange={(value) => updateBigTicketItem(index, 'age', value)}>
+                        <SelectTrigger className="mt-2">
+                          <SelectValue placeholder="Select age range" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="0-5 years">0-5 years</SelectItem>
+                          <SelectItem value="6-10 years">6-10 years</SelectItem>
+                          <SelectItem value="11-15 years">11-15 years</SelectItem>
+                          <SelectItem value="16-20 years">16-20 years</SelectItem>
+                          <SelectItem value="20+ years">20+ years</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <Input
+                        className="mt-2"
+                        placeholder="e.g., 2015"
+                        value={item.specificYear}
+                        onChange={(e) => updateBigTicketItem(index, 'specificYear', e.target.value)}
+                      />
+                    )}
                   </div>
-                  
+
                   <div>
-                    <Label>Condition *</Label>
-                    <Select value={formData.waterHeaterCondition} onValueChange={(value) => updateFormData('waterHeaterCondition', value)}>
+                    <Label htmlFor={`condition-${index}`}>Condition *</Label>
+                    <Select value={item.condition} onValueChange={(value) => updateBigTicketItem(index, 'condition', value)}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select condition" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Working">Working</SelectItem>
-                        <SelectItem value="Leaking">Leaking</SelectItem>
-                        <SelectItem value="Needs Replacement">Needs Replacement</SelectItem>
-                        <SelectItem value="Unknown">Unknown</SelectItem>
+                        <SelectItem value="New">New</SelectItem>
+                        <SelectItem value="Good">Good</SelectItem>
+                        <SelectItem value="Fair">Fair</SelectItem>
+                        <SelectItem value="Poor">Poor</SelectItem>
+                        <SelectItem value="Other">Other</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
-                  
+
                   <div>
-                    <Label>Specific Age/Year (Optional)</Label>
+                    <Label htmlFor={`lastServiced-${index}`}>Last Serviced (Optional)</Label>
                     <Input
-                      placeholder="2019 or 5 years"
-                      value={formData.waterHeaterSpecificAge}
-                      onChange={(e) => updateFormData('waterHeaterSpecificAge', e.target.value)}
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label>Last Serviced (Optional)</Label>
-                    <Input
-                      placeholder="mm/yyyy"
-                      value={formData.waterHeaterLastServiced}
-                      onChange={(e) => updateFormData('waterHeaterLastServiced', e.target.value)}
+                      id={`lastServiced-${index}`}
+                      placeholder="e.g., Spring 2023"
+                      value={item.lastServiced}
+                      onChange={(e) => updateBigTicketItem(index, 'lastServiced', e.target.value)}
                     />
                   </div>
                 </div>
-              </div>
+              ))}
+
+              <Button onClick={addBigTicketItem} variant="outline" className="w-full">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Big Ticket Item
+              </Button>
             </CardContent>
           </Card>
 
@@ -998,33 +1092,24 @@ const Index = () => {
                 Occupancy
               </CardTitle>
             </CardHeader>
-            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <CardContent>
               <div>
-                <Label>Current Occupancy *</Label>
-                <Select value={formData.currentOccupancy} onValueChange={(value) => updateFormData('currentOccupancy', value)}>
+                <Label htmlFor="occupancy">Occupancy Status *</Label>
+                <Select value={formData.occupancy} onValueChange={(value) => updateFormData('occupancy', value)}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select current occupancy" />
+                    <SelectValue placeholder="Select occupancy status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Owner">Owner</SelectItem>
-                    <SelectItem value="Tenant">Tenant</SelectItem>
+                    <SelectItem value="Owner Occupied">Owner Occupied</SelectItem>
                     <SelectItem value="Vacant">Vacant</SelectItem>
+                    <SelectItem value="Tenant Occupied">Tenant Occupied</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
-              
-              <div>
-                <Label>Occupancy at Closing *</Label>
-                <Select value={formData.closingOccupancy} onValueChange={(value) => updateFormData('closingOccupancy', value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select closing occupancy" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Owner">Owner</SelectItem>
-                    <SelectItem value="Tenant">Tenant</SelectItem>
-                    <SelectItem value="Vacant">Vacant</SelectItem>
-                  </SelectContent>
-                </Select>
+                {formData.occupancy === "Owner Occupied" && (
+                  <p className="text-sm text-gray-600 mt-2">
+                    Display: "Owner Occupied (to be delivered vacant)"
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -1033,116 +1118,118 @@ const Index = () => {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <DollarSign className="h-5 w-5" />
+                <Calculator className="h-5 w-5" />
                 Financial Snapshot
               </CardTitle>
+              <CardDescription>Optional financial breakdown for investors</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="includeFinancialBreakdown"
+                <Checkbox 
+                  id="includeFinancialBreakdown" 
                   checked={formData.includeFinancialBreakdown}
                   onCheckedChange={(checked) => updateFormData('includeFinancialBreakdown', checked)}
                 />
                 <Label htmlFor="includeFinancialBreakdown">Include Financial Breakdown</Label>
               </div>
-              
+
               {formData.includeFinancialBreakdown && (
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="arv">ARV</Label>
-                      <Input
-                        id="arv"
-                        placeholder="$300,000"
-                        value={formData.arv}
-                        onChange={(e) => updateFormData('arv', e.target.value)}
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="rehabEstimate">Rehab Estimate</Label>
-                      <Input
-                        id="rehabEstimate"
-                        placeholder="$50,000"
-                        value={formData.rehabEstimate}
-                        onChange={(e) => updateFormData('rehabEstimate', e.target.value)}
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="allIn">All-In Cost</Label>
-                      <Input
-                        id="allIn"
-                        placeholder="$245,000"
-                        value={formData.allIn}
-                        onChange={(e) => updateFormData('allIn', e.target.value)}
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="grossProfit">Gross Profit</Label>
-                      <Input
-                        id="grossProfit"
-                        placeholder="$55,000"
-                        value={formData.grossProfit}
-                        onChange={(e) => updateFormData('grossProfit', e.target.value)}
-                      />
-                    </div>
-                  </div>
-                  
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="exitStrategy">Exit Strategy</Label>
-                    <Textarea
-                      id="exitStrategy"
-                      placeholder="Full renovation with modern finishes..."
-                      value={formData.exitStrategy}
-                      onChange={(e) => updateFormData('exitStrategy', e.target.value)}
-                      rows={3}
+                    <Label htmlFor="arv">ARV (After Repair Value)</Label>
+                    <Input
+                      id="arv"
+                      placeholder="$325,000"
+                      value={formData.arv}
+                      onChange={(e) => updateFormData('arv', e.target.value)}
                     />
+                  </div>
+                  <div>
+                    <Label htmlFor="rehabEstimate">Rehab Estimate</Label>
+                    <Input
+                      id="rehabEstimate"
+                      placeholder="$45,000"
+                      value={formData.rehabEstimate}
+                      onChange={(e) => updateFormData('rehabEstimate', e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="allIn">All-In Cost</Label>
+                    <Input
+                      id="allIn"
+                      placeholder="$295,000"
+                      value={formData.allIn}
+                      onChange={(e) => updateFormData('allIn', e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="grossProfit">Gross Profit</Label>
+                    <Input
+                      id="grossProfit"
+                      placeholder="$30,000"
+                      value={formData.grossProfit}
+                      onChange={(e) => updateFormData('grossProfit', e.target.value)}
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <Label htmlFor="exitStrategy">Exit Strategy</Label>
+                    <Select value={formData.exitStrategy} onValueChange={(value) => updateFormData('exitStrategy', value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select exit strategy" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Flip">Flip</SelectItem>
+                        <SelectItem value="Buy & Hold">Buy & Hold</SelectItem>
+                        <SelectItem value="BRRRR">BRRRR</SelectItem>
+                        <SelectItem value="Wholesale">Wholesale</SelectItem>
+                        <SelectItem value="Live-in Flip">Live-in Flip</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
               )}
             </CardContent>
           </Card>
 
-          {/* Comps */}
+          {/* Comps Section */}
           <Card>
             <CardHeader>
-              <CardTitle>Comparable Sales</CardTitle>
-              <CardDescription>Add at least 2 comparable properties</CardDescription>
+              <CardTitle className="flex items-center gap-2">
+                <MapPin className="h-5 w-5" />
+                🔍 Comparable Sales Breakdown
+              </CardTitle>
+              <CardDescription>At least 2 comparable properties are required</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               {formData.comps.map((comp, index) => (
-                <div key={index} className="p-4 border rounded-lg space-y-4">
-                  <div className="flex justify-between items-center">
-                    <Label className="text-base font-semibold">Comp {index + 1}</Label>
+                <div key={index} className="border rounded-lg p-4 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-medium">Comp #{index + 1}</h4>
                     {formData.comps.length > 2 && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
                         onClick={() => removeComp(index)}
                       >
-                        <Minus className="w-4 h-4" />
+                        <Minus className="h-4 w-4" />
                       </Button>
                     )}
                   </div>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label>Address *</Label>
                       <Input
-                        placeholder="123 Main St, City, NC"
+                        placeholder="14832 Atlantic Ave, Hudson, FL 34667"
                         value={comp.address}
                         onChange={(e) => updateComp(index, 'address', e.target.value)}
                       />
                     </div>
                     
                     <div>
-                      <Label>Zillow Link (Optional)</Label>
+                      <Label>Zillow/MLS Link</Label>
                       <Input
-                        placeholder="https://zillow.com/..."
+                        placeholder="https://www.zillow.com/..."
                         value={comp.zillowLink}
                         onChange={(e) => updateComp(index, 'zillowLink', e.target.value)}
                       />
@@ -1151,6 +1238,7 @@ const Index = () => {
                     <div>
                       <Label>Bedrooms *</Label>
                       <Input
+                        placeholder="3"
                         value={comp.bedrooms}
                         onChange={(e) => updateComp(index, 'bedrooms', e.target.value)}
                       />
@@ -1159,14 +1247,16 @@ const Index = () => {
                     <div>
                       <Label>Bathrooms *</Label>
                       <Input
+                        placeholder="2"
                         value={comp.bathrooms}
                         onChange={(e) => updateComp(index, 'bathrooms', e.target.value)}
                       />
                     </div>
                     
                     <div>
-                      <Label>Square Feet *</Label>
+                      <Label>Square Footage *</Label>
                       <Input
+                        placeholder="1,200"
                         value={comp.squareFootage}
                         onChange={(e) => updateComp(index, 'squareFootage', e.target.value)}
                       />
@@ -1185,24 +1275,47 @@ const Index = () => {
                       <Label>Comp Type *</Label>
                       <Select value={comp.compType} onValueChange={(value) => updateComp(index, 'compType', value)}>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select type" />
+                          <SelectValue placeholder="Select comp type" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="Flip Comp">Flip Comp</SelectItem>
-                          <SelectItem value="Cash Comp">Cash Comp</SelectItem>
-                          <SelectItem value="Pending">Pending</SelectItem>
+                          <SelectItem value="Flip Comps">Flip Comps</SelectItem>
+                          <SelectItem value="Cash Comps">Cash Comps</SelectItem>
+                          <SelectItem value="Rental Comps">Rental Comps</SelectItem>
+                          <SelectItem value="CMV">CMV (Current Market Value)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
+                      <Label>Status</Label>
+                      <Select value={comp.status} onValueChange={(value) => updateComp(index, 'status', value)}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select status" />
+                        </SelectTrigger>
+                        <SelectContent>
                           <SelectItem value="Active">Active</SelectItem>
+                          <SelectItem value="Sold">Sold</SelectItem>
+                          <SelectItem value="Pending">Pending</SelectItem>
+                          <SelectItem value="Contingent">Contingent</SelectItem>
+                          <SelectItem value="Listed for Rent">Listed for Rent</SelectItem>
+                          <SelectItem value="Off-Market">Off-Market</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                     
                     <div>
-                      <Label>Condition Label (Optional)</Label>
-                      <Input
-                        placeholder="Flip, Turnkey, Full Gut"
-                        value={comp.conditionLabel}
-                        onChange={(e) => updateComp(index, 'conditionLabel', e.target.value)}
-                      />
+                      <Label>Condition *</Label>
+                      <Select value={comp.conditionLabel} onValueChange={(value) => updateComp(index, 'conditionLabel', value)}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select condition" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Flip Condition">Flip Condition</SelectItem>
+                          <SelectItem value="Retail Condition">Retail Condition</SelectItem>
+                          <SelectItem value="Move-in Ready">Move-in Ready</SelectItem>
+                          <SelectItem value="Needs Work">Needs Work</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                     
                     <div>
@@ -1213,15 +1326,16 @@ const Index = () => {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="Residential">Residential</SelectItem>
-                          <SelectItem value="Multi-Family">Multi-Family</SelectItem>
+                          <SelectItem value="Commercial">Commercial</SelectItem>
                           <SelectItem value="Land">Land</SelectItem>
+                          <SelectItem value="Multi-Family">Multi-Family</SelectItem>
                           <SelectItem value="Other">Other</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                     
                     <div>
-                      <Label>Sold/Listed Price (Optional)</Label>
+                      <Label>Sold/Listed/Pending Price (Optional)</Label>
                       <Input
                         placeholder="$250,000"
                         value={comp.soldListedPrice}
@@ -1246,12 +1360,21 @@ const Index = () => {
                         onChange={(e) => updateComp(index, 'pendingDate', e.target.value)}
                       />
                     </div>
+
+                    <div>
+                      <Label>Listed Rent Price (Optional)</Label>
+                      <Input
+                        placeholder="$1,350/mo"
+                        value={comp.rentPrice}
+                        onChange={(e) => updateComp(index, 'rentPrice', e.target.value)}
+                      />
+                    </div>
                   </div>
                 </div>
               ))}
               
-              <Button type="button" variant="outline" onClick={addComp} className="w-full">
-                <Plus className="w-4 h-4 mr-2" />
+              <Button onClick={addComp} variant="outline" className="w-full">
+                <Plus className="h-4 w-4 mr-2" />
                 Add Another Comp
               </Button>
             </CardContent>
@@ -1261,119 +1384,116 @@ const Index = () => {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Phone className="h-5 w-5" />
+                <User className="h-5 w-5" />
                 Contact Information
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex flex-col md:flex-row gap-6">
-                <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="contactName">Full Name *</Label>
-                    <Input
-                      id="contactName"
-                      value={formData.contactName}
-                      onChange={(e) => updateFormData('contactName', e.target.value)}
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="contactPhone">Phone Number *</Label>
-                    <Input
-                      id="contactPhone"
-                      value={formData.contactPhone}
-                      onChange={(e) => updateFormData('contactPhone', e.target.value)}
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="contactEmail">Email (Optional)</Label>
-                    <Input
-                      id="contactEmail"
-                      type="email"
-                      value={formData.contactEmail}
-                      onChange={(e) => updateFormData('contactEmail', e.target.value)}
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="officeNumber">Office Number (Optional)</Label>
-                    <Input
-                      id="officeNumber"
-                      value={formData.officeNumber}
-                      onChange={(e) => updateFormData('officeNumber', e.target.value)}
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="businessHours">Business Hours (Optional)</Label>
-                    <Input
-                      id="businessHours"
-                      placeholder="Mon-Fri, 9AM-5PM"
-                      value={formData.businessHours}
-                      onChange={(e) => updateFormData('businessHours', e.target.value)}
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="website">Website (Optional)</Label>
-                    <Input
-                      id="website"
-                      placeholder="https://yourwebsite.com"
-                      value={formData.website}
-                      onChange={(e) => updateFormData('website', e.target.value)}
-                    />
-                  </div>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="contactName">Contact Name *</Label>
+                  <Input
+                    id="contactName"
+                    placeholder="John Smith"
+                    value={formData.contactName}
+                    onChange={(e) => updateFormData('contactName', e.target.value)}
+                  />
                 </div>
+                <div>
+                  <Label htmlFor="contactPhone">Contact Phone *</Label>
+                  <Input
+                    id="contactPhone"
+                    placeholder="(555) 123-4567"
+                    value={formData.contactPhone}
+                    onChange={(e) => updateFormData('contactPhone', e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="contactEmail">Contact Email</Label>
+                  <Input
+                    id="contactEmail"
+                    type="email"
+                    placeholder="john@example.com"
+                    value={formData.contactEmail}
+                    onChange={(e) => updateFormData('contactEmail', e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="officeNumber">Office Number</Label>
+                  <Input
+                    id="officeNumber"
+                    placeholder="(555) 987-6543"
+                    value={formData.officeNumber}
+                    onChange={(e) => updateFormData('officeNumber', e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="website">Website</Label>
+                  <Input
+                    id="website"
+                    placeholder="www.yourwebsite.com"
+                    value={formData.website}
+                    onChange={(e) => updateFormData('website', e.target.value)}
+                  />
+                </div>
+              </div>
 
-                {/* Profile Image Section */}
-                <div className="flex flex-col items-center space-y-3">
-                  <Label className="text-sm font-medium">Headshot (Optional)</Label>
-                  <div className="relative">
-                    <div className="w-24 h-24 rounded-full border-2 border-dashed border-gray-300 bg-gray-50 flex items-center justify-center overflow-hidden">
-                      {formData.contactImage ? (
-                        <img
-                          src={URL.createObjectURL(formData.contactImage)}
-                          alt="Profile preview"
-                          className="w-full h-full object-cover rounded-full"
-                        />
-                      ) : (
-                        <User className="w-8 h-8 text-gray-400" />
-                      )}
-                    </div>
-                    <input
-                      type="file"
-                      id="contactImage"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0] || null;
-                        updateFormData('contactImage', file);
-                      }}
+              <div>
+                <Label>Business Hours</Label>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
+                  <div>
+                    <Label htmlFor="businessHoursStart">Start Time</Label>
+                    <Input
+                      id="businessHoursStart"
+                      type="time"
+                      value={formData.businessHoursStart}
+                      onChange={(e) => updateFormData('businessHoursStart', e.target.value)}
                     />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className="absolute -bottom-2 left-1/2 transform -translate-x-1/2"
-                      onClick={() => document.getElementById('contactImage')?.click()}
-                    >
-                      <Upload className="w-3 h-3 mr-1" />
-                      {formData.contactImage ? 'Change' : 'Upload'}
-                    </Button>
                   </div>
-                  {formData.contactImage && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="text-red-500 hover:text-red-700"
-                      onClick={() => updateFormData('contactImage', null)}
-                    >
-                      Remove
-                    </Button>
-                  )}
+                  <div>
+                    <Label htmlFor="businessHoursEnd">End Time</Label>
+                    <Input
+                      id="businessHoursEnd"
+                      type="time"
+                      value={formData.businessHoursEnd}
+                      onChange={(e) => updateFormData('businessHoursEnd', e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="businessHoursTimezone">Timezone</Label>
+                    <Select value={formData.businessHoursTimezone} onValueChange={(value) => updateFormData('businessHoursTimezone', value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select timezone" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="EST">EST</SelectItem>
+                        <SelectItem value="CST">CST</SelectItem>
+                        <SelectItem value="MST">MST</SelectItem>
+                        <SelectItem value="PST">PST</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
+              </div>
+
+              <div>
+                <Label htmlFor="companyLogo">Company Logo (Optional)</Label>
+                <Input
+                  id="companyLogo"
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => updateFormData('companyLogo', e.target.files?.[0] || null)}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="contactImage">Personal Headshot (Optional)</Label>
+                <Input
+                  id="contactImage"
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => updateFormData('contactImage', e.target.files?.[0] || null)}
+                />
               </div>
             </CardContent>
           </Card>
@@ -1382,14 +1502,14 @@ const Index = () => {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5" />
+                <Lock className="h-5 w-5" />
                 Legal Disclosures
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="emdAmount">EMD Amount *</Label>
+                  <Label htmlFor="emdAmount">EMD Amount (Optional)</Label>
                   <Input
                     id="emdAmount"
                     placeholder="$5,000"
@@ -1397,83 +1517,74 @@ const Index = () => {
                     onChange={(e) => updateFormData('emdAmount', e.target.value)}
                   />
                 </div>
-                
-                <div>
-                  <Label htmlFor="emdDueDate">EMD Due Date</Label>
-                  <Input
-                    id="emdDueDate"
-                    placeholder="mm/dd/yyyy"
-                    value={formData.emdDueDate}
-                    onChange={(e) => updateFormData('emdDueDate', e.target.value)}
-                  />
-                </div>
+                {formData.emdAmount && (
+                  <div>
+                    <Label htmlFor="emdDueDate">EMD Due Date *</Label>
+                    <Input
+                      id="emdDueDate"
+                      placeholder="Within 24 hours of signed purchase offer"
+                      value={formData.emdDueDate}
+                      onChange={(e) => updateFormData('emdDueDate', e.target.value)}
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Typically within 24 hours of signed purchase offer
+                    </p>
+                  </div>
+                )}
               </div>
-              
-              <div className="space-y-3">
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="memoFiled"
-                    checked={formData.memoFiled}
-                    onCheckedChange={(checked) => updateFormData('memoFiled', checked)}
-                  />
-                  <Label htmlFor="memoFiled">Memo of Contract Filed?</Label>
-                </div>
-                
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="postPossession"
-                    checked={formData.postPossession}
-                    onCheckedChange={(checked) => updateFormData('postPossession', checked)}
-                  />
-                  <Label htmlFor="postPossession">Post-possession disclosure?</Label>
-                </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="postPossession" 
+                  checked={formData.postPossession}
+                  onCheckedChange={(checked) => updateFormData('postPossession', checked)}
+                />
+                <Label htmlFor="postPossession">Post-Possession Available</Label>
               </div>
-              
+
               <div>
-                <Label htmlFor="additionalDisclosures">Additional Disclosures/Notes</Label>
+                <Label htmlFor="additionalDisclosures">Additional Notes / Disclosures</Label>
                 <Textarea
                   id="additionalDisclosures"
-                  placeholder="Any additional deal-specific notes or disclosures..."
+                  placeholder="Any additional information, disclosures, or special conditions..."
                   value={formData.additionalDisclosures}
                   onChange={(e) => updateFormData('additionalDisclosures', e.target.value)}
-                  rows={3}
+                  rows={4}
                 />
               </div>
             </CardContent>
           </Card>
 
-          {/* Generate PDF Button */}
-          <Card>
-            <CardContent className="pt-6">
-              <Button 
-                onClick={handleGeneratePDF} 
-                disabled={isGenerating}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 text-lg"
-              >
-                {isGenerating ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Generating Flyer...
-                  </>
-                ) : (
-                  <>
-                    <Download className="mr-2 h-5 w-5" />
-                    Generate Professional Flyer
-                  </>
-                )}
-              </Button>
-            </CardContent>
-          </Card>
+          {/* Generate Button */}
+          <div className="flex justify-center">
+            <Button 
+              onClick={handleGeneratePDF} 
+              disabled={isGenerating}
+              size="lg"
+              className="px-8 py-3"
+            >
+              {isGenerating ? (
+                <>
+                  <FileText className="mr-2 h-4 w-4 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <FileText className="mr-2 h-4 w-4" />
+                  Generate Property Flyer
+                </>
+              )}
+            </Button>
+          </div>
         </div>
-        
-        <SuccessModal
-          open={showSuccessModal}
-          onOpenChange={setShowSuccessModal}
-          shareUrl={shareUrl}
-          onCopyUrl={copyShareUrl}
-          onViewProperty={() => navigate(shareUrl)}
-        />
       </div>
+
+      <SuccessModal 
+        open={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        shareUrl={shareUrl}
+        onCopyUrl={copyShareUrl}
+      />
     </div>
   );
 };
