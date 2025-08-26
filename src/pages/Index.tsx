@@ -1581,9 +1581,10 @@ const Index = () => {
 
       <SuccessModal 
         open={showSuccessModal}
-        onClose={() => setShowSuccessModal(false)}
+        onOpenChange={setShowSuccessModal}
         shareUrl={shareUrl}
         onCopyUrl={copyShareUrl}
+        onViewProperty={() => window.open(shareUrl, '_blank')}
       />
     </div>
   );
