@@ -89,6 +89,7 @@ interface FormData {
     compType: string;
     conditionLabel: string;
     assetType: string;
+    assetTypeOther: string;
     status: string;
     soldListedPrice: string;
     soldListedDate: string;
@@ -185,6 +186,7 @@ const Index = () => {
         compType: '',
         conditionLabel: '',
         assetType: '',
+        assetTypeOther: '',
         status: '',
         soldListedPrice: '',
         soldListedDate: '',
@@ -201,6 +203,7 @@ const Index = () => {
         compType: '',
         conditionLabel: '',
         assetType: '',
+        assetTypeOther: '',
         status: '',
         soldListedPrice: '',
         soldListedDate: '',
@@ -261,6 +264,7 @@ const Index = () => {
         compType: '',
         conditionLabel: '',
         assetType: '',
+        assetTypeOther: '',
         status: '',
         soldListedPrice: '',
         soldListedDate: '',
@@ -1349,6 +1353,15 @@ const Index = () => {
                           <SelectItem value="Other">Other</SelectItem>
                         </SelectContent>
                       </Select>
+                      {comp.assetType === 'Other' && (
+                        <div className="mt-2">
+                          <Input
+                            placeholder="Specify asset type"
+                            value={comp.assetTypeOther}
+                            onChange={(e) => updateComp(index, 'assetTypeOther', e.target.value)}
+                          />
+                        </div>
+                      )}
                     </div>
                     
                     <div>
