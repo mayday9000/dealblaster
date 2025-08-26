@@ -440,6 +440,9 @@ const Index = () => {
         subtitle: `${formData.dealType} Investment Property - ${formData.isPremarket ? `${formData.city}, ${formData.state}` : formData.address}`
       };
 
+      // Log the JSON payload being sent to webhook
+      console.log('Webhook JSON payload:', JSON.stringify(webhookData, null, 2));
+
       // Send data to webhook with 60 second timeout
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 60000);
