@@ -68,6 +68,7 @@ interface FormData {
   
   // Occupancy
   occupancy: string;
+  occupancyOnDelivery: string;
   
   // Financial Snapshot
   includeFinancialBreakdown: boolean;
@@ -162,6 +163,7 @@ const Index = () => {
     
     // Occupancy
     occupancy: '',
+    occupancyOnDelivery: '',
     
     // Financial Snapshot
     includeFinancialBreakdown: false,
@@ -365,6 +367,7 @@ const Index = () => {
     if (!formData.squareFootage) errors.push('Square Footage');
     if (!formData.yearBuilt) errors.push('Year Built');
     if (!formData.occupancy) errors.push('Occupancy');
+    if (!formData.occupancyOnDelivery) errors.push('Occupancy on Delivery');
     if (!formData.contactName) errors.push('Contact Name');
     if (!formData.contactPhone) errors.push('Contact Phone');
     
@@ -488,7 +491,7 @@ const Index = () => {
         garage: garageDisplay,
         pool: formData.pool,
         current_occupancy: formData.occupancy,
-        closing_occupancy: formData.occupancy,
+        closing_occupancy: formData.occupancyOnDelivery,
         include_financial_breakdown: formData.includeFinancialBreakdown,
         arv: formData.arv,
         rehab_estimate: formData.rehabEstimate,
@@ -1110,6 +1113,20 @@ const Index = () => {
                     Display: "Owner Occupied (to be delivered vacant)"
                   </p>
                 )}
+              </div>
+              
+              <div className="mt-4">
+                <Label htmlFor="occupancyOnDelivery">Occupancy on Delivery *</Label>
+                <Select value={formData.occupancyOnDelivery} onValueChange={(value) => updateFormData('occupancyOnDelivery', value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select occupancy on delivery" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Owner Occupied">Owner Occupied</SelectItem>
+                    <SelectItem value="Vacant">Vacant</SelectItem>
+                    <SelectItem value="Tenant Occupied">Tenant Occupied</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </CardContent>
           </Card>
