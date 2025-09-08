@@ -450,30 +450,6 @@ const Index = () => {
         subtitle: `${formData.dealType} Investment Property - ${formData.isPremarket ? `${formData.city}, ${formData.state}` : formData.address}`
       };
 
-      // Log the JSON payload being sent to webhook
-      console.log('Webhook JSON payload:', JSON.stringify(webhookData, null, 2));
-
-      // Send data to webhook with 60 second timeout
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 60000);
-
-      const response = await fetch('https://mayday.app.n8n.cloud/webhook/dealblaster', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(webhookData),
-        signal: controller.signal,
-      });
-
-      clearTimeout(timeoutId);
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const htmlResult = await response.text();
-
       // Create garage display string
       const garageDisplay = formData.garageSpaces ? 
         `${formData.garageType} ${formData.garageSpaces}-car garage` : '';
@@ -482,10 +458,10 @@ const Index = () => {
       const businessHoursDisplay = formData.businessHoursStart && formData.businessHoursEnd && formData.businessHoursTimezone ?
         `${formData.businessHoursStart} - ${formData.businessHoursEnd} ${formData.businessHoursTimezone}` : '';
 
-      // Save all data including the generated HTML to Supabase
+      // First, save property data to Supabase WITHOUT html_content
       const propertyData = {
         address_slug: addressSlug,
-        html_content: htmlResult,
+        html_content: null, // Will be updated after webhook returns
         city: formData.city,
         deal_type: formData.dealType,
         hook: formData.hook,
@@ -529,20 +505,57 @@ const Index = () => {
         additional_disclosures: formData.additionalDisclosures,
       };
 
-      // Upsert to Supabase
-      const { error: supabaseError } = await supabase
+      // First save to Supabase without HTML content
+      const { error: initialSaveError } = await supabase
         .from('properties')
         .upsert(propertyData, { 
           onConflict: 'address_slug',
           ignoreDuplicates: false 
         });
 
-      if (supabaseError) {
-        console.error('Supabase error:', supabaseError);
+      if (initialSaveError) {
+        console.error('Supabase initial save error:', initialSaveError);
         throw new Error('Failed to save property data');
       }
 
-      console.log('Property data saved successfully to Supabase');
+      console.log('Property data saved to Supabase, now generating HTML...');
+
+      // Log the JSON payload being sent to webhook
+      console.log('Webhook JSON payload:', JSON.stringify(webhookData, null, 2));
+
+      // Send data to webhook with 60 second timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 60000);
+
+      const response = await fetch('https://mayday.app.n8n.cloud/webhook/dealblaster', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(webhookData),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const htmlResult = await response.text();
+
+      // Update the property with the generated HTML content
+      const { error: updateError } = await supabase
+        .from('properties')
+        .update({ html_content: htmlResult })
+        .eq('address_slug', addressSlug);
+
+      if (updateError) {
+        console.error('Supabase update error:', updateError);
+        throw new Error('Failed to update property with generated HTML');
+      }
+
+      console.log('Property HTML content updated successfully in Supabase');
       
       // Create share URL and show success modal
       const shareLink = `/property?address=${encodeURIComponent(addressSlug)}`;

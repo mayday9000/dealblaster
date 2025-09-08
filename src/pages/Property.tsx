@@ -45,15 +45,19 @@ const Property = () => {
           throw new Error('Property not found in database');
         }
 
-        if (!property.html_content) {
-          throw new Error('Property HTML not generated yet');
-        }
-
-        setHtmlContent(property.html_content);
+        // Set property data regardless of HTML content status
         setPropertyData(property);
+
+        // If HTML content is not yet generated, we'll show a generating state
+        if (!property.html_content) {
+          setHtmlContent(null);
+          console.log('Property found but HTML content still generating...');
+        } else {
+          setHtmlContent(property.html_content);
+        }
       } catch (err) {
         console.error('Error fetching property:', err);
-        setError('Property listing not found');
+        setError(err instanceof Error ? err.message : 'Property listing not found');
       } finally {
         setLoading(false);
       }
@@ -164,6 +168,48 @@ const Property = () => {
             </Button>
           </CardContent>
         </Card>
+      </div>
+    );
+  }
+
+  // Show generating state if HTML content is not ready yet
+  if (!htmlContent && propertyData) {
+    return (
+      <div className="min-h-screen bg-background">
+        {/* Header with controls */}
+        <div className="fixed top-0 left-0 right-0 bg-card border-b print:hidden z-50 shadow-sm">
+          <div className="container mx-auto px-4 py-4">
+            <div className="flex items-center justify-between">
+              <Button variant="outline" asChild>
+                <Link to="/">
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back to Generator
+                </Link>
+              </Button>
+              
+              <Button disabled className="flex items-center gap-2">
+                <Download className="w-4 h-4" />
+                Download as PDF
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Generating state */}
+        <div className="pt-20 flex items-center justify-center min-h-[calc(100vh-5rem)]">
+          <Card className="max-w-md">
+            <CardContent className="text-center p-6">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+              <h1 className="text-xl font-semibold mb-2">Generating Your Flyer</h1>
+              <p className="text-muted-foreground mb-4">
+                Your property listing is being generated. This usually takes 30-60 seconds.
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Found property: {propertyData.address || 'Unknown Address'}
+              </p>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   }
