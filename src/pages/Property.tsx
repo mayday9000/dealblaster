@@ -54,76 +54,66 @@ const Property = () => {
   }, [addressSlug]);
 
   const handleDownloadPDF = async () => {
-    if (!propertyData) {
+    if (!htmlContent) {
       toast({
         title: "Error",
-        description: "Property data not loaded yet.",
+        description: "Property content not loaded yet.",
         variant: "destructive"
       });
       return;
     }
 
     try {
-      // Transform property data to match PDF generator format
-      const pdfData = {
-        title: propertyData.title || `${propertyData.city} ${propertyData.deal_type} Opportunity`,
-        subtitle: propertyData.subtitle || `${propertyData.deal_type} Investment Property - ${propertyData.address}`,
-        city: propertyData.city || '',
-        dealType: propertyData.deal_type || '',
-        hook: propertyData.hook || '',
-        selectedTitle: propertyData.selected_title || propertyData.title || '',
-        address: propertyData.address || '',
-        askingPrice: propertyData.asking_price || '',
-        financingTypes: propertyData.financing_types || [],
-        closingDate: propertyData.closing_date || '',
-        photoLink: propertyData.photo_link || '',
-        frontPhoto: null,
-        bedrooms: propertyData.bedrooms || '',
-        bathrooms: propertyData.bathrooms || '',
-        squareFootage: propertyData.square_footage || '',
-        yearBuilt: propertyData.year_built || '',
-        zoning: propertyData.zoning || '',
-        lotSize: propertyData.lot_size || '',
-        foundationType: propertyData.foundation_type || '',
-        utilities: propertyData.utilities || [],
-        garage: propertyData.garage_display || '',
-        pool: propertyData.pool || false,
-        roofAge: '',
-        roofSpecificAge: '',
-        roofLastServiced: '',
-        roofCondition: '',
-        hvacAge: '',
-        hvacSpecificAge: '',
-        hvacLastServiced: '',
-        hvacCondition: '',
-        waterHeaterAge: '',
-        waterHeaterSpecificAge: '',
-        waterHeaterLastServiced: '',
-        waterHeaterCondition: '',
-        currentOccupancy: propertyData.occupancy || '',
-        closingOccupancy: propertyData.occupancy_on_delivery || '',
-        includeFinancialBreakdown: propertyData.include_financial_breakdown || false,
-        arv: propertyData.arv || '',
-        rehabEstimate: propertyData.rehab_estimate || '',
-        allIn: propertyData.all_in || '',
-        grossProfit: propertyData.gross_profit || '',
-        exitStrategy: propertyData.exit_strategy || '',
-        comps: propertyData.comps || [],
-        contactName: propertyData.contact_name || '',
-        contactPhone: propertyData.contact_phone || '',
-        contactEmail: propertyData.contact_email || '',
-        officeNumber: propertyData.office_number || '',
-        businessHours: propertyData.business_hours_display || '',
-        contactImage: null,
-        website: propertyData.website || '',
-        memoFiled: false,
-        emdAmount: propertyData.emd_amount || '',
-        emdDueDate: propertyData.emd_due_date || '',
-        postPossession: propertyData.post_possession || false,
-        additionalDisclosures: propertyData.additional_disclosures || '',
-      };
+      const { default: html2canvas } = await import('html2canvas');
+      const { jsPDF } = await import('jspdf');
+      
+      // Get the property content element
+      const element = document.querySelector('.property-content') as HTMLElement;
+      if (!element) {
+        throw new Error('Property content not found');
+      }
 
-      await generatePDF(pdfData);
+      // Create canvas from the HTML content
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        scrollX: 0,
+        scrollY: 0,
+      });
+
+      // Create PDF
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      const imgWidth = 210; // A4 width in mm
+      const pageHeight = 295; // A4 height in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      // Add first page
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      // Add additional pages if needed
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+
+      // Download the PDF
+      const fileName = propertyData?.address 
+        ? `${propertyData.address.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_listing.pdf`
+        : 'property_listing.pdf';
+      
+      pdf.save(fileName);
       
       toast({
         title: "Success",
