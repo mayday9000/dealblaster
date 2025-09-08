@@ -71,30 +71,28 @@ const Property = () => {
     }
 
     try {
-      console.log('Full property data for PDF:', propertyData);
-      
-      // Map property data to PDF format - using actual field names from database
+      // Map property data to PDF format
       const pdfData: PDFData = {
-        title: propertyData.title || propertyData.deal_type || 'Property Investment Opportunity',
+        title: propertyData.title || 'Property Investment Opportunity',
         subtitle: propertyData.subtitle || 'Real Estate Investment',
         city: propertyData.city || '',
         dealType: propertyData.deal_type || 'Investment',
         hook: propertyData.hook || '',
-        selectedTitle: propertyData.selected_title || propertyData.title || propertyData.deal_type || 'Investment Property',
+        selectedTitle: propertyData.selected_title || propertyData.title || '',
         address: propertyData.address || '',
-        askingPrice: propertyData.asking_price || propertyData.price || 'TBD',
-        financingTypes: Array.isArray(propertyData.financing_types) ? propertyData.financing_types : ['TBD'],
-        closingDate: propertyData.closing_date || 'TBD',
+        askingPrice: propertyData.asking_price || '',
+        financingTypes: propertyData.financing_types || [],
+        closingDate: propertyData.closing_date || '',
         photoLink: propertyData.photo_link || '',
         frontPhoto: null,
-        bedrooms: propertyData.bedrooms?.toString() || 'TBD',
-        bathrooms: propertyData.bathrooms?.toString() || 'TBD',
-        squareFootage: propertyData.square_footage?.toString() || 'TBD',
-        yearBuilt: propertyData.year_built?.toString() || 'TBD',
+        bedrooms: propertyData.bedrooms || '',
+        bathrooms: propertyData.bathrooms || '',
+        squareFootage: propertyData.square_footage || '',
+        yearBuilt: propertyData.year_built || '',
         zoning: propertyData.zoning || '',
         lotSize: propertyData.lot_size || '',
         foundationType: propertyData.foundation_type || '',
-        utilities: Array.isArray(propertyData.utilities) ? propertyData.utilities : [],
+        utilities: propertyData.utilities || [],
         garage: propertyData.garage || '',
         pool: propertyData.pool || false,
         roofAge: propertyData.roof_age || '',
@@ -117,9 +115,9 @@ const Property = () => {
         allIn: propertyData.all_in || '',
         grossProfit: propertyData.gross_profit || '',
         exitStrategy: propertyData.exit_strategy || '',
-        comps: Array.isArray(propertyData.comps) ? propertyData.comps : [],
-        contactName: propertyData.contact_name || 'Contact Us',
-        contactPhone: propertyData.contact_phone || 'TBD',
+        comps: propertyData.comps || [],
+        contactName: propertyData.contact_name || '',
+        contactPhone: propertyData.contact_phone || '',
         contactEmail: propertyData.contact_email || '',
         officeNumber: propertyData.office_number || '',
         businessHours: propertyData.business_hours || '',
@@ -131,8 +129,6 @@ const Property = () => {
         postPossession: propertyData.post_possession || false,
         additionalDisclosures: propertyData.additional_disclosures || '',
       };
-      
-      console.log('Mapped PDF data:', pdfData);
       
       await generatePDF(pdfData);
       
