@@ -16,6 +16,8 @@ const Property = () => {
   
   const addressSlug = searchParams.get('address');
 
+  console.log('Property page loaded with addressSlug:', addressSlug);
+
   useEffect(() => {
     const fetchProperty = async () => {
       if (!addressSlug) {
@@ -36,6 +38,8 @@ const Property = () => {
           console.error('Supabase error:', supabaseError);
           throw new Error('Database error occurred');
         }
+
+        console.log('Property query result:', property);
 
         if (!property) {
           throw new Error('Property not found in database');

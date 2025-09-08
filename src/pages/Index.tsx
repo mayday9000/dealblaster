@@ -541,6 +541,8 @@ const Index = () => {
         console.error('Supabase error:', supabaseError);
         throw new Error('Failed to save property data');
       }
+
+      console.log('Property data saved successfully to Supabase');
       
       // Create share URL and show success modal
       const shareLink = `/property?address=${encodeURIComponent(addressSlug)}`;
