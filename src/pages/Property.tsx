@@ -5,10 +5,12 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Download, ArrowLeft, Printer } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { generatePDF } from '@/utils/pdfGenerator';
 
 const Property = () => {
   const [searchParams] = useSearchParams();
   const [htmlContent, setHtmlContent] = useState<string>('');
+  const [propertyData, setPropertyData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
   
@@ -23,22 +25,23 @@ const Property = () => {
       }
 
       try {
-        // Get property HTML from Supabase
-        const { data: propertyData, error: supabaseError } = await supabase
+        // Get all property data from Supabase
+        const { data: property, error: supabaseError } = await supabase
           .from('properties')
-          .select('html_content')
+          .select('*')
           .eq('address_slug', addressSlug)
           .single();
 
-        if (supabaseError || !propertyData) {
+        if (supabaseError || !property) {
           throw new Error('Property not found in database');
         }
 
-        if (!propertyData.html_content) {
+        if (!property.html_content) {
           throw new Error('Property HTML not generated yet');
         }
 
-        setHtmlContent(propertyData.html_content);
+        setHtmlContent(property.html_content);
+        setPropertyData(property);
       } catch (err) {
         console.error('Error fetching property:', err);
         setError('Property listing not found');
@@ -51,15 +54,86 @@ const Property = () => {
   }, [addressSlug]);
 
   const handleDownloadPDF = async () => {
-    try {
-      // For now, just use the print functionality
-      // The PDF endpoint would need to be implemented on the backend
-      window.print();
-    } catch (error) {
-      console.error('Print failed:', error);
+    if (!propertyData) {
       toast({
-        title: "Print Error",
-        description: "Unable to print the document.",
+        title: "Error",
+        description: "Property data not loaded yet.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      // Transform property data to match PDF generator format
+      const pdfData = {
+        title: propertyData.title || `${propertyData.city} ${propertyData.deal_type} Opportunity`,
+        subtitle: propertyData.subtitle || `${propertyData.deal_type} Investment Property - ${propertyData.address}`,
+        city: propertyData.city || '',
+        dealType: propertyData.deal_type || '',
+        hook: propertyData.hook || '',
+        selectedTitle: propertyData.selected_title || propertyData.title || '',
+        address: propertyData.address || '',
+        askingPrice: propertyData.asking_price || '',
+        financingTypes: propertyData.financing_types || [],
+        closingDate: propertyData.closing_date || '',
+        photoLink: propertyData.photo_link || '',
+        frontPhoto: null,
+        bedrooms: propertyData.bedrooms || '',
+        bathrooms: propertyData.bathrooms || '',
+        squareFootage: propertyData.square_footage || '',
+        yearBuilt: propertyData.year_built || '',
+        zoning: propertyData.zoning || '',
+        lotSize: propertyData.lot_size || '',
+        foundationType: propertyData.foundation_type || '',
+        utilities: propertyData.utilities || [],
+        garage: propertyData.garage_display || '',
+        pool: propertyData.pool || false,
+        roofAge: '',
+        roofSpecificAge: '',
+        roofLastServiced: '',
+        roofCondition: '',
+        hvacAge: '',
+        hvacSpecificAge: '',
+        hvacLastServiced: '',
+        hvacCondition: '',
+        waterHeaterAge: '',
+        waterHeaterSpecificAge: '',
+        waterHeaterLastServiced: '',
+        waterHeaterCondition: '',
+        currentOccupancy: propertyData.occupancy || '',
+        closingOccupancy: propertyData.occupancy_on_delivery || '',
+        includeFinancialBreakdown: propertyData.include_financial_breakdown || false,
+        arv: propertyData.arv || '',
+        rehabEstimate: propertyData.rehab_estimate || '',
+        allIn: propertyData.all_in || '',
+        grossProfit: propertyData.gross_profit || '',
+        exitStrategy: propertyData.exit_strategy || '',
+        comps: propertyData.comps || [],
+        contactName: propertyData.contact_name || '',
+        contactPhone: propertyData.contact_phone || '',
+        contactEmail: propertyData.contact_email || '',
+        officeNumber: propertyData.office_number || '',
+        businessHours: propertyData.business_hours_display || '',
+        contactImage: null,
+        website: propertyData.website || '',
+        memoFiled: false,
+        emdAmount: propertyData.emd_amount || '',
+        emdDueDate: propertyData.emd_due_date || '',
+        postPossession: propertyData.post_possession || false,
+        additionalDisclosures: propertyData.additional_disclosures || '',
+      };
+
+      await generatePDF(pdfData);
+      
+      toast({
+        title: "Success",
+        description: "PDF downloaded successfully!",
+      });
+    } catch (error) {
+      console.error('PDF generation failed:', error);
+      toast({
+        title: "PDF Error",
+        description: "Unable to generate PDF. Please try again.",
         variant: "destructive"
       });
     }
