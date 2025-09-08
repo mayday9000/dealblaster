@@ -505,35 +505,6 @@ const Index = () => {
         additional_disclosures: formData.additionalDisclosures,
       };
 
-      // Debug: Log what we're trying to save
-      console.log('Attempting to save property data:', {
-        address_slug: addressSlug,
-        city: formData.city,
-        deal_type: formData.dealType,
-        address: formData.address,
-        html_content: null
-      });
-      console.log('Full property data object:', propertyData);
-
-      // First save to Supabase without HTML content
-      const { data: insertResult, error: initialSaveError } = await supabase
-        .from('properties')
-        .upsert(propertyData, { 
-          onConflict: 'address_slug',
-          ignoreDuplicates: false 
-        })
-        .select();
-
-      if (initialSaveError) {
-        console.error('Supabase initial save error:', initialSaveError);
-        console.error('Property data that failed to save:', propertyData);
-        throw new Error(`Failed to save property data: ${initialSaveError.message}`);
-      }
-
-      console.log('Property data saved successfully:', insertResult);
-
-      console.log('Property data saved to Supabase, now generating HTML...');
-
       // Log the JSON payload being sent to webhook
       console.log('Webhook JSON payload:', JSON.stringify(webhookData, null, 2));
 
@@ -557,19 +528,31 @@ const Index = () => {
       }
 
       const htmlResult = await response.text();
+      console.log('HTML result received from webhook');
 
-      // Update the property with the generated HTML content
-      const { error: updateError } = await supabase
+      // Save only the HTML content and basic identifiers to Supabase
+      const propertyRecord = {
+        address_slug: addressSlug,
+        html_content: htmlResult,
+        city: formData.city,
+        deal_type: formData.dealType,
+        address: formData.address,
+      };
+
+      const { data: insertResult, error: supabaseError } = await supabase
         .from('properties')
-        .update({ html_content: htmlResult })
-        .eq('address_slug', addressSlug);
+        .upsert(propertyRecord, { 
+          onConflict: 'address_slug',
+          ignoreDuplicates: false 
+        })
+        .select();
 
-      if (updateError) {
-        console.error('Supabase update error:', updateError);
-        throw new Error('Failed to update property with generated HTML');
+      if (supabaseError) {
+        console.error('Supabase error:', supabaseError);
+        throw new Error('Failed to save generated HTML');
       }
 
-      console.log('Property HTML content updated successfully in Supabase');
+      console.log('HTML content saved successfully to Supabase:', insertResult);
       
       // Create share URL and show success modal
       const shareLink = `/property?address=${encodeURIComponent(addressSlug)}`;
