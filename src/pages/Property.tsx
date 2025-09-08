@@ -87,12 +87,11 @@ const Property = () => {
         throw new Error('Property content not found');
       }
       
-      console.log('Element found, dimensions:', {
-        width: element.offsetWidth,
-        height: element.offsetHeight,
-        scrollHeight: element.scrollHeight,
-        innerHTML: element.innerHTML.substring(0, 200) + '...'
-      });
+      console.log('Element width:', element.offsetWidth);
+      console.log('Element height:', element.offsetHeight);
+      console.log('Element scrollHeight:', element.scrollHeight);
+      console.log('Element innerHTML preview:', element.innerHTML.substring(0, 200));
+      console.log('Is element visible?', element.offsetParent !== null);
 
       // Wait a moment for any dynamic content to render
       await new Promise(resolve => setTimeout(resolve, 1000));
@@ -110,10 +109,14 @@ const Property = () => {
         height: element.scrollHeight
       });
 
-      console.log('Canvas created, dimensions:', {
-        width: canvas.width,
-        height: canvas.height
-      });
+      console.log('Canvas width:', canvas.width);
+      console.log('Canvas height:', canvas.height);
+      
+      // Check if canvas has actual content
+      const ctx = canvas.getContext('2d');
+      const imageData = ctx?.getImageData(0, 0, canvas.width, canvas.height);
+      const hasContent = imageData?.data.some(pixel => pixel !== 0);
+      console.log('Canvas has visible content:', hasContent);
 
       // Create PDF
       const imgData = canvas.toDataURL('image/png');
@@ -135,7 +138,12 @@ const Property = () => {
       let heightLeft = imgHeight;
       let position = 0;
 
-      console.log('PDF dimensions:', { imgWidth, imgHeight, pageHeight });
+      console.log('Image width for PDF:', imgWidth);
+      console.log('Image height for PDF:', imgHeight);
+      console.log('Page height:', pageHeight);
+      
+      // Check if we're actually adding content to PDF
+      console.log('Adding image to PDF...');
 
       // Add first page
       pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
