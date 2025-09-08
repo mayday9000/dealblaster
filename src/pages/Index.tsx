@@ -505,18 +505,32 @@ const Index = () => {
         additional_disclosures: formData.additionalDisclosures,
       };
 
+      // Debug: Log what we're trying to save
+      console.log('Attempting to save property data:', {
+        address_slug: addressSlug,
+        city: formData.city,
+        deal_type: formData.dealType,
+        address: formData.address,
+        html_content: null
+      });
+      console.log('Full property data object:', propertyData);
+
       // First save to Supabase without HTML content
-      const { error: initialSaveError } = await supabase
+      const { data: insertResult, error: initialSaveError } = await supabase
         .from('properties')
         .upsert(propertyData, { 
           onConflict: 'address_slug',
           ignoreDuplicates: false 
-        });
+        })
+        .select();
 
       if (initialSaveError) {
         console.error('Supabase initial save error:', initialSaveError);
-        throw new Error('Failed to save property data');
+        console.error('Property data that failed to save:', propertyData);
+        throw new Error(`Failed to save property data: ${initialSaveError.message}`);
       }
+
+      console.log('Property data saved successfully:', insertResult);
 
       console.log('Property data saved to Supabase, now generating HTML...');
 
