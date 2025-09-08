@@ -26,7 +26,7 @@ const Property = () => {
 
       try {
         // Get all property data from Supabase
-        const { data: property, error: supabaseError } = await supabase
+        const { data: property, error: supabaseError } = await (supabase as any)
           .from('properties')
           .select('*')
           .eq('address_slug', addressSlug)

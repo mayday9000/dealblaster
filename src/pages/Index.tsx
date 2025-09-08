@@ -530,7 +530,7 @@ const Index = () => {
       };
 
       // Upsert to Supabase
-      const { error: supabaseError } = await supabase
+      const { error: supabaseError } = await (supabase as any)
         .from('properties')
         .upsert(propertyData, { 
           onConflict: 'address_slug',

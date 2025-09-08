@@ -14,7 +14,120 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      properties: {
+        Row: {
+          additional_disclosures: string | null
+          additional_photos: string[] | null
+          address: string
+          address_slug: string
+          asking_price: string | null
+          big_ticket_items: Json | null
+          brokerage: string | null
+          building_size: string | null
+          cap_rate: string | null
+          cash_on_cash_return: string | null
+          city: string
+          comps: Json | null
+          contact_email: string | null
+          contact_name: string | null
+          contact_phone: string | null
+          created_at: string
+          deal_type: string
+          financing_types: string[] | null
+          generated_titles: string[] | null
+          gross_scheduled_income: string | null
+          hook: string | null
+          html_content: string | null
+          id: string
+          lot_size: string | null
+          net_operating_income: string | null
+          occupancy: string | null
+          operating_expenses: string | null
+          parking: string | null
+          primary_photo: string | null
+          property_type: string | null
+          selected_title: string | null
+          units: string | null
+          updated_at: string
+          year_built: string | null
+          zoning: string | null
+        }
+        Insert: {
+          additional_disclosures?: string | null
+          additional_photos?: string[] | null
+          address: string
+          address_slug: string
+          asking_price?: string | null
+          big_ticket_items?: Json | null
+          brokerage?: string | null
+          building_size?: string | null
+          cap_rate?: string | null
+          cash_on_cash_return?: string | null
+          city: string
+          comps?: Json | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          deal_type: string
+          financing_types?: string[] | null
+          generated_titles?: string[] | null
+          gross_scheduled_income?: string | null
+          hook?: string | null
+          html_content?: string | null
+          id?: string
+          lot_size?: string | null
+          net_operating_income?: string | null
+          occupancy?: string | null
+          operating_expenses?: string | null
+          parking?: string | null
+          primary_photo?: string | null
+          property_type?: string | null
+          selected_title?: string | null
+          units?: string | null
+          updated_at?: string
+          year_built?: string | null
+          zoning?: string | null
+        }
+        Update: {
+          additional_disclosures?: string | null
+          additional_photos?: string[] | null
+          address?: string
+          address_slug?: string
+          asking_price?: string | null
+          big_ticket_items?: Json | null
+          brokerage?: string | null
+          building_size?: string | null
+          cap_rate?: string | null
+          cash_on_cash_return?: string | null
+          city?: string
+          comps?: Json | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          deal_type?: string
+          financing_types?: string[] | null
+          generated_titles?: string[] | null
+          gross_scheduled_income?: string | null
+          hook?: string | null
+          html_content?: string | null
+          id?: string
+          lot_size?: string | null
+          net_operating_income?: string | null
+          occupancy?: string | null
+          operating_expenses?: string | null
+          parking?: string | null
+          primary_photo?: string | null
+          property_type?: string | null
+          selected_title?: string | null
+          units?: string | null
+          updated_at?: string
+          year_built?: string | null
+          zoning?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
