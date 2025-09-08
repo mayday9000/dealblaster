@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Download, ArrowLeft, Printer } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-import { generatePDF } from '@/utils/pdfGenerator';
+
 
 const Property = () => {
   const [searchParams] = useSearchParams();
@@ -60,7 +60,7 @@ const Property = () => {
     fetchProperty();
   }, [addressSlug]);
 
-  const handleDownloadPDF = async () => {
+  const handleDownloadPDF = () => {
     if (!htmlContent) {
       toast({
         title: "Error",
@@ -71,66 +71,18 @@ const Property = () => {
     }
 
     try {
-      const { default: html2canvas } = await import('html2canvas');
-      const { jsPDF } = await import('jspdf');
-      
-      // Get the property content element
-      const element = document.querySelector('.property-content') as HTMLElement;
-      if (!element) {
-        throw new Error('Property content not found');
-      }
-
-      // Create canvas from the HTML content
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        scrollX: 0,
-        scrollY: 0,
-      });
-
-      // Create PDF
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4'
-      });
-
-      const imgWidth = 210; // A4 width in mm
-      const pageHeight = 295; // A4 height in mm
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      let heightLeft = imgHeight;
-      let position = 0;
-
-      // Add first page
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-
-      // Add additional pages if needed
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-      }
-
-      // Download the PDF
-      const fileName = propertyData?.address 
-        ? `${propertyData.address.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_listing.pdf`
-        : 'property_listing.pdf';
-      
-      pdf.save(fileName);
+      // Use the browser's print functionality to save as PDF
+      window.print();
       
       toast({
-        title: "Success",
-        description: "PDF downloaded successfully!",
+        title: "Print Dialog Opened",
+        description: "Use your browser's print dialog to save as PDF.",
       });
     } catch (error) {
-      console.error('PDF generation failed:', error);
+      console.error('Print failed:', error);
       toast({
-        title: "PDF Error",
-        description: "Unable to generate PDF. Please try again.",
+        title: "Print Error",
+        description: "Unable to open print dialog. Please try again.",
         variant: "destructive"
       });
     }
