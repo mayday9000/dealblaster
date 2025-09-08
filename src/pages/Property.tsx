@@ -90,7 +90,8 @@ const Property = () => {
       console.log('Element found, dimensions:', {
         width: element.offsetWidth,
         height: element.offsetHeight,
-        scrollHeight: element.scrollHeight
+        scrollHeight: element.scrollHeight,
+        innerHTML: element.innerHTML.substring(0, 200) + '...'
       });
 
       // Wait a moment for any dynamic content to render
@@ -222,8 +223,13 @@ const Property = () => {
 
       {/* Property content with top padding to account for fixed header */}
       <div 
-        className="property-content pt-20"
+        className="property-content pt-20 min-h-screen w-full"
         dangerouslySetInnerHTML={{ __html: htmlContent }}
+        style={{ 
+          maxWidth: 'none',
+          width: '100%',
+          overflow: 'visible'
+        }}
       />
       
       {/* Print styles */}
