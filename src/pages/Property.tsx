@@ -17,6 +17,7 @@ const Property = () => {
   const addressSlug = searchParams.get('address');
 
   console.log('Property page loaded with addressSlug:', addressSlug);
+  console.log('Current URL:', window.location.href);
 
   useEffect(() => {
     const fetchProperty = async () => {
@@ -63,6 +64,7 @@ const Property = () => {
   }, [addressSlug]);
 
   const handleDownloadPDF = async () => {
+    console.log('PDF download button clicked!');
     if (!htmlContent) {
       toast({
         title: "Error",
