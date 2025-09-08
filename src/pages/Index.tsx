@@ -508,20 +508,14 @@ const Index = () => {
       // Log the JSON payload being sent to webhook
       console.log('Webhook JSON payload:', JSON.stringify(webhookData, null, 2));
 
-      // Send data to webhook with 60 second timeout
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 60000);
-
+      // Send data to webhook with no timeout - wait as long as needed
       const response = await fetch('https://mayday.app.n8n.cloud/webhook/dealblaster', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(webhookData),
-        signal: controller.signal,
       });
-
-      clearTimeout(timeoutId);
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
