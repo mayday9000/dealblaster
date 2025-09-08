@@ -48,18 +48,29 @@ const Property = () => {
 
         // Extract content from iframe if present
         let processedHtml = property.html_content;
+        console.log('Original HTML content type:', typeof property.html_content);
+        console.log('HTML starts with iframe?', property.html_content.startsWith('<iframe'));
+        
         if (property.html_content.includes('<iframe srcdoc=')) {
-          // Extract the srcdoc content
-          const match = property.html_content.match(/srcdoc="([^"]+)"/);
+          console.log('Found iframe, extracting content...');
+          // Extract the srcdoc content - handle both single and double quotes
+          const match = property.html_content.match(/srcdoc=["']([^"']+)["']/s);
           if (match) {
+            console.log('Regex match found, decoding HTML entities...');
             // Decode HTML entities
             processedHtml = match[1]
               .replace(/&lt;/g, '<')
               .replace(/&gt;/g, '>')
               .replace(/&quot;/g, '"')
               .replace(/&amp;/g, '&');
-            console.log('Extracted iframe content');
+            console.log('Extracted content length:', processedHtml.length);
+            console.log('Extracted content preview:', processedHtml.substring(0, 200));
+          } else {
+            console.log('No regex match found');
+            console.log('HTML sample:', property.html_content.substring(0, 300));
           }
+        } else {
+          console.log('No iframe found in content');
         }
 
         setHtmlContent(processedHtml);
