@@ -155,11 +155,61 @@ const Property = () => {
           .property-content {
             margin: 0;
             padding: 0 !important;
+            max-width: none !important;
+            width: 100% !important;
+            height: auto !important;
+            overflow: visible !important;
+            page-break-inside: auto;
+          }
+          
+          .property-content * {
+            max-width: none !important;
+            overflow: visible !important;
+            page-break-inside: auto;
+          }
+          
+          .property-content iframe {
+            width: 100% !important;
+            height: auto !important;
+            min-height: 100vh !important;
+            page-break-inside: avoid;
           }
           
           body {
             margin: 0;
             padding: 0;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+          
+          @page {
+            margin: 0.5in;
+            size: A4;
+          }
+          
+          /* Force content to break across pages */
+          .property-content > * {
+            page-break-inside: auto;
+          }
+          
+          /* Avoid breaking certain elements */
+          h1, h2, h3, h4, h5, h6 {
+            page-break-after: avoid;
+            page-break-inside: avoid;
+          }
+          
+          img {
+            page-break-inside: avoid;
+            max-width: 100% !important;
+            height: auto !important;
+          }
+          
+          table {
+            page-break-inside: auto;
+          }
+          
+          tr {
+            page-break-inside: avoid;
           }
         }
         
