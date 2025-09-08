@@ -10,6 +10,7 @@ import { toast } from '@/hooks/use-toast';
 const Property = () => {
   const [searchParams] = useSearchParams();
   const [htmlContent, setHtmlContent] = useState<string>('');
+  const [extractedContent, setExtractedContent] = useState<string>('');
   const [propertyData, setPropertyData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
@@ -48,6 +49,15 @@ const Property = () => {
         }
 
         setHtmlContent(property.html_content);
+        
+        // Extract content from iframe srcdoc for printing
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(property.html_content, 'text/html');
+        const iframe = doc.querySelector('iframe');
+        if (iframe && iframe.getAttribute('srcdoc')) {
+          setExtractedContent(iframe.getAttribute('srcdoc') || '');
+        }
+        
         setPropertyData(property);
       } catch (err) {
         console.error('Error fetching property:', err);
@@ -140,16 +150,29 @@ const Property = () => {
       </div>
 
       {/* Property content with top padding to account for fixed header */}
-      <div 
-        className="property-content pt-20"
-        dangerouslySetInnerHTML={{ __html: htmlContent }}
-      />
+      <div className="property-content pt-20">
+        {/* Show iframe for normal viewing */}
+        <div 
+          className="iframe-content print:hidden"
+          dangerouslySetInnerHTML={{ __html: htmlContent }}
+        />
+        
+        {/* Show extracted content only for printing */}
+        <div 
+          className="print-content hidden print:block"
+          dangerouslySetInnerHTML={{ __html: extractedContent }}
+        />
+      </div>
       
       {/* Print styles */}
       <style>{`
         @media print {
           .print\\:hidden {
             display: none !important;
+          }
+          
+          .print\\:block {
+            display: block !important;
           }
           
           .property-content {
@@ -159,20 +182,19 @@ const Property = () => {
             width: 100% !important;
             height: auto !important;
             overflow: visible !important;
-            page-break-inside: auto;
           }
           
-          .property-content * {
-            max-width: none !important;
+          .print-content {
+            width: 100% !important;
+            height: auto !important;
             overflow: visible !important;
             page-break-inside: auto;
           }
           
-          .property-content iframe {
-            width: 100% !important;
-            height: auto !important;
-            min-height: 100vh !important;
-            page-break-inside: avoid;
+          .print-content * {
+            max-width: none !important;
+            overflow: visible !important;
+            page-break-inside: auto;
           }
           
           body {
@@ -187,8 +209,8 @@ const Property = () => {
             size: A4;
           }
           
-          /* Force content to break across pages */
-          .property-content > * {
+          /* Force content to break across pages naturally */
+          .print-content > * {
             page-break-inside: auto;
           }
           
@@ -211,6 +233,17 @@ const Property = () => {
           tr {
             page-break-inside: avoid;
           }
+          
+          /* Ensure all content is visible */
+          .print-content div {
+            overflow: visible !important;
+            height: auto !important;
+          }
+        }
+        
+        /* Hide print content during normal viewing */
+        .print-content {
+          display: none;
         }
         
         /* Ensure the header stays above any generated content */
