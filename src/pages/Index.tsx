@@ -310,7 +310,13 @@ const Index = () => {
     setFormData(prev => ({
       ...prev,
       bigTicketItems: prev.bigTicketItems.map((item, i) => 
-        i === index ? { ...item, [field]: value } : item
+        i === index ? { 
+          ...item, 
+          [field]: value,
+          // Clear the irrelevant field when ageType changes
+          ...(field === 'ageType' && value === 'range' ? { specificYear: '' } : {}),
+          ...(field === 'ageType' && value === 'specific' ? { age: '' } : {})
+        } : item
       )
     }));
   };
@@ -379,8 +385,12 @@ const Index = () => {
     const requiredBigTicketTypes = ['Roof', 'HVAC', 'Water Heater'];
     for (const requiredType of requiredBigTicketTypes) {
       const item = formData.bigTicketItems.find(item => item.type === requiredType);
-      if (!item || !item.age || !item.condition) {
-        errors.push(`${requiredType} age and condition`);
+      if (!item || !item.condition) {
+        errors.push(`${requiredType} year/range and condition`);
+      } else if (item.ageType === 'range' && !item.age) {
+        errors.push(`${requiredType} year/range and condition`);
+      } else if (item.ageType === 'specific' && (!item.specificYear || !/^\d{4}$/.test(item.specificYear))) {
+        errors.push(`${requiredType} year/range and condition`);
       }
     }
     
@@ -1050,12 +1060,17 @@ const Index = () => {
                         </SelectContent>
                       </Select>
                     ) : (
-                      <Input
-                        className="mt-2"
-                        placeholder="e.g., 2015"
-                        value={item.specificYear}
-                        onChange={(e) => updateBigTicketItem(index, 'specificYear', e.target.value)}
-                      />
+                      <div className="mt-2 space-y-1">
+                        <Input
+                          placeholder="e.g., 2015"
+                          value={item.specificYear}
+                          onChange={(e) => updateBigTicketItem(index, 'specificYear', e.target.value)}
+                          inputMode="numeric"
+                          pattern="\d{4}"
+                          maxLength={4}
+                        />
+                        <p className="text-sm text-muted-foreground">Enter a 4-digit year</p>
+                      </div>
                     )}
                   </div>
 
