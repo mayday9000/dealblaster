@@ -607,3 +607,5 @@ export const generatePDF = async (data: PDFData) => {
   // Clean up the object URL
   URL.revokeObjectURL(url);
 };
+
+export type { PDFData };

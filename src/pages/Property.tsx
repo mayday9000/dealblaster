@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Download, ArrowLeft, Printer } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-import { generatePDF } from '@/utils/pdfGenerator';
+import { generatePDF, PDFData } from '@/utils/pdfGenerator';
 
 const Property = () => {
   const [searchParams] = useSearchParams();
@@ -61,66 +61,76 @@ const Property = () => {
   }, [addressSlug]);
 
   const handleDownloadPDF = async () => {
-    if (!htmlContent) {
+    if (!propertyData) {
       toast({
         title: "Error",
-        description: "Property content not loaded yet.",
+        description: "Property data not loaded yet.",
         variant: "destructive"
       });
       return;
     }
 
     try {
-      const { default: html2canvas } = await import('html2canvas');
-      const { jsPDF } = await import('jspdf');
+      // Map property data to PDF format
+      const pdfData: PDFData = {
+        title: propertyData.title || 'Property Investment Opportunity',
+        subtitle: propertyData.subtitle || 'Real Estate Investment',
+        city: propertyData.city || '',
+        dealType: propertyData.deal_type || 'Investment',
+        hook: propertyData.hook || '',
+        selectedTitle: propertyData.selected_title || propertyData.title || '',
+        address: propertyData.address || '',
+        askingPrice: propertyData.asking_price || '',
+        financingTypes: propertyData.financing_types || [],
+        closingDate: propertyData.closing_date || '',
+        photoLink: propertyData.photo_link || '',
+        frontPhoto: null,
+        bedrooms: propertyData.bedrooms || '',
+        bathrooms: propertyData.bathrooms || '',
+        squareFootage: propertyData.square_footage || '',
+        yearBuilt: propertyData.year_built || '',
+        zoning: propertyData.zoning || '',
+        lotSize: propertyData.lot_size || '',
+        foundationType: propertyData.foundation_type || '',
+        utilities: propertyData.utilities || [],
+        garage: propertyData.garage || '',
+        pool: propertyData.pool || false,
+        roofAge: propertyData.roof_age || '',
+        roofSpecificAge: propertyData.roof_specific_age || '',
+        roofLastServiced: propertyData.roof_last_serviced || '',
+        roofCondition: propertyData.roof_condition || '',
+        hvacAge: propertyData.hvac_age || '',
+        hvacSpecificAge: propertyData.hvac_specific_age || '',
+        hvacLastServiced: propertyData.hvac_last_serviced || '',
+        hvacCondition: propertyData.hvac_condition || '',
+        waterHeaterAge: propertyData.water_heater_age || '',
+        waterHeaterSpecificAge: propertyData.water_heater_specific_age || '',
+        waterHeaterLastServiced: propertyData.water_heater_last_serviced || '',
+        waterHeaterCondition: propertyData.water_heater_condition || '',
+        currentOccupancy: propertyData.current_occupancy || '',
+        closingOccupancy: propertyData.closing_occupancy || '',
+        includeFinancialBreakdown: propertyData.include_financial_breakdown || false,
+        arv: propertyData.arv || '',
+        rehabEstimate: propertyData.rehab_estimate || '',
+        allIn: propertyData.all_in || '',
+        grossProfit: propertyData.gross_profit || '',
+        exitStrategy: propertyData.exit_strategy || '',
+        comps: propertyData.comps || [],
+        contactName: propertyData.contact_name || '',
+        contactPhone: propertyData.contact_phone || '',
+        contactEmail: propertyData.contact_email || '',
+        officeNumber: propertyData.office_number || '',
+        businessHours: propertyData.business_hours || '',
+        contactImage: propertyData.contact_image || null,
+        website: propertyData.website || '',
+        memoFiled: propertyData.memo_filed || false,
+        emdAmount: propertyData.emd_amount || '',
+        emdDueDate: propertyData.emd_due_date || '',
+        postPossession: propertyData.post_possession || false,
+        additionalDisclosures: propertyData.additional_disclosures || '',
+      };
       
-      // Get the property content element
-      const element = document.querySelector('.property-content') as HTMLElement;
-      if (!element) {
-        throw new Error('Property content not found');
-      }
-
-      // Create canvas from the HTML content
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        scrollX: 0,
-        scrollY: 0,
-      });
-
-      // Create PDF
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4'
-      });
-
-      const imgWidth = 210; // A4 width in mm
-      const pageHeight = 295; // A4 height in mm
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      let heightLeft = imgHeight;
-      let position = 0;
-
-      // Add first page
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-
-      // Add additional pages if needed
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-      }
-
-      // Download the PDF
-      const fileName = propertyData?.address 
-        ? `${propertyData.address.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_listing.pdf`
-        : 'property_listing.pdf';
-      
-      pdf.save(fileName);
+      await generatePDF(pdfData);
       
       toast({
         title: "Success",
