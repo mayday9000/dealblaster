@@ -50,12 +50,15 @@ const Property = () => {
 
         setHtmlContent(property.html_content);
         
-        // Extract content from iframe srcdoc for printing
+        // Extract content from iframe srcdoc for consistent viewing and printing
         const parser = new DOMParser();
         const doc = parser.parseFromString(property.html_content, 'text/html');
         const iframe = doc.querySelector('iframe');
         if (iframe && iframe.getAttribute('srcdoc')) {
           setExtractedContent(iframe.getAttribute('srcdoc') || '');
+        } else {
+          // If no iframe, use the content directly
+          setExtractedContent(property.html_content);
         }
         
         setPropertyData(property);
@@ -151,28 +154,50 @@ const Property = () => {
 
       {/* Property content with top padding to account for fixed header */}
       <div className="property-content pt-20">
-        {/* Show iframe for normal viewing */}
-        <div 
-          className="iframe-content print:hidden"
-          dangerouslySetInnerHTML={{ __html: htmlContent }}
-        />
-        
-        {/* Show extracted content only for printing */}
-        <div 
-          className="print-content hidden print:block"
-          dangerouslySetInnerHTML={{ __html: extractedContent }}
-        />
+        {/* Use extracted content for both screen and print for consistency */}
+        <div className="flyer-container mx-auto max-w-4xl px-4 text-left">
+          <div 
+            className="flyer-content"
+            dangerouslySetInnerHTML={{ __html: extractedContent }}
+          />
+        </div>
       </div>
       
       {/* Print styles */}
       <style>{`
+        /* Screen styles - center the flyer content */
+        .flyer-container {
+          display: flex;
+          justify-content: center;
+        }
+        
+        .flyer-content {
+          width: 100%;
+          max-width: 900px;
+        }
+        
+        /* Override problematic inline styles in the flyer content */
+        .flyer-content * {
+          height: auto !important;
+          overflow: visible !important;
+        }
+        
+        .flyer-content [style*="height: 100vh"] {
+          height: auto !important;
+        }
+        
+        .flyer-content [style*="overflow: auto"],
+        .flyer-content [style*="overflow: scroll"] {
+          overflow: visible !important;
+        }
+        
+        .flyer-content [style*="position: fixed"] {
+          position: relative !important;
+        }
+        
         @media print {
           .print\\:hidden {
             display: none !important;
-          }
-          
-          .print\\:block {
-            display: block !important;
           }
           
           .property-content {
@@ -184,17 +209,26 @@ const Property = () => {
             overflow: visible !important;
           }
           
-          .print-content {
+          .flyer-container {
+            max-width: none !important;
+            margin: 0 auto !important;
+            padding: 0 !important;
+            display: block !important;
+          }
+          
+          .flyer-content {
             width: 100% !important;
+            max-width: none !important;
             height: auto !important;
             overflow: visible !important;
             page-break-inside: auto;
           }
           
-          .print-content * {
+          .flyer-content * {
             max-width: none !important;
             overflow: visible !important;
             page-break-inside: auto;
+            height: auto !important;
           }
           
           body {
@@ -210,7 +244,7 @@ const Property = () => {
           }
           
           /* Force content to break across pages naturally */
-          .print-content > * {
+          .flyer-content > * {
             page-break-inside: auto;
           }
           
@@ -234,16 +268,19 @@ const Property = () => {
             page-break-inside: avoid;
           }
           
-          /* Ensure all content is visible */
-          .print-content div {
-            overflow: visible !important;
+          /* Override any problematic inline styles for print */
+          .flyer-content [style*="height: 100vh"] {
             height: auto !important;
           }
-        }
-        
-        /* Hide print content during normal viewing */
-        .print-content {
-          display: none;
+          
+          .flyer-content [style*="overflow: auto"],
+          .flyer-content [style*="overflow: scroll"] {
+            overflow: visible !important;
+          }
+          
+          .flyer-content [style*="position: fixed"] {
+            position: relative !important;
+          }
         }
         
         /* Ensure the header stays above any generated content */
