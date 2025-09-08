@@ -16,9 +16,6 @@ const Property = () => {
   
   const addressSlug = searchParams.get('address');
 
-  console.log('Property page loaded with addressSlug:', addressSlug);
-  console.log('Current URL:', window.location.href);
-
   useEffect(() => {
     const fetchProperty = async () => {
       if (!addressSlug) {
@@ -46,34 +43,11 @@ const Property = () => {
           throw new Error('Property not found in database');
         }
 
-        // Extract content from iframe if present
-        let processedHtml = property.html_content;
-        console.log('Original HTML content type:', typeof property.html_content);
-        console.log('HTML starts with iframe?', property.html_content.startsWith('<iframe'));
-        
-        if (property.html_content.includes('<iframe srcdoc=')) {
-          console.log('Found iframe, extracting content...');
-          // Extract the srcdoc content - handle both single and double quotes
-          const match = property.html_content.match(/srcdoc=["']([^"']+)["']/s);
-          if (match) {
-            console.log('Regex match found, decoding HTML entities...');
-            // Decode HTML entities
-            processedHtml = match[1]
-              .replace(/&lt;/g, '<')
-              .replace(/&gt;/g, '>')
-              .replace(/&quot;/g, '"')
-              .replace(/&amp;/g, '&');
-            console.log('Extracted content length:', processedHtml.length);
-            console.log('Extracted content preview:', processedHtml.substring(0, 200));
-          } else {
-            console.log('No regex match found');
-            console.log('HTML sample:', property.html_content.substring(0, 300));
-          }
-        } else {
-          console.log('No iframe found in content');
+        if (!property.html_content) {
+          throw new Error('Property HTML content not found');
         }
 
-        setHtmlContent(processedHtml);
+        setHtmlContent(property.html_content);
         setPropertyData(property);
       } catch (err) {
         console.error('Error fetching property:', err);
@@ -87,7 +61,6 @@ const Property = () => {
   }, [addressSlug]);
 
   const handleDownloadPDF = async () => {
-    console.log('PDF download button clicked!');
     if (!htmlContent) {
       toast({
         title: "Error",
@@ -101,23 +74,11 @@ const Property = () => {
       const { default: html2canvas } = await import('html2canvas');
       const { jsPDF } = await import('jspdf');
       
-      console.log('Starting PDF generation...');
-      
       // Get the property content element
       const element = document.querySelector('.property-content') as HTMLElement;
       if (!element) {
-        console.error('Property content element not found');
         throw new Error('Property content not found');
       }
-      
-      console.log('Element width:', element.offsetWidth);
-      console.log('Element height:', element.offsetHeight);
-      console.log('Element scrollHeight:', element.scrollHeight);
-      console.log('Element innerHTML preview:', element.innerHTML.substring(0, 200));
-      console.log('Is element visible?', element.offsetParent !== null);
-
-      // Wait a moment for any dynamic content to render
-      await new Promise(resolve => setTimeout(resolve, 1000));
 
       // Create canvas from the HTML content
       const canvas = await html2canvas(element, {
@@ -126,29 +87,10 @@ const Property = () => {
         allowTaint: true,
         scrollX: 0,
         scrollY: 0,
-        backgroundColor: '#ffffff',
-        logging: true,
-        width: element.scrollWidth,
-        height: element.scrollHeight
       });
-
-      console.log('Canvas width:', canvas.width);
-      console.log('Canvas height:', canvas.height);
-      
-      // Check if canvas has actual content
-      const ctx = canvas.getContext('2d');
-      const imageData = ctx?.getImageData(0, 0, canvas.width, canvas.height);
-      const hasContent = imageData?.data.some(pixel => pixel !== 0);
-      console.log('Canvas has visible content:', hasContent);
 
       // Create PDF
       const imgData = canvas.toDataURL('image/png');
-      console.log('Image data URL length:', imgData.length);
-      
-      if (imgData.length < 100) {
-        throw new Error('Canvas appears to be empty');
-      }
-      
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
@@ -160,13 +102,6 @@ const Property = () => {
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       let heightLeft = imgHeight;
       let position = 0;
-
-      console.log('Image width for PDF:', imgWidth);
-      console.log('Image height for PDF:', imgHeight);
-      console.log('Page height:', pageHeight);
-      
-      // Check if we're actually adding content to PDF
-      console.log('Adding image to PDF...');
 
       // Add first page
       pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
@@ -254,13 +189,8 @@ const Property = () => {
 
       {/* Property content with top padding to account for fixed header */}
       <div 
-        className="property-content pt-20 min-h-screen w-full"
+        className="property-content pt-20"
         dangerouslySetInnerHTML={{ __html: htmlContent }}
-        style={{ 
-          maxWidth: 'none',
-          width: '100%',
-          overflow: 'visible'
-        }}
       />
       
       {/* Print styles */}
