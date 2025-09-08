@@ -76,11 +76,23 @@ const Property = () => {
       const { default: html2canvas } = await import('html2canvas');
       const { jsPDF } = await import('jspdf');
       
+      console.log('Starting PDF generation...');
+      
       // Get the property content element
       const element = document.querySelector('.property-content') as HTMLElement;
       if (!element) {
+        console.error('Property content element not found');
         throw new Error('Property content not found');
       }
+      
+      console.log('Element found, dimensions:', {
+        width: element.offsetWidth,
+        height: element.offsetHeight,
+        scrollHeight: element.scrollHeight
+      });
+
+      // Wait a moment for any dynamic content to render
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
       // Create canvas from the HTML content
       const canvas = await html2canvas(element, {
@@ -89,10 +101,25 @@ const Property = () => {
         allowTaint: true,
         scrollX: 0,
         scrollY: 0,
+        backgroundColor: '#ffffff',
+        logging: true,
+        width: element.scrollWidth,
+        height: element.scrollHeight
+      });
+
+      console.log('Canvas created, dimensions:', {
+        width: canvas.width,
+        height: canvas.height
       });
 
       // Create PDF
       const imgData = canvas.toDataURL('image/png');
+      console.log('Image data URL length:', imgData.length);
+      
+      if (imgData.length < 100) {
+        throw new Error('Canvas appears to be empty');
+      }
+      
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
@@ -104,6 +131,8 @@ const Property = () => {
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       let heightLeft = imgHeight;
       let position = 0;
+
+      console.log('PDF dimensions:', { imgWidth, imgHeight, pageHeight });
 
       // Add first page
       pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
