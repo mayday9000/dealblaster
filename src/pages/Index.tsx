@@ -504,9 +504,9 @@ const Index = () => {
         zoning: formData.zoning,
         lot_size: formData.lotSize,
         foundation_type: formData.foundationType,
-        utilities: formData.utilities,
+        utilities: Array.isArray(formData.utilities) ? formData.utilities.join(', ') : formData.utilities,
         garage: garageDisplay,
-        pool: formData.pool,
+        pool: formData.pool ? 'Yes' : 'No',
         current_occupancy: formData.occupancy,
         closing_occupancy: formData.occupancyOnDelivery,
         include_financial_breakdown: formData.includeFinancialBreakdown,
@@ -525,12 +525,12 @@ const Index = () => {
         website: formData.website,
         emd_amount: formData.emdAmount,
         emd_due_date: formData.emdDueDate,
-        post_possession: formData.postPossession,
+        post_possession: formData.postPossession ? 'Yes' : 'No',
         additional_disclosures: formData.additionalDisclosures,
       };
 
       // Upsert to Supabase
-      const { error: supabaseError } = await (supabase as any)
+      const { error: supabaseError } = await supabase
         .from('properties')
         .upsert(propertyData, { 
           onConflict: 'address_slug',

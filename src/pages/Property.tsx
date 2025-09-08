@@ -26,13 +26,18 @@ const Property = () => {
 
       try {
         // Get all property data from Supabase
-        const { data: property, error: supabaseError } = await (supabase as any)
+        const { data: property, error: supabaseError } = await supabase
           .from('properties')
           .select('*')
           .eq('address_slug', addressSlug)
-          .single();
+          .maybeSingle();
 
-        if (supabaseError || !property) {
+        if (supabaseError) {
+          console.error('Supabase error:', supabaseError);
+          throw new Error('Database error occurred');
+        }
+
+        if (!property) {
           throw new Error('Property not found in database');
         }
 

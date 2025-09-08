@@ -17,112 +17,145 @@ export type Database = {
       properties: {
         Row: {
           additional_disclosures: string | null
-          additional_photos: string[] | null
           address: string
           address_slug: string
+          all_in: string | null
+          arv: string | null
           asking_price: string | null
-          big_ticket_items: Json | null
-          brokerage: string | null
-          building_size: string | null
-          cap_rate: string | null
-          cash_on_cash_return: string | null
+          bathrooms: string | null
+          bedrooms: string | null
+          business_hours: string | null
           city: string
+          closing_date: string | null
+          closing_occupancy: string | null
           comps: Json | null
           contact_email: string | null
+          contact_image: string | null
           contact_name: string | null
           contact_phone: string | null
           created_at: string
+          current_occupancy: string | null
           deal_type: string
+          emd_amount: string | null
+          emd_due_date: string | null
+          exit_strategy: string | null
           financing_types: string[] | null
+          foundation_type: string | null
+          front_photo: string | null
+          garage: string | null
           generated_titles: string[] | null
-          gross_scheduled_income: string | null
+          gross_profit: string | null
           hook: string | null
           html_content: string | null
           id: string
+          include_financial_breakdown: boolean | null
           lot_size: string | null
-          net_operating_income: string | null
-          occupancy: string | null
-          operating_expenses: string | null
-          parking: string | null
-          primary_photo: string | null
-          property_type: string | null
+          office_number: string | null
+          photo_link: string | null
+          pool: string | null
+          post_possession: string | null
+          rehab_estimate: string | null
           selected_title: string | null
-          units: string | null
+          square_footage: string | null
           updated_at: string
+          utilities: string | null
+          website: string | null
           year_built: string | null
           zoning: string | null
         }
         Insert: {
           additional_disclosures?: string | null
-          additional_photos?: string[] | null
           address: string
           address_slug: string
+          all_in?: string | null
+          arv?: string | null
           asking_price?: string | null
-          big_ticket_items?: Json | null
-          brokerage?: string | null
-          building_size?: string | null
-          cap_rate?: string | null
-          cash_on_cash_return?: string | null
+          bathrooms?: string | null
+          bedrooms?: string | null
+          business_hours?: string | null
           city: string
+          closing_date?: string | null
+          closing_occupancy?: string | null
           comps?: Json | null
           contact_email?: string | null
+          contact_image?: string | null
           contact_name?: string | null
           contact_phone?: string | null
           created_at?: string
+          current_occupancy?: string | null
           deal_type: string
+          emd_amount?: string | null
+          emd_due_date?: string | null
+          exit_strategy?: string | null
           financing_types?: string[] | null
+          foundation_type?: string | null
+          front_photo?: string | null
+          garage?: string | null
           generated_titles?: string[] | null
-          gross_scheduled_income?: string | null
+          gross_profit?: string | null
           hook?: string | null
           html_content?: string | null
           id?: string
+          include_financial_breakdown?: boolean | null
           lot_size?: string | null
-          net_operating_income?: string | null
-          occupancy?: string | null
-          operating_expenses?: string | null
-          parking?: string | null
-          primary_photo?: string | null
-          property_type?: string | null
+          office_number?: string | null
+          photo_link?: string | null
+          pool?: string | null
+          post_possession?: string | null
+          rehab_estimate?: string | null
           selected_title?: string | null
-          units?: string | null
+          square_footage?: string | null
           updated_at?: string
+          utilities?: string | null
+          website?: string | null
           year_built?: string | null
           zoning?: string | null
         }
         Update: {
           additional_disclosures?: string | null
-          additional_photos?: string[] | null
           address?: string
           address_slug?: string
+          all_in?: string | null
+          arv?: string | null
           asking_price?: string | null
-          big_ticket_items?: Json | null
-          brokerage?: string | null
-          building_size?: string | null
-          cap_rate?: string | null
-          cash_on_cash_return?: string | null
+          bathrooms?: string | null
+          bedrooms?: string | null
+          business_hours?: string | null
           city?: string
+          closing_date?: string | null
+          closing_occupancy?: string | null
           comps?: Json | null
           contact_email?: string | null
+          contact_image?: string | null
           contact_name?: string | null
           contact_phone?: string | null
           created_at?: string
+          current_occupancy?: string | null
           deal_type?: string
+          emd_amount?: string | null
+          emd_due_date?: string | null
+          exit_strategy?: string | null
           financing_types?: string[] | null
+          foundation_type?: string | null
+          front_photo?: string | null
+          garage?: string | null
           generated_titles?: string[] | null
-          gross_scheduled_income?: string | null
+          gross_profit?: string | null
           hook?: string | null
           html_content?: string | null
           id?: string
+          include_financial_breakdown?: boolean | null
           lot_size?: string | null
-          net_operating_income?: string | null
-          occupancy?: string | null
-          operating_expenses?: string | null
-          parking?: string | null
-          primary_photo?: string | null
-          property_type?: string | null
+          office_number?: string | null
+          photo_link?: string | null
+          pool?: string | null
+          post_possession?: string | null
+          rehab_estimate?: string | null
           selected_title?: string | null
-          units?: string | null
+          square_footage?: string | null
           updated_at?: string
+          utilities?: string | null
+          website?: string | null
           year_built?: string | null
           zoning?: string | null
         }
