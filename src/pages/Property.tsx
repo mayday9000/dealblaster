@@ -171,8 +171,8 @@ const Property = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header with controls - hidden on print */}
-      <div className="bg-card border-b print:hidden">
+      {/* Header with controls - always visible, fixed at top */}
+      <div className="fixed top-0 left-0 right-0 bg-card border-b print:hidden z-50 shadow-sm">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <Button variant="outline" asChild>
@@ -190,9 +190,9 @@ const Property = () => {
         </div>
       </div>
 
-      {/* Property content */}
+      {/* Property content with top padding to account for fixed header */}
       <div 
-        className="property-content"
+        className="property-content pt-20"
         dangerouslySetInnerHTML={{ __html: htmlContent }}
       />
       
@@ -205,13 +205,19 @@ const Property = () => {
           
           .property-content {
             margin: 0;
-            padding: 0;
+            padding: 0 !important;
           }
           
           body {
             margin: 0;
             padding: 0;
           }
+        }
+        
+        /* Ensure the header stays above any generated content */
+        .property-content * {
+          position: relative;
+          z-index: auto;
         }
       `}</style>
     </div>
