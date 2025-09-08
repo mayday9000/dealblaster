@@ -46,11 +46,23 @@ const Property = () => {
           throw new Error('Property not found in database');
         }
 
-        if (!property.html_content) {
-          throw new Error('Property HTML content not found');
+        // Extract content from iframe if present
+        let processedHtml = property.html_content;
+        if (property.html_content.includes('<iframe srcdoc=')) {
+          // Extract the srcdoc content
+          const match = property.html_content.match(/srcdoc="([^"]+)"/);
+          if (match) {
+            // Decode HTML entities
+            processedHtml = match[1]
+              .replace(/&lt;/g, '<')
+              .replace(/&gt;/g, '>')
+              .replace(/&quot;/g, '"')
+              .replace(/&amp;/g, '&');
+            console.log('Extracted iframe content');
+          }
         }
 
-        setHtmlContent(property.html_content);
+        setHtmlContent(processedHtml);
         setPropertyData(property);
       } catch (err) {
         console.error('Error fetching property:', err);
