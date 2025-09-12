@@ -1327,6 +1327,7 @@ const Index = () => {
                           <SelectItem value="Cash Comps">Cash Comps</SelectItem>
                           <SelectItem value="Rental Comps">Rental Comps</SelectItem>
                           <SelectItem value="CMV">CMV (Current Market Value)</SelectItem>
+                          <SelectItem value="New Construction">New Construction</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
