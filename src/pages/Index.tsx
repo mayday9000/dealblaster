@@ -114,6 +114,15 @@ interface FormData {
   emdDueDate: string;
   postPossession: boolean;
   additionalDisclosures: string;
+  
+  // Buy & Hold Snapshot
+  buyHoldPurchasePrice: string;
+  buyHoldRehabCost: string;
+  buyHoldMonthlyRent: string;
+  buyHoldMonthlyTaxes: string;
+  buyHoldMonthlyInsurance: string;
+  buyHoldMortgageTerms: string;
+  buyHoldOtherExpenses: string;
 }
 
 const Index = () => {
@@ -229,6 +238,15 @@ const Index = () => {
     emdDueDate: '',
     postPossession: false,
     additionalDisclosures: '',
+    
+    // Buy & Hold Snapshot
+    buyHoldPurchasePrice: '',
+    buyHoldRehabCost: '',
+    buyHoldMonthlyRent: '',
+    buyHoldMonthlyTaxes: '',
+    buyHoldMonthlyInsurance: '',
+    buyHoldMortgageTerms: '',
+    buyHoldOtherExpenses: '',
   });
 
   const [isGenerating, setIsGenerating] = useState(false);
@@ -447,7 +465,71 @@ const Index = () => {
         contactImage: contactImageBase64,
         companyLogo: companyLogoBase64,
         title: formData.selectedTitle || formData.generatedTitles[0] || `${formData.city} ${formData.dealType} Opportunity`,
-        subtitle: `${formData.dealType} Investment Property - ${formData.isPremarket ? `${formData.city}, ${formData.state}` : formData.address}`
+        subtitle: `${formData.dealType} Investment Property - ${formData.isPremarket ? `${formData.city}, ${formData.state}` : formData.address}`,
+        
+        // Buy & Hold Calculations (only include if there's data)
+        buyHoldAnalysis: (formData.buyHoldPurchasePrice || formData.buyHoldMonthlyRent) ? {
+          purchasePrice: formData.buyHoldPurchasePrice,
+          rehabCost: formData.buyHoldRehabCost,
+          monthlyRent: formData.buyHoldMonthlyRent,
+          monthlyTaxes: formData.buyHoldMonthlyTaxes,
+          monthlyInsurance: formData.buyHoldMonthlyInsurance,
+          mortgageTerms: formData.buyHoldMortgageTerms,
+          otherExpenses: formData.buyHoldOtherExpenses,
+          calculations: {
+            allInCost: (() => {
+              const purchase = parseFloat(formData.buyHoldPurchasePrice.replace(/[^\d.]/g, '')) || 0;
+              const rehab = parseFloat(formData.buyHoldRehabCost.replace(/[^\d.]/g, '')) || 0;
+              return purchase + rehab;
+            })(),
+            grossMonthlyIncome: parseFloat(formData.buyHoldMonthlyRent.replace(/[^\d.]/g, '')) || 0,
+            monthlyExpenses: (() => {
+              const taxes = parseFloat(formData.buyHoldMonthlyTaxes.replace(/[^\d.]/g, '')) || 0;
+              const insurance = parseFloat(formData.buyHoldMonthlyInsurance.replace(/[^\d.]/g, '')) || 0;
+              const other = parseFloat(formData.buyHoldOtherExpenses.replace(/[^\d.]/g, '')) || 0;
+              return taxes + insurance + other;
+            })(),
+            noi: (() => {
+              const rent = parseFloat(formData.buyHoldMonthlyRent.replace(/[^\d.]/g, '')) || 0;
+              const taxes = parseFloat(formData.buyHoldMonthlyTaxes.replace(/[^\d.]/g, '')) || 0;
+              const insurance = parseFloat(formData.buyHoldMonthlyInsurance.replace(/[^\d.]/g, '')) || 0;
+              return rent - taxes - insurance;
+            })(),
+            monthlyCashFlow: (() => {
+              const rent = parseFloat(formData.buyHoldMonthlyRent.replace(/[^\d.]/g, '')) || 0;
+              const taxes = parseFloat(formData.buyHoldMonthlyTaxes.replace(/[^\d.]/g, '')) || 0;
+              const insurance = parseFloat(formData.buyHoldMonthlyInsurance.replace(/[^\d.]/g, '')) || 0;
+              const other = parseFloat(formData.buyHoldOtherExpenses.replace(/[^\d.]/g, '')) || 0;
+              return rent - taxes - insurance - other;
+            })(),
+            cashOnCashReturn: (() => {
+              const rent = parseFloat(formData.buyHoldMonthlyRent.replace(/[^\d.]/g, '')) || 0;
+              const taxes = parseFloat(formData.buyHoldMonthlyTaxes.replace(/[^\d.]/g, '')) || 0;
+              const insurance = parseFloat(formData.buyHoldMonthlyInsurance.replace(/[^\d.]/g, '')) || 0;
+              const other = parseFloat(formData.buyHoldOtherExpenses.replace(/[^\d.]/g, '')) || 0;
+              const purchase = parseFloat(formData.buyHoldPurchasePrice.replace(/[^\d.]/g, '')) || 0;
+              const rehab = parseFloat(formData.buyHoldRehabCost.replace(/[^\d.]/g, '')) || 0;
+              const allIn = purchase + rehab;
+              const annualCashFlow = (rent - taxes - insurance - other) * 12;
+              return allIn > 0 ? (annualCashFlow / allIn) * 100 : 0;
+            })(),
+            capRate: (() => {
+              const rent = parseFloat(formData.buyHoldMonthlyRent.replace(/[^\d.]/g, '')) || 0;
+              const taxes = parseFloat(formData.buyHoldMonthlyTaxes.replace(/[^\d.]/g, '')) || 0;
+              const insurance = parseFloat(formData.buyHoldMonthlyInsurance.replace(/[^\d.]/g, '')) || 0;
+              const purchase = parseFloat(formData.buyHoldPurchasePrice.replace(/[^\d.]/g, '')) || 0;
+              const rehab = parseFloat(formData.buyHoldRehabCost.replace(/[^\d.]/g, '')) || 0;
+              const allIn = purchase + rehab;
+              const annualNOI = (rent - taxes - insurance) * 12;
+              return allIn > 0 ? (annualNOI / allIn) * 100 : 0;
+            })(),
+            onePercentRule: (() => {
+              const rent = parseFloat(formData.buyHoldMonthlyRent.replace(/[^\d.]/g, '')) || 0;
+              const purchase = parseFloat(formData.buyHoldPurchasePrice.replace(/[^\d.]/g, '')) || 0;
+              return purchase > 0 ? (rent / purchase) * 100 : 0;
+            })()
+          }
+        } : null
       };
 
       // Create garage display string
@@ -1432,6 +1514,211 @@ const Index = () => {
                 <Plus className="h-4 w-4 mr-2" />
                 Add Another Comp
               </Button>
+            </CardContent>
+          </Card>
+
+          {/* Buy & Hold Snapshot Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Calculator className="h-5 w-5" />
+                🏡 Buy & Hold Snapshot (Optional)
+              </CardTitle>
+              <CardDescription>Quick rental analysis for investment properties</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div>
+                  <Label htmlFor="buyHoldPurchasePrice">Purchase Price</Label>
+                  <Input
+                    id="buyHoldPurchasePrice"
+                    placeholder="$250,000"
+                    value={formData.buyHoldPurchasePrice}
+                    onChange={(e) => updateFormData('buyHoldPurchasePrice', e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="buyHoldRehabCost">Rehab Cost</Label>
+                  <Input
+                    id="buyHoldRehabCost"
+                    placeholder="$25,000"
+                    value={formData.buyHoldRehabCost}
+                    onChange={(e) => updateFormData('buyHoldRehabCost', e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="buyHoldMonthlyRent">Monthly Rent</Label>
+                  <Input
+                    id="buyHoldMonthlyRent"
+                    placeholder="$2,200"
+                    value={formData.buyHoldMonthlyRent}
+                    onChange={(e) => updateFormData('buyHoldMonthlyRent', e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="buyHoldMonthlyTaxes">Monthly Taxes</Label>
+                  <Input
+                    id="buyHoldMonthlyTaxes"
+                    placeholder="$350"
+                    value={formData.buyHoldMonthlyTaxes}
+                    onChange={(e) => updateFormData('buyHoldMonthlyTaxes', e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="buyHoldMonthlyInsurance">Monthly Insurance</Label>
+                  <Input
+                    id="buyHoldMonthlyInsurance"
+                    placeholder="$150"
+                    value={formData.buyHoldMonthlyInsurance}
+                    onChange={(e) => updateFormData('buyHoldMonthlyInsurance', e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="buyHoldOtherExpenses">Other Monthly Expenses</Label>
+                  <Input
+                    id="buyHoldOtherExpenses"
+                    placeholder="$300"
+                    value={formData.buyHoldOtherExpenses}
+                    onChange={(e) => updateFormData('buyHoldOtherExpenses', e.target.value)}
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <Label htmlFor="buyHoldMortgageTerms">Mortgage / Loan Terms</Label>
+                <Input
+                  id="buyHoldMortgageTerms"
+                  placeholder="30yr fixed @ 6.5%, $1,200/mo payment"
+                  value={formData.buyHoldMortgageTerms}
+                  onChange={(e) => updateFormData('buyHoldMortgageTerms', e.target.value)}
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Enter loan details or monthly payment amount
+                </p>
+              </div>
+
+              {/* Buy & Hold Calculations - Only show if we have some data */}
+              {(formData.buyHoldPurchasePrice || formData.buyHoldMonthlyRent) && (
+                <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+                  <h4 className="font-semibold mb-3">Investment Analysis</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+                    <div>
+                      <span className="font-medium">All-In Cost:</span>
+                      <div className="text-lg font-bold text-blue-600">
+                        {(() => {
+                          const purchase = parseFloat(formData.buyHoldPurchasePrice.replace(/[^\d.]/g, '')) || 0;
+                          const rehab = parseFloat(formData.buyHoldRehabCost.replace(/[^\d.]/g, '')) || 0;
+                          const allIn = purchase + rehab;
+                          return allIn > 0 ? `$${allIn.toLocaleString()}` : '$0';
+                        })()}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <span className="font-medium">Gross Monthly Income:</span>
+                      <div className="text-lg font-bold text-green-600">
+                        {(() => {
+                          const rent = parseFloat(formData.buyHoldMonthlyRent.replace(/[^\d.]/g, '')) || 0;
+                          return rent > 0 ? `$${rent.toLocaleString()}` : '$0';
+                        })()}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <span className="font-medium">Monthly Expenses:</span>
+                      <div className="text-lg font-bold text-red-600">
+                        {(() => {
+                          const taxes = parseFloat(formData.buyHoldMonthlyTaxes.replace(/[^\d.]/g, '')) || 0;
+                          const insurance = parseFloat(formData.buyHoldMonthlyInsurance.replace(/[^\d.]/g, '')) || 0;
+                          const other = parseFloat(formData.buyHoldOtherExpenses.replace(/[^\d.]/g, '')) || 0;
+                          const totalExpenses = taxes + insurance + other;
+                          return totalExpenses > 0 ? `$${totalExpenses.toLocaleString()}` : '$0';
+                        })()}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <span className="font-medium">NOI (Monthly):</span>
+                      <div className="text-lg font-bold text-purple-600">
+                        {(() => {
+                          const rent = parseFloat(formData.buyHoldMonthlyRent.replace(/[^\d.]/g, '')) || 0;
+                          const taxes = parseFloat(formData.buyHoldMonthlyTaxes.replace(/[^\d.]/g, '')) || 0;
+                          const insurance = parseFloat(formData.buyHoldMonthlyInsurance.replace(/[^\d.]/g, '')) || 0;
+                          const noi = rent - taxes - insurance;
+                          return noi !== 0 ? `$${noi.toLocaleString()}` : '$0';
+                        })()}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <span className="font-medium">Monthly Cash Flow:</span>
+                      <div className="text-lg font-bold text-indigo-600">
+                        {(() => {
+                          const rent = parseFloat(formData.buyHoldMonthlyRent.replace(/[^\d.]/g, '')) || 0;
+                          const taxes = parseFloat(formData.buyHoldMonthlyTaxes.replace(/[^\d.]/g, '')) || 0;
+                          const insurance = parseFloat(formData.buyHoldMonthlyInsurance.replace(/[^\d.]/g, '')) || 0;
+                          const other = parseFloat(formData.buyHoldOtherExpenses.replace(/[^\d.]/g, '')) || 0;
+                          const cashFlow = rent - taxes - insurance - other;
+                          return cashFlow !== 0 ? `$${cashFlow.toLocaleString()}` : '$0';
+                        })()}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <span className="font-medium">Cash-on-Cash %:</span>
+                      <div className="text-lg font-bold text-orange-600">
+                        {(() => {
+                          const rent = parseFloat(formData.buyHoldMonthlyRent.replace(/[^\d.]/g, '')) || 0;
+                          const taxes = parseFloat(formData.buyHoldMonthlyTaxes.replace(/[^\d.]/g, '')) || 0;
+                          const insurance = parseFloat(formData.buyHoldMonthlyInsurance.replace(/[^\d.]/g, '')) || 0;
+                          const other = parseFloat(formData.buyHoldOtherExpenses.replace(/[^\d.]/g, '')) || 0;
+                          const purchase = parseFloat(formData.buyHoldPurchasePrice.replace(/[^\d.]/g, '')) || 0;
+                          const rehab = parseFloat(formData.buyHoldRehabCost.replace(/[^\d.]/g, '')) || 0;
+                          const allIn = purchase + rehab;
+                          const annualCashFlow = (rent - taxes - insurance - other) * 12;
+                          const cocReturn = allIn > 0 ? (annualCashFlow / allIn) * 100 : 0;
+                          return cocReturn !== 0 ? `${cocReturn.toFixed(1)}%` : '0%';
+                        })()}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <span className="font-medium">Cap Rate %:</span>
+                      <div className="text-lg font-bold text-teal-600">
+                        {(() => {
+                          const rent = parseFloat(formData.buyHoldMonthlyRent.replace(/[^\d.]/g, '')) || 0;
+                          const taxes = parseFloat(formData.buyHoldMonthlyTaxes.replace(/[^\d.]/g, '')) || 0;
+                          const insurance = parseFloat(formData.buyHoldMonthlyInsurance.replace(/[^\d.]/g, '')) || 0;
+                          const purchase = parseFloat(formData.buyHoldPurchasePrice.replace(/[^\d.]/g, '')) || 0;
+                          const rehab = parseFloat(formData.buyHoldRehabCost.replace(/[^\d.]/g, '')) || 0;
+                          const allIn = purchase + rehab;
+                          const annualNOI = (rent - taxes - insurance) * 12;
+                          const capRate = allIn > 0 ? (annualNOI / allIn) * 100 : 0;
+                          return capRate !== 0 ? `${capRate.toFixed(1)}%` : '0%';
+                        })()}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <span className="font-medium">1% Rule Check:</span>
+                      <div className="text-lg font-bold">
+                        {(() => {
+                          const rent = parseFloat(formData.buyHoldMonthlyRent.replace(/[^\d.]/g, '')) || 0;
+                          const purchase = parseFloat(formData.buyHoldPurchasePrice.replace(/[^\d.]/g, '')) || 0;
+                          const onePercentRule = purchase > 0 ? (rent / purchase) * 100 : 0;
+                          const passes = onePercentRule >= 1;
+                          return (
+                            <span className={passes ? 'text-green-600' : 'text-red-600'}>
+                              {onePercentRule > 0 ? `${onePercentRule.toFixed(2)}%` : '0%'} 
+                              {onePercentRule > 0 && (passes ? ' ✓ PASS' : ' ✗ FAIL')}
+                            </span>
+                          );
+                        })()}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
 
