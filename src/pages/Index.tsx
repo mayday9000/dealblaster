@@ -73,7 +73,7 @@ interface FormData {
     type: string;
     inputFormat: 'year' | 'age'; // New field to track format selection
     input: string; // Single input for year or age
-    condition: string;
+    isShitbox: boolean;
     lastServiced: string;
   }>;
   
@@ -196,9 +196,9 @@ const Index = () => {
     
     // Big Ticket Systems - simplified
     bigTicketItems: [
-      { type: 'Roof', inputFormat: 'year', input: '', condition: '', lastServiced: '' },
-      { type: 'HVAC', inputFormat: 'year', input: '', condition: '', lastServiced: '' },
-      { type: 'Water Heater', inputFormat: 'year', input: '', condition: '', lastServiced: '' }
+      { type: 'Roof', inputFormat: 'year', input: '', isShitbox: false, lastServiced: '' },
+      { type: 'HVAC', inputFormat: 'year', input: '', isShitbox: false, lastServiced: '' },
+      { type: 'Water Heater', inputFormat: 'year', input: '', isShitbox: false, lastServiced: '' }
     ],
     
     // Occupancy
@@ -351,7 +351,7 @@ const Index = () => {
         type: '',
         inputFormat: 'year',
         input: '',
-        condition: '',
+        isShitbox: false,
         lastServiced: ''
       }]
     }));
@@ -458,8 +458,8 @@ const Index = () => {
       const requiredBigTicketTypes = ['Roof', 'HVAC', 'Water Heater'];
       for (const requiredType of requiredBigTicketTypes) {
         const item = formData.bigTicketItems.find(item => item.type === requiredType);
-        if (!item || !item.condition || !item.input.trim()) {
-          errors.push(`${requiredType} year/range and condition`);
+        if (!item || !item.input.trim()) {
+          errors.push(`${requiredType} year/range`);
         }
       }
     }
@@ -528,7 +528,7 @@ const Index = () => {
             : item.input,
           ageType: item.inputFormat === 'age' ? 'range' : 'specific',
           specificYear: item.inputFormat === 'year' ? item.input : '',
-          condition: item.condition,
+          isShitbox: item.isShitbox,
           lastServiced: item.lastServiced
         })),
         
@@ -1354,20 +1354,15 @@ const Index = () => {
                       </p>
                     </div>
 
-                    <div>
-                      <Label htmlFor={`condition-${index}`}>*</Label>
-                      <Select value={item.condition} onValueChange={(value) => updateBigTicketItem(index, 'condition', value)}>
-                        <SelectTrigger className="bg-background border z-50">
-                          <SelectValue placeholder="Select condition" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-background border shadow-lg z-50">
-                          <SelectItem value="Excellent">Excellent</SelectItem>
-                          <SelectItem value="Good">Good</SelectItem>
-                          <SelectItem value="Fair">Fair</SelectItem>
-                          <SelectItem value="Poor">Poor</SelectItem>
-                          <SelectItem value="Sh*t Box">Sh*t Box</SelectItem>
-                        </SelectContent>
-                      </Select>
+                    <div className="flex items-center space-x-2">
+                      <input
+                        id={`shitbox-${index}`}
+                        type="checkbox"
+                        checked={item.isShitbox}
+                        onChange={(e) => updateBigTicketItem(index, 'isShitbox', e.target.checked)}
+                        className="rounded border border-gray-300"
+                      />
+                      <Label htmlFor={`shitbox-${index}`}>Shitbox (Distressed Property)</Label>
                     </div>
 
                     <div>
