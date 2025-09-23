@@ -72,6 +72,7 @@ interface FormData {
   // Big Ticket Systems - flexible input
   bigTicketItems: Array<{
     type: string;
+    inputFormat: 'year' | 'age'; // New field to track format selection
     input: string; // Single input for year or age
     condition: string;
     lastServiced: string;
@@ -197,9 +198,9 @@ const Index = () => {
     
     // Big Ticket Systems - simplified
     bigTicketItems: [
-      { type: 'Roof', input: '', condition: '', lastServiced: '' },
-      { type: 'HVAC', input: '', condition: '', lastServiced: '' },
-      { type: 'Water Heater', input: '', condition: '', lastServiced: '' }
+      { type: 'Roof', inputFormat: 'year', input: '', condition: '', lastServiced: '' },
+      { type: 'HVAC', inputFormat: 'year', input: '', condition: '', lastServiced: '' },
+      { type: 'Water Heater', inputFormat: 'year', input: '', condition: '', lastServiced: '' }
     ],
     
     // Occupancy
@@ -350,6 +351,7 @@ const Index = () => {
       ...prev,
       bigTicketItems: [...prev.bigTicketItems, {
         type: '',
+        inputFormat: 'year',
         input: '',
         condition: '',
         lastServiced: ''
@@ -366,12 +368,25 @@ const Index = () => {
     }
   };
 
-  const updateBigTicketItem = (index: number, field: string, value: string) => {
+  const updateBigTicketItem = (index: number, field: string, value: any) => {
     setFormData(prev => ({
       ...prev,
-      bigTicketItems: prev.bigTicketItems.map((item, i) => 
-        i === index ? { ...item, [field]: value } : item
-      )
+      bigTicketItems: prev.bigTicketItems.map((item, i) => {
+        if (i === index) {
+          // If updating inputFormat, clear the input value
+          if (field === 'inputFormat') {
+            return { ...item, [field]: value, input: '' };
+          }
+          // If updating input and format is 'age', ensure it's just a number
+          if (field === 'input' && item.inputFormat === 'age') {
+            // Remove any existing " years old" and non-numeric characters except spaces
+            const numericValue = value.replace(/ years old/gi, '').replace(/[^\d\s]/g, '').trim();
+            return { ...item, [field]: numericValue };
+          }
+          return { ...item, [field]: value };
+        }
+        return item;
+      })
     }));
   };
 
@@ -498,6 +513,18 @@ const Index = () => {
         companyLogo: companyLogoBase64,
         title: formData.selectedTitle || formData.generatedTitles[0] || `${formData.city} ${formData.dealType} Opportunity`,
         subtitle: `${formData.dealType} Investment Property - ${formData.isPremarket ? `${formData.city}, ${formData.state}` : formData.address}`,
+        
+        // Format big ticket items with proper age formatting
+        bigTicketItems: formData.bigTicketItems.map(item => ({
+          type: item.type,
+          age: item.inputFormat === 'age' && item.input.trim() 
+            ? `${item.input.trim()} years old` 
+            : item.input,
+          ageType: item.inputFormat === 'age' ? 'range' : 'specific',
+          specificYear: item.inputFormat === 'year' ? item.input : '',
+          condition: item.condition,
+          lastServiced: item.lastServiced
+        })),
         
         // Buy & Hold Calculations (only include if there's data)
         buyHoldAnalysis: (formData.buyHoldPurchasePrice || formData.buyHoldMonthlyRent) ? {
@@ -1288,26 +1315,48 @@ const Index = () => {
                       )}
                     </div>
 
+                    {/* Format Selector */}
                     <div>
-                      <Label htmlFor={`input-${index}`}>Year or Age *</Label>
+                      <Label htmlFor={`format-${index}`}>Input Format *</Label>
+                      <Select
+                        value={item.inputFormat}
+                        onValueChange={(value) => updateBigTicketItem(index, 'inputFormat', value)}
+                      >
+                        <SelectTrigger className="bg-background border z-50">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="bg-background border shadow-lg z-50">
+                          <SelectItem value="year">Year (e.g., 2010)</SelectItem>
+                          <SelectItem value="age">Age (e.g., 10)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
+                      <Label htmlFor={`input-${index}`}>
+                        {item.inputFormat === 'year' ? 'Year Installed *' : 'Age in Years *'}
+                      </Label>
                       <Input
                         id={`input-${index}`}
-                        placeholder="e.g., 2010 or 10 years old"
+                        placeholder={item.inputFormat === 'year' ? 'e.g., 2010' : 'e.g., 10'}
                         value={item.input}
                         onChange={(e) => updateBigTicketItem(index, 'input', e.target.value)}
                       />
                       <p className="text-sm text-muted-foreground mt-1">
-                        Enter a year (e.g., "2010") or age (e.g., "10 years old")
+                        {item.inputFormat === 'year' 
+                          ? 'Enter the year it was installed (e.g., "2010")'
+                          : 'Enter age in years (e.g., "10") - "years old" will be added automatically'
+                        }
                       </p>
                     </div>
 
                     <div>
                       <Label htmlFor={`condition-${index}`}>Condition *</Label>
                       <Select value={item.condition} onValueChange={(value) => updateBigTicketItem(index, 'condition', value)}>
-                        <SelectTrigger>
+                        <SelectTrigger className="bg-background border z-50">
                           <SelectValue placeholder="Select condition" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="bg-background border shadow-lg z-50">
                           <SelectItem value="Excellent">Excellent</SelectItem>
                           <SelectItem value="Good">Good</SelectItem>
                           <SelectItem value="Fair">Fair</SelectItem>
