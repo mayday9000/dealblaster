@@ -1667,86 +1667,161 @@ const Index = () => {
               <CardDescription>Quick rental analysis for investment properties</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div>
-                  <Label htmlFor="buyHoldPurchasePrice">Purchase Price</Label>
-                  <Input
-                    id="buyHoldPurchasePrice"
-                    placeholder="$250,000"
-                    value={formData.buyHoldPurchasePrice}
-                    onChange={(e) => updateFormData('buyHoldPurchasePrice', e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="buyHoldRehabCost">Rehab Cost</Label>
-                  <Input
-                    id="buyHoldRehabCost"
-                    placeholder="$25,000"
-                    value={formData.buyHoldRehabCost}
-                    onChange={(e) => updateFormData('buyHoldRehabCost', e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="buyHoldMonthlyRent">Monthly Rent</Label>
-                  <Input
-                    id="buyHoldMonthlyRent"
-                    placeholder="$2,200"
-                    value={formData.buyHoldMonthlyRent}
-                    onChange={(e) => updateFormData('buyHoldMonthlyRent', e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="buyHoldMonthlyTaxes">Monthly Taxes</Label>
-                  <Input
-                    id="buyHoldMonthlyTaxes"
-                    placeholder="$350"
-                    value={formData.buyHoldMonthlyTaxes}
-                    onChange={(e) => updateFormData('buyHoldMonthlyTaxes', e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="buyHoldMonthlyInsurance">Monthly Insurance</Label>
-                  <Input
-                    id="buyHoldMonthlyInsurance"
-                    placeholder="$150"
-                    value={formData.buyHoldMonthlyInsurance}
-                    onChange={(e) => updateFormData('buyHoldMonthlyInsurance', e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="buyHoldOtherExpenses">Other Monthly Expenses</Label>
-                  <Input
-                    id="buyHoldOtherExpenses"
-                    placeholder="$300"
-                    value={formData.buyHoldOtherExpenses}
-                    onChange={(e) => updateFormData('buyHoldOtherExpenses', e.target.value)}
-                  />
-                </div>
-              </div>
-              
+              {/* Financing Type Selector */}
               <div>
-                <Label htmlFor="buyHoldMortgageTerms">Mortgage / Loan Terms</Label>
-                <Input
-                  id="buyHoldMortgagePayment"
-                  placeholder="$1,200"
-                  value={formData.buyHoldMortgagePayment}
-                  onChange={(e) => updateFormData('buyHoldMortgagePayment', e.target.value)}
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  Enter loan details or monthly payment amount
-                </p>
+                <Label htmlFor="buyHoldType">Financing Type</Label>
+                <Select
+                  value={formData.buyHoldType}
+                  onValueChange={(value) => updateFormData('buyHoldType', value as 'standard' | 'subject-to')}
+                >
+                  <SelectTrigger className="bg-background border z-50">
+                    <SelectValue placeholder="Select financing type" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background border shadow-lg z-50">
+                    <SelectItem value="standard">Standard (Cash/Conventional)</SelectItem>
+                    <SelectItem value="subject-to">Subject-To (Sub-To)</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
-              {/* Investment Analysis - Show if we have data */}
+              {/* Standard Type Inputs */}
+              {formData.buyHoldType === 'standard' && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div>
+                      <Label htmlFor="buyHoldPurchasePrice">Purchase Price</Label>
+                      <Input
+                        id="buyHoldPurchasePrice"
+                        placeholder="$250,000"
+                        value={formData.buyHoldPurchasePrice}
+                        onChange={(e) => updateFormData('buyHoldPurchasePrice', e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="buyHoldRehabCost">Rehab Estimate</Label>
+                      <Input
+                        id="buyHoldRehabCost"
+                        placeholder="$25,000"
+                        value={formData.buyHoldRehabCost}
+                        onChange={(e) => updateFormData('buyHoldRehabCost', e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="buyHoldMonthlyRent">Est. Monthly Rent</Label>
+                      <Input
+                        id="buyHoldMonthlyRent"
+                        placeholder="$2,200"
+                        value={formData.buyHoldMonthlyRent}
+                        onChange={(e) => updateFormData('buyHoldMonthlyRent', e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="buyHoldMonthlyTaxes">Est. Monthly Taxes</Label>
+                      <Input
+                        id="buyHoldMonthlyTaxes"
+                        placeholder="$350"
+                        value={formData.buyHoldMonthlyTaxes}
+                        onChange={(e) => updateFormData('buyHoldMonthlyTaxes', e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="buyHoldMonthlyInsurance">Est. Monthly Insurance</Label>
+                      <Input
+                        id="buyHoldMonthlyInsurance"
+                        placeholder="$150"
+                        value={formData.buyHoldMonthlyInsurance}
+                        onChange={(e) => updateFormData('buyHoldMonthlyInsurance', e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="buyHoldOtherExpenses">Other Monthly Expenses</Label>
+                      <Input
+                        id="buyHoldOtherExpenses"
+                        placeholder="$300 (optional)"
+                        value={formData.buyHoldOtherExpenses}
+                        onChange={(e) => updateFormData('buyHoldOtherExpenses', e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Subject-To Type Inputs */}
+              {formData.buyHoldType === 'subject-to' && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div>
+                      <Label htmlFor="buyHoldMonthlyRent">Est. Monthly Rent</Label>
+                      <Input
+                        id="buyHoldMonthlyRent"
+                        placeholder="$2,200"
+                        value={formData.buyHoldMonthlyRent}
+                        onChange={(e) => updateFormData('buyHoldMonthlyRent', e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="buyHoldMonthlyTaxes">Est. Monthly Taxes</Label>
+                      <Input
+                        id="buyHoldMonthlyTaxes"
+                        placeholder="$350"
+                        value={formData.buyHoldMonthlyTaxes}
+                        onChange={(e) => updateFormData('buyHoldMonthlyTaxes', e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="buyHoldMonthlyInsurance">Est. Monthly Insurance</Label>
+                      <Input
+                        id="buyHoldMonthlyInsurance"
+                        placeholder="$150"
+                        value={formData.buyHoldMonthlyInsurance}
+                        onChange={(e) => updateFormData('buyHoldMonthlyInsurance', e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="buyHoldMortgagePayment">Monthly Mortgage Payment</Label>
+                      <Input
+                        id="buyHoldMortgagePayment"
+                        placeholder="$1,200"
+                        value={formData.buyHoldMortgagePayment}
+                        onChange={(e) => updateFormData('buyHoldMortgagePayment', e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="buyHoldCashToSeller">Cash-to-Seller</Label>
+                      <Input
+                        id="buyHoldCashToSeller"
+                        placeholder="$10,000"
+                        value={formData.buyHoldCashToSeller}
+                        onChange={(e) => updateFormData('buyHoldCashToSeller', e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* 1% Rule Toggle */}
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="includeOnePercentRule"
+                  checked={formData.includeOnePercentRule}
+                  onCheckedChange={(checked) => updateFormData('includeOnePercentRule', checked)}
+                />
+                <Label htmlFor="includeOnePercentRule" className="text-sm">
+                  Include 1% Rule Check in listing
+                </Label>
+              </div>
+
+              {/* Investment Analysis - Show if we have rent data */}
               {formData.buyHoldMonthlyRent && (
-                <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-                  <h4 className="font-semibold mb-3">Investment Analysis</h4>
+                <div className="mt-6 p-4 bg-muted/30 rounded-lg">
+                  <h4 className="font-semibold mb-3 text-foreground">Investment Analysis</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+                    {/* Standard Calculations */}
                     {formData.buyHoldType === 'standard' && (
                       <>
                         <div>
-                          <span className="font-medium">All-In Cost:</span>
-                          <div className="text-lg font-bold text-blue-600">
+                          <span className="font-medium text-muted-foreground">All-In Cost:</span>
+                          <div className="text-lg font-bold text-primary">
                             {(() => {
                               const purchase = parseFloat(formData.buyHoldPurchasePrice.replace(/[^\d.]/g, '')) || 0;
                               const rehab = parseFloat(formData.buyHoldRehabCost.replace(/[^\d.]/g, '')) || 0;
@@ -1757,8 +1832,22 @@ const Index = () => {
                         </div>
                         
                         <div>
-                          <span className="font-medium">Cash-on-Cash %:</span>
-                          <div className="text-lg font-bold text-orange-600">
+                          <span className="font-medium text-muted-foreground">Cash Flow:</span>
+                          <div className="text-lg font-bold text-green-600">
+                            {(() => {
+                              const rent = parseFloat(formData.buyHoldMonthlyRent.replace(/[^\d.]/g, '')) || 0;
+                              const taxes = parseFloat(formData.buyHoldMonthlyTaxes.replace(/[^\d.]/g, '')) || 0;
+                              const insurance = parseFloat(formData.buyHoldMonthlyInsurance.replace(/[^\d.]/g, '')) || 0;
+                              const other = parseFloat(formData.buyHoldOtherExpenses.replace(/[^\d.]/g, '')) || 0;
+                              const cashFlow = rent - taxes - insurance - other;
+                              return cashFlow !== 0 ? `$${cashFlow.toLocaleString()}` : '$0';
+                            })()}
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <span className="font-medium text-muted-foreground">Cap Rate:</span>
+                          <div className="text-lg font-bold text-blue-600">
                             {(() => {
                               const rent = parseFloat(formData.buyHoldMonthlyRent.replace(/[^\d.]/g, '')) || 0;
                               const taxes = parseFloat(formData.buyHoldMonthlyTaxes.replace(/[^\d.]/g, '')) || 0;
@@ -1768,96 +1857,83 @@ const Index = () => {
                               const rehab = parseFloat(formData.buyHoldRehabCost.replace(/[^\d.]/g, '')) || 0;
                               const allIn = purchase + rehab;
                               const annualCashFlow = (rent - taxes - insurance - other) * 12;
-                              const cocReturn = allIn > 0 ? (annualCashFlow / allIn) * 100 : 0;
-                              return cocReturn !== 0 ? `${cocReturn.toFixed(1)}%` : '0%';
+                              const capRate = allIn > 0 ? (annualCashFlow / allIn) * 100 : 0;
+                              return capRate !== 0 ? `${capRate.toFixed(2)}%` : '0%';
+                            })()}
+                          </div>
+                        </div>
+                      </>
+                    )}
+
+                    {/* Subject-To Calculations */}
+                    {formData.buyHoldType === 'subject-to' && (
+                      <>
+                        <div>
+                          <span className="font-medium text-muted-foreground">PITI:</span>
+                          <div className="text-lg font-bold text-orange-600">
+                            {(() => {
+                              const mortgage = parseFloat(formData.buyHoldMortgagePayment.replace(/[^\d.]/g, '')) || 0;
+                              const taxes = parseFloat(formData.buyHoldMonthlyTaxes.replace(/[^\d.]/g, '')) || 0;
+                              const insurance = parseFloat(formData.buyHoldMonthlyInsurance.replace(/[^\d.]/g, '')) || 0;
+                              const piti = mortgage + taxes + insurance;
+                              return piti > 0 ? `$${piti.toLocaleString()}` : '$0';
                             })()}
                           </div>
                         </div>
                         
                         <div>
-                          <span className="font-medium">Cap Rate %:</span>
-                          <div className="text-lg font-bold text-teal-600">
+                          <span className="font-medium text-muted-foreground">Cash Flow:</span>
+                          <div className="text-lg font-bold text-green-600">
                             {(() => {
                               const rent = parseFloat(formData.buyHoldMonthlyRent.replace(/[^\d.]/g, '')) || 0;
+                              const mortgage = parseFloat(formData.buyHoldMortgagePayment.replace(/[^\d.]/g, '')) || 0;
                               const taxes = parseFloat(formData.buyHoldMonthlyTaxes.replace(/[^\d.]/g, '')) || 0;
                               const insurance = parseFloat(formData.buyHoldMonthlyInsurance.replace(/[^\d.]/g, '')) || 0;
-                              const purchase = parseFloat(formData.buyHoldPurchasePrice.replace(/[^\d.]/g, '')) || 0;
-                              const rehab = parseFloat(formData.buyHoldRehabCost.replace(/[^\d.]/g, '')) || 0;
-                              const allIn = purchase + rehab;
-                              const annualNOI = (rent - taxes - insurance) * 12;
-                              const capRate = allIn > 0 ? (annualNOI / allIn) * 100 : 0;
-                              return capRate !== 0 ? `${capRate.toFixed(1)}%` : '0%';
+                              const cashFlow = rent - mortgage - taxes - insurance;
+                              return cashFlow !== 0 ? `$${cashFlow.toLocaleString()}` : '$0';
+                            })()}
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <span className="font-medium text-muted-foreground">Cash-to-Seller:</span>
+                          <div className="text-lg font-bold text-purple-600">
+                            {(() => {
+                              const cashToSeller = parseFloat(formData.buyHoldCashToSeller.replace(/[^\d.]/g, '')) || 0;
+                              return cashToSeller > 0 ? `$${cashToSeller.toLocaleString()}` : '$0';
+                            })()}
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <span className="font-medium text-muted-foreground">Cash-on-Cash Return:</span>
+                          <div className="text-lg font-bold text-blue-600">
+                            {(() => {
+                              const rent = parseFloat(formData.buyHoldMonthlyRent.replace(/[^\d.]/g, '')) || 0;
+                              const mortgage = parseFloat(formData.buyHoldMortgagePayment.replace(/[^\d.]/g, '')) || 0;
+                              const taxes = parseFloat(formData.buyHoldMonthlyTaxes.replace(/[^\d.]/g, '')) || 0;
+                              const insurance = parseFloat(formData.buyHoldMonthlyInsurance.replace(/[^\d.]/g, '')) || 0;
+                              const cashToSeller = parseFloat(formData.buyHoldCashToSeller.replace(/[^\d.]/g, '')) || 0;
+                              const annualCashFlow = (rent - mortgage - taxes - insurance) * 12;
+                              const cocReturn = cashToSeller > 0 ? (annualCashFlow / cashToSeller) * 100 : 0;
+                              return cocReturn !== 0 ? `${cocReturn.toFixed(2)}%` : '0%';
                             })()}
                           </div>
                         </div>
                       </>
                     )}
                     
+                    {/* 1% Rule Check - Always show but only in listing if toggled on */}
                     <div>
-                      <span className="font-medium">Gross Monthly Income:</span>
-                      <div className="text-lg font-bold text-green-600">
-                        {(() => {
-                          const rent = parseFloat(formData.buyHoldMonthlyRent.replace(/[^\d.]/g, '')) || 0;
-                          return rent > 0 ? `$${rent.toLocaleString()}` : '$0';
-                        })()}
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <span className="font-medium">Monthly Expenses:</span>
-                      <div className="text-lg font-bold text-red-600">
-                        {(() => {
-                          const taxes = parseFloat(formData.buyHoldMonthlyTaxes.replace(/[^\d.]/g, '')) || 0;
-                          const insurance = parseFloat(formData.buyHoldMonthlyInsurance.replace(/[^\d.]/g, '')) || 0;
-                          const other = parseFloat(formData.buyHoldOtherExpenses.replace(/[^\d.]/g, '')) || 0;
-                          const mortgage = formData.buyHoldType === 'subject-to' ? 
-                            parseFloat(formData.buyHoldMortgagePayment.replace(/[^\d.]/g, '')) || 0 : 0;
-                          const totalExpenses = taxes + insurance + other + mortgage;
-                          return totalExpenses > 0 ? `$${totalExpenses.toLocaleString()}` : '$0';
-                        })()}
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <span className="font-medium">Monthly Cash Flow:</span>
-                      <div className="text-lg font-bold text-indigo-600">
-                        {(() => {
-                          const rent = parseFloat(formData.buyHoldMonthlyRent.replace(/[^\d.]/g, '')) || 0;
-                          const taxes = parseFloat(formData.buyHoldMonthlyTaxes.replace(/[^\d.]/g, '')) || 0;
-                          const insurance = parseFloat(formData.buyHoldMonthlyInsurance.replace(/[^\d.]/g, '')) || 0;
-                          const other = parseFloat(formData.buyHoldOtherExpenses.replace(/[^\d.]/g, '')) || 0;
-                          const mortgage = formData.buyHoldType === 'subject-to' ? 
-                            parseFloat(formData.buyHoldMortgagePayment.replace(/[^\d.]/g, '')) || 0 : 0;
-                          const cashFlow = rent - taxes - insurance - other - mortgage;
-                          return cashFlow !== 0 ? `$${cashFlow.toLocaleString()}` : '$0';
-                        })()}
-                      </div>
-                    </div>
-
-                    {formData.buyHoldType === 'subject-to' && (
-                      <div>
-                        <span className="font-medium">PITI (Total Monthly):</span>
-                        <div className="text-lg font-bold text-purple-600">
-                          {(() => {
-                            const mortgage = parseFloat(formData.buyHoldMortgagePayment.replace(/[^\d.]/g, '')) || 0;
-                            const taxes = parseFloat(formData.buyHoldMonthlyTaxes.replace(/[^\d.]/g, '')) || 0;
-                            const insurance = parseFloat(formData.buyHoldMonthlyInsurance.replace(/[^\d.]/g, '')) || 0;
-                            const piti = mortgage + taxes + insurance;
-                            return piti > 0 ? `$${piti.toLocaleString()}` : '$0';
-                          })()}
-                        </div>
-                      </div>
-                    )}
-                    
-                    <div>
-                      <span className="font-medium">1% Rule Check:</span>
+                      <span className="font-medium text-muted-foreground">1% Rule Check:</span>
                       <div className="text-lg font-bold">
                         {(() => {
                           const rent = parseFloat(formData.buyHoldMonthlyRent.replace(/[^\d.]/g, '')) || 0;
-                          const purchase = formData.buyHoldType === 'standard' ? 
-                            parseFloat(formData.buyHoldPurchasePrice.replace(/[^\d.]/g, '')) || 0 :
+                          const basis = formData.buyHoldType === 'standard' ? 
+                            (parseFloat(formData.buyHoldPurchasePrice.replace(/[^\d.]/g, '')) || 0) +
+                            (parseFloat(formData.buyHoldRehabCost.replace(/[^\d.]/g, '')) || 0) :
                             parseFloat(formData.buyHoldCashToSeller.replace(/[^\d.]/g, '')) || 0;
-                          const onePercentRule = purchase > 0 ? (rent / purchase) * 100 : 0;
+                          const onePercentRule = basis > 0 ? (rent / basis) * 100 : 0;
                           const passes = onePercentRule >= 1;
                           return (
                             <span className={passes ? 'text-green-600' : 'text-red-600'}>
