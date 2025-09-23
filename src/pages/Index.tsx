@@ -1355,7 +1355,7 @@ const Index = () => {
                     </div>
 
                     <div>
-                      <Label htmlFor={`condition-${index}`}>Condition *</Label>
+                      <Label htmlFor={`condition-${index}`}>*</Label>
                       <Select value={item.condition} onValueChange={(value) => updateBigTicketItem(index, 'condition', value)}>
                         <SelectTrigger className="bg-background border z-50">
                           <SelectValue placeholder="Select condition" />
