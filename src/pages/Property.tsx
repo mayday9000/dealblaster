@@ -26,11 +26,11 @@ const Property = () => {
       }
 
       try {
-        // Get public property data using secure function
+        // Get all property data from Supabase
         const { data: property, error: supabaseError } = await supabase
-          .rpc('get_public_property_data', { 
-            property_address: addressSlug 
-          })
+          .from('properties')
+          .select('*')
+          .eq('address_slug', addressSlug)
           .maybeSingle();
 
         if (supabaseError) {

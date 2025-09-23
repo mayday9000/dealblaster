@@ -166,62 +166,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      get_property_contact_info: {
-        Args: { property_address: string }
-        Returns: {
-          business_hours: string
-          contact_email: string
-          contact_image: string
-          contact_name: string
-          contact_phone: string
-          office_number: string
-          website: string
-        }[]
-      }
-      get_public_property_data: {
-        Args: { property_address: string }
-        Returns: {
-          additional_disclosures: string
-          address: string
-          address_slug: string
-          all_in: string
-          arv: string
-          asking_price: string
-          bathrooms: string
-          bedrooms: string
-          city: string
-          closing_date: string
-          closing_occupancy: string
-          comps: Json
-          created_at: string
-          current_occupancy: string
-          deal_type: string
-          emd_amount: string
-          emd_due_date: string
-          exit_strategy: string
-          financing_types: string[]
-          foundation_type: string
-          front_photo: string
-          garage: string
-          generated_titles: string[]
-          gross_profit: string
-          hook: string
-          html_content: string
-          id: string
-          include_financial_breakdown: boolean
-          lot_size: string
-          photo_link: string
-          pool: string
-          post_possession: string
-          rehab_estimate: string
-          selected_title: string
-          square_footage: string
-          updated_at: string
-          utilities: string
-          year_built: string
-          zoning: string
-        }[]
-      }
+      [_ in never]: never
     }
     Enums: {
       [_ in never]: never
