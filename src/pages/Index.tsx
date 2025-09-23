@@ -615,13 +615,10 @@ const Index = () => {
         address: formData.address,
       };
 
-      const { data: insertResult, error: supabaseError } = await supabase
-        .from('properties')
-        .upsert(propertyRecord, { 
-          onConflict: 'address_slug',
-          ignoreDuplicates: false 
-        })
-        .select();
+      const { data: insertResult, error: supabaseError } = await (supabase as any)
+        .rpc('secure_upsert_property', { 
+          property_data: propertyRecord
+        });
 
       if (supabaseError) {
         console.error('Supabase error:', supabaseError);
