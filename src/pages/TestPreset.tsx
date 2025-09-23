@@ -4,47 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
-import { X, Plus, Upload, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import SuccessModal from "@/components/SuccessModal";
 import { slugify } from "@/utils/slugify";
-
-interface BigTicketItem {
-  type: string;
-  age: string;
-  ageType: 'range' | 'exact';
-  specificYear: string;
-  condition: string;
-  lastServiced: string;
-}
-
-interface Comp {
-  address: string;
-  zillowLink: string;
-  bedrooms: string;
-  bathrooms: string;
-  squareFootage: string;
-  lotSize: string;
-  compType: string;
-  conditionLabel: string;
-  assetType: string;
-  assetTypeOther: string;
-  status: string;
-  soldListedPrice: string;
-  soldListedPriceType: string;
-  soldListedDate: string;
-  currentlyListed: string;
-  dom: string;
-  distanceFromSubject: string;
-  comments: string;
-}
 
 interface FormData {
   // Listing Headline
@@ -84,7 +48,7 @@ interface FormData {
   pool: boolean;
   
   // Big Ticket Systems
-  bigTicketItems: BigTicketItem[];
+  bigTicketItems: any[];
   
   // Occupancy
   occupancy: string;
@@ -99,7 +63,7 @@ interface FormData {
   exitStrategy: string;
   
   // Comps
-  comps: Comp[];
+  comps: any[];
   
   // Contact Information
   contactName: string;
@@ -243,65 +207,6 @@ const TestPreset = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
 
-  const updateFormData = (field: keyof FormData, value: any) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
-
-  const updateComp = (index: number, field: keyof Comp, value: string) => {
-    const updatedComps = [...formData.comps];
-    updatedComps[index] = { ...updatedComps[index], [field]: value };
-    updateFormData('comps', updatedComps);
-  };
-
-  const addComp = () => {
-    const newComp: Comp = {
-      address: '',
-      zillowLink: '',
-      bedrooms: '',
-      bathrooms: '',
-      squareFootage: '',
-      lotSize: '',
-      compType: '',
-      conditionLabel: '',
-      assetType: '',
-      assetTypeOther: '',
-      status: '',
-      soldListedPrice: '',
-      soldListedPriceType: 'Listed',
-      soldListedDate: '',
-      currentlyListed: '',
-      dom: '',
-      distanceFromSubject: '',
-      comments: ''
-    };
-    updateFormData('comps', [...formData.comps, newComp]);
-  };
-
-  const removeComp = (index: number) => {
-    const updatedComps = formData.comps.filter((_, i) => i !== index);
-    updateFormData('comps', updatedComps);
-  };
-
-  const handleBigTicketChange = (index: number, field: keyof BigTicketItem, value: string) => {
-    const updatedItems = [...formData.bigTicketItems];
-    updatedItems[index] = { ...updatedItems[index], [field]: value };
-    updateFormData('bigTicketItems', updatedItems);
-  };
-
-  const generateTitles = () => {
-    const titles = [
-      `${formData.dealType} in ${formData.city}`,
-      `Prime ${formData.city} Investment Opportunity`,
-      `${formData.bedrooms}BR/${formData.bathrooms}BA ${formData.dealType}`,
-      `Turn-Key Property in ${formData.city}`,
-      `${formData.city} Real Estate Investment`
-    ];
-    updateFormData('generatedTitles', titles);
-  };
-
   const convertFileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -309,14 +214,6 @@ const TestPreset = () => {
       reader.onload = () => resolve(reader.result as string);
       reader.onerror = error => reject(error);
     });
-  };
-
-  const formatCurrency = (value: string) => {
-    const numericValue = value.replace(/[^0-9]/g, '');
-    if (!numericValue) return '';
-    
-    const numberValue = parseInt(numericValue);
-    return numberValue.toLocaleString();
   };
 
   const validateRequiredFields = () => {
@@ -443,7 +340,7 @@ const TestPreset = () => {
 
       console.log('Property saved successfully:', insertResult);
 
-      const propertyUrl = `${window.location.origin}/property?address=${encodeURIComponent(formData.address)}`;
+      const propertyUrl = `/property?address=${encodeURIComponent(formData.address)}`;
       setShareUrl(propertyUrl);
       setShowSuccessModal(true);
 
@@ -462,26 +359,6 @@ const TestPreset = () => {
     } finally {
       setIsGenerating(false);
     }
-  };
-
-  const handleFinancingTypeChange = (type: string, checked: boolean) => {
-    if (checked) {
-      updateFormData('financingTypes', [...formData.financingTypes, type]);
-    } else {
-      updateFormData('financingTypes', formData.financingTypes.filter(t => t !== type));
-    }
-  };
-
-  const handleUtilityChange = (utility: string, checked: boolean) => {
-    if (checked) {
-      updateFormData('utilities', [...formData.utilities, utility]);
-    } else {
-      updateFormData('utilities', formData.utilities.filter(u => u !== utility));
-    }
-  };
-
-  const handleTitleSelection = (title: string) => {
-    updateFormData('selectedTitle', title);
   };
 
   return (
@@ -506,126 +383,81 @@ const TestPreset = () => {
           </div>
         </div>
 
-        {/* Listing Headline Section */}
         <Card className="mb-8">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-semibold">1</span>
-              Listing Headline
-            </CardTitle>
-            <CardDescription>Create an attention-grabbing headline for your property listing</CardDescription>
+            <CardTitle>Sample Property Data</CardTitle>
+            <CardDescription>
+              This form is pre-filled with realistic sample data. You can modify any fields or click "Generate Property Flyer" to test with the current data.
+            </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="city">City *</Label>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div>
+                <Label htmlFor="address">Address</Label>
+                <Input
+                  id="address"
+                  value={formData.address}
+                  onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
+                />
+              </div>
+              <div>
+                <Label htmlFor="city">City</Label>
                 <Input
                   id="city"
                   value={formData.city}
-                  onChange={(e) => updateFormData('city', e.target.value)}
-                  placeholder="Enter city"
-                  required
+                  onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))}
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="state">State</Label>
+              <div>
+                <Label htmlFor="askingPrice">Asking Price</Label>
                 <Input
-                  id="state"
-                  value={formData.state}
-                  onChange={(e) => updateFormData('state', e.target.value)}
-                  placeholder="Enter state"
+                  id="askingPrice"
+                  value={formData.askingPrice}
+                  onChange={(e) => setFormData(prev => ({ ...prev, askingPrice: e.target.value }))}
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="zip">ZIP Code</Label>
+              <div>
+                <Label htmlFor="bedrooms">Bedrooms</Label>
                 <Input
-                  id="zip"
-                  value={formData.zip}
-                  onChange={(e) => updateFormData('zip', e.target.value)}
-                  placeholder="Enter ZIP code"
+                  id="bedrooms"
+                  value={formData.bedrooms}
+                  onChange={(e) => setFormData(prev => ({ ...prev, bedrooms: e.target.value }))}
+                />
+              </div>
+              <div>
+                <Label htmlFor="bathrooms">Bathrooms</Label>
+                <Input
+                  id="bathrooms"
+                  value={formData.bathrooms}
+                  onChange={(e) => setFormData(prev => ({ ...prev, bathrooms: e.target.value }))}
+                />
+              </div>
+              <div>
+                <Label htmlFor="squareFootage">Square Footage</Label>
+                <Input
+                  id="squareFootage"
+                  value={formData.squareFootage}
+                  onChange={(e) => setFormData(prev => ({ ...prev, squareFootage: e.target.value }))}
                 />
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="dealType">Deal Type *</Label>
-              <Select value={formData.dealType} onValueChange={(value) => updateFormData('dealType', value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select deal type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Investment Property">Investment Property</SelectItem>
-                  <SelectItem value="Fix & Flip">Fix & Flip</SelectItem>
-                  <SelectItem value="Wholesale">Wholesale</SelectItem>
-                  <SelectItem value="Buy & Hold">Buy & Hold</SelectItem>
-                  <SelectItem value="Primary Residence">Primary Residence</SelectItem>
-                  <SelectItem value="Commercial">Commercial</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="hook">Hook/Attention Grabber</Label>
-              <Input
-                id="hook"
-                value={formData.hook}
-                onChange={(e) => updateFormData('hook', e.target.value)}
-                placeholder="e.g., 'Cash flowing from day one!' or 'Prime location opportunity!'"
-              />
-            </div>
-
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <Label>Generated Titles</Label>
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={generateTitles}
-                  disabled={!formData.city || !formData.dealType}
-                >
-                  Generate Titles
-                </Button>
+            <div className="pt-4">
+              <h3 className="text-lg font-semibold mb-2">Pre-filled Data Includes:</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-muted-foreground">
+                <ul className="space-y-1">
+                  <li>• Property details (3BR/2BA, 1450 sq ft)</li>
+                  <li>• Financial data (ARV: $320k, Rehab: $15k)</li>
+                  <li>• Contact information</li>
+                  <li>• Big ticket systems condition</li>
+                </ul>
+                <ul className="space-y-1">
+                  <li>• Two sample comparable properties</li>
+                  <li>• Property photos and utilities</li>
+                  <li>• Legal disclosures</li>
+                  <li>• Marketing hook and titles</li>
+                </ul>
               </div>
-              
-              {formData.generatedTitles.length > 0 && (
-                <div className="space-y-2">
-                  <Label>Select a title or customize:</Label>
-                  <RadioGroup 
-                    value={formData.selectedTitle} 
-                    onValueChange={handleTitleSelection}
-                    className="space-y-2"
-                  >
-                    {formData.generatedTitles.map((title, index) => (
-                      <div key={index} className="flex items-center space-x-2">
-                        <RadioGroupItem value={title} id={`title-${index}`} />
-                        <Label htmlFor={`title-${index}`} className="flex-1 cursor-pointer">
-                          {title}
-                        </Label>
-                      </div>
-                    ))}
-                  </RadioGroup>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="customTitle">Or enter custom title:</Label>
-                    <Input
-                      id="customTitle"
-                      value={formData.selectedTitle}
-                      onChange={(e) => updateFormData('selectedTitle', e.target.value)}
-                      placeholder="Enter your custom title"
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="isPremarket"
-                checked={formData.isPremarket}
-                onCheckedChange={(checked) => updateFormData('isPremarket', checked)}
-              />
-              <Label htmlFor="isPremarket">This is a pre-market opportunity</Label>
             </div>
           </CardContent>
         </Card>
