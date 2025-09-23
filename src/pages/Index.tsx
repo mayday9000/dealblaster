@@ -441,27 +441,35 @@ const Index = () => {
     if (!formData.financingTypes.length) errors.push('Financing Types');
     if (!formData.closingDate) errors.push('Closing Date');
     if (!formData.photoLink) errors.push('Photo Link');
-    if (!formData.bedrooms) errors.push('Bedrooms');
-    if (!formData.bathrooms) errors.push('Bathrooms');
-    if (!formData.squareFootage) errors.push('Square Footage');
-    if (!formData.yearBuilt) errors.push('Year Built');
-    if (!formData.occupancy) errors.push('Occupancy');
-    if (!formData.occupancyOnDelivery) errors.push('Occupancy on Delivery');
+    
+    // Only validate residential-specific fields if not land
+    if (!formData.isLand) {
+      if (!formData.bedrooms) errors.push('Bedrooms');
+      if (!formData.bathrooms) errors.push('Bathrooms');
+      if (!formData.squareFootage) errors.push('Square Footage');
+      if (!formData.yearBuilt) errors.push('Year Built');
+      if (!formData.occupancy) errors.push('Occupancy');
+      if (!formData.occupancyOnDelivery) errors.push('Occupancy on Delivery');
+    }
+    
     if (!formData.contactName) errors.push('Contact Name');
     if (!formData.contactPhone) errors.push('Contact Phone');
     
-    // Validate big ticket systems (at least first 3 required items)
-    const requiredBigTicketTypes = ['Roof', 'HVAC', 'Water Heater'];
-    for (const requiredType of requiredBigTicketTypes) {
-      const item = formData.bigTicketItems.find(item => item.type === requiredType);
-      if (!item || !item.condition || !item.input.trim()) {
-        errors.push(`${requiredType} year/range and condition`);
+    // Validate big ticket systems only for residential properties
+    if (!formData.isLand) {
+      const requiredBigTicketTypes = ['Roof', 'HVAC', 'Water Heater'];
+      for (const requiredType of requiredBigTicketTypes) {
+        const item = formData.bigTicketItems.find(item => item.type === requiredType);
+        if (!item || !item.condition || !item.input.trim()) {
+          errors.push(`${requiredType} year/range and condition`);
+        }
       }
     }
     
     // Validate at least 2 comps with required fields
     const validComps = formData.comps.filter(comp => 
-      comp.address && comp.bedrooms && comp.bathrooms && comp.squareFootage && comp.compType && comp.assetType
+      comp.address && comp.compType && comp.assetType && 
+      (!formData.isLand ? comp.bedrooms && comp.bathrooms && comp.squareFootage : true)
     );
     if (validComps.length < 2) errors.push('At least 2 complete comps');
     
@@ -1081,24 +1089,28 @@ const Index = () => {
                     </div>
                   </>
                 )}
-                <div>
-                  <Label htmlFor="squareFootage">Square Footage *</Label>
-                  <Input
-                    id="squareFootage"
-                    placeholder="1,200"
-                    value={formData.squareFootage}
-                    onChange={(e) => updateFormData('squareFootage', e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="yearBuilt">Year Built *</Label>
-                  <Input
-                    id="yearBuilt"
-                    placeholder="1985"
-                    value={formData.yearBuilt}
-                    onChange={(e) => updateFormData('yearBuilt', e.target.value)}
-                  />
-                </div>
+                {!formData.isLand && (
+                  <div>
+                    <Label htmlFor="squareFootage">Square Footage *</Label>
+                    <Input
+                      id="squareFootage"
+                      placeholder="1,200"
+                      value={formData.squareFootage}
+                      onChange={(e) => updateFormData('squareFootage', e.target.value)}
+                    />
+                  </div>
+                )}
+                {!formData.isLand && (
+                  <div>
+                    <Label htmlFor="yearBuilt">Year Built *</Label>
+                    <Input
+                      id="yearBuilt"
+                      placeholder="1985"
+                      value={formData.yearBuilt}
+                      onChange={(e) => updateFormData('yearBuilt', e.target.value)}
+                    />
+                  </div>
+                )}
                 <div>
                   <Label htmlFor="zoning">Zoning</Label>
                   <Input
@@ -1143,65 +1155,69 @@ const Index = () => {
                 </div>
               </div>
 
-              <div>
-                <Label htmlFor="foundationType">Foundation Type</Label>
-                <Select value={formData.foundationType} onValueChange={(value) => updateFormData('foundationType', value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select foundation type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Slab">Slab</SelectItem>
-                    <SelectItem value="Crawl Space">Crawl Space</SelectItem>
-                    <SelectItem value="Basement">Basement</SelectItem>
-                    <SelectItem value="Pier & Beam">Pier & Beam</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              {!formData.isLand && (
+                <div>
+                  <Label htmlFor="foundationType">Foundation Type</Label>
+                  <Select value={formData.foundationType} onValueChange={(value) => updateFormData('foundationType', value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select foundation type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Slab">Slab</SelectItem>
+                      <SelectItem value="Crawl Space">Crawl Space</SelectItem>
+                      <SelectItem value="Basement">Basement</SelectItem>
+                      <SelectItem value="Pier & Beam">Pier & Beam</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
 
-              <div>
-                <Label>Utilities</Label>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
-                  {['City Water', 'City Sewer', 'Septic', 'Well'].map((utility) => (
-                    <div key={utility} className="flex items-center space-x-2">
+              {!formData.isLand && (
+                <div>
+                  <Label>Utilities</Label>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
+                    {['City Water', 'City Sewer', 'Septic', 'Well'].map((utility) => (
+                      <div key={utility} className="flex items-center space-x-2">
+                        <Checkbox 
+                          id={utility}
+                          checked={formData.utilities.includes(utility)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              updateFormData('utilities', [...formData.utilities, utility]);
+                            } else {
+                              updateFormData('utilities', formData.utilities.filter(u => u !== utility));
+                            }
+                          }}
+                        />
+                        <Label htmlFor={utility}>{utility}</Label>
+                      </div>
+                    ))}
+                    <div className="flex items-center space-x-2">
                       <Checkbox 
-                        id={utility}
-                        checked={formData.utilities.includes(utility)}
+                        id="utilitiesOther"
+                        checked={formData.utilities.includes('Other')}
                         onCheckedChange={(checked) => {
                           if (checked) {
-                            updateFormData('utilities', [...formData.utilities, utility]);
+                            updateFormData('utilities', [...formData.utilities, 'Other']);
                           } else {
-                            updateFormData('utilities', formData.utilities.filter(u => u !== utility));
+                            updateFormData('utilities', formData.utilities.filter(u => u !== 'Other'));
+                            updateFormData('utilitiesOther', '');
                           }
                         }}
                       />
-                      <Label htmlFor={utility}>{utility}</Label>
+                      <Label htmlFor="utilitiesOther">Other</Label>
                     </div>
-                  ))}
-                  <div className="flex items-center space-x-2">
-                    <Checkbox 
-                      id="utilitiesOther"
-                      checked={formData.utilities.includes('Other')}
-                      onCheckedChange={(checked) => {
-                        if (checked) {
-                          updateFormData('utilities', [...formData.utilities, 'Other']);
-                        } else {
-                          updateFormData('utilities', formData.utilities.filter(u => u !== 'Other'));
-                          updateFormData('utilitiesOther', '');
-                        }
-                      }}
-                    />
-                    <Label htmlFor="utilitiesOther">Other</Label>
                   </div>
+                  {formData.utilities.includes('Other') && (
+                    <Input
+                      className="mt-2"
+                      placeholder="Specify other utilities"
+                      value={formData.utilitiesOther}
+                      onChange={(e) => updateFormData('utilitiesOther', e.target.value)}
+                    />
+                  )}
                 </div>
-                {formData.utilities.includes('Other') && (
-                  <Input
-                    className="mt-2"
-                    placeholder="Specify other utilities"
-                    value={formData.utilitiesOther}
-                    onChange={(e) => updateFormData('utilitiesOther', e.target.value)}
-                  />
-                )}
-              </div>
+              )}
 
               {!formData.isLand && (
                 <>
@@ -1387,48 +1403,50 @@ const Index = () => {
           )}
 
           {/* Occupancy */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="h-5 w-5" />
-                Occupancy
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div>
-                <Label htmlFor="occupancy">Occupancy Status *</Label>
-                <Select value={formData.occupancy} onValueChange={(value) => updateFormData('occupancy', value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select occupancy status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Owner Occupied">Owner Occupied</SelectItem>
-                    <SelectItem value="Vacant">Vacant</SelectItem>
-                    <SelectItem value="Tenant Occupied">Tenant Occupied</SelectItem>
-                  </SelectContent>
-                </Select>
-                {formData.occupancy === "Owner Occupied" && (
-                  <p className="text-sm text-gray-600 mt-2">
-                    Display: "Owner Occupied (to be delivered vacant)"
-                  </p>
-                )}
-              </div>
-              
-              <div className="mt-4">
-                <Label htmlFor="occupancyOnDelivery">Occupancy on Delivery *</Label>
-                <Select value={formData.occupancyOnDelivery} onValueChange={(value) => updateFormData('occupancyOnDelivery', value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select occupancy on delivery" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Owner Occupied">Owner Occupied</SelectItem>
-                    <SelectItem value="Vacant">Vacant</SelectItem>
-                    <SelectItem value="Tenant Occupied">Tenant Occupied</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </CardContent>
-          </Card>
+          {!formData.isLand && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="h-5 w-5" />
+                  Occupancy
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div>
+                  <Label htmlFor="occupancy">Occupancy Status *</Label>
+                  <Select value={formData.occupancy} onValueChange={(value) => updateFormData('occupancy', value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select occupancy status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Owner Occupied">Owner Occupied</SelectItem>
+                      <SelectItem value="Vacant">Vacant</SelectItem>
+                      <SelectItem value="Tenant Occupied">Tenant Occupied</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {formData.occupancy === "Owner Occupied" && (
+                    <p className="text-sm text-gray-600 mt-2">
+                      Display: "Owner Occupied (to be delivered vacant)"
+                    </p>
+                  )}
+                </div>
+                
+                <div className="mt-4">
+                  <Label htmlFor="occupancyOnDelivery">Occupancy on Delivery *</Label>
+                  <Select value={formData.occupancyOnDelivery} onValueChange={(value) => updateFormData('occupancyOnDelivery', value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select occupancy on delivery" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Owner Occupied">Owner Occupied</SelectItem>
+                      <SelectItem value="Vacant">Vacant</SelectItem>
+                      <SelectItem value="Tenant Occupied">Tenant Occupied</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Financial Snapshot */}
           <Card>
