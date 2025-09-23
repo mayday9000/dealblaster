@@ -304,7 +304,7 @@ const TestPreset = () => {
 
       console.log('Property saved successfully:', insertResult);
 
-      const propertyUrl = `/property?address=${encodeURIComponent(formData.address)}`;
+      const propertyUrl = `/property?address=${addressSlug}`;
       setShareUrl(propertyUrl);
       setShowSuccessModal(true);
 
