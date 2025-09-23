@@ -439,11 +439,7 @@ const Index = () => {
     const requiredBigTicketTypes = ['Roof', 'HVAC', 'Water Heater'];
     for (const requiredType of requiredBigTicketTypes) {
       const item = formData.bigTicketItems.find(item => item.type === requiredType);
-      if (!item || !item.condition) {
-        errors.push(`${requiredType} year/range and condition`);
-      } else if (item.ageType === 'range' && !item.age) {
-        errors.push(`${requiredType} year/range and condition`);
-      } else if (item.ageType === 'specific' && (!item.specificYear || !/^\d{4}$/.test(item.specificYear))) {
+      if (!item || !item.condition || !item.input.trim()) {
         errors.push(`${requiredType} year/range and condition`);
       }
     }
@@ -510,7 +506,7 @@ const Index = () => {
           monthlyRent: formData.buyHoldMonthlyRent,
           monthlyTaxes: formData.buyHoldMonthlyTaxes,
           monthlyInsurance: formData.buyHoldMonthlyInsurance,
-          mortgageTerms: formData.buyHoldMortgageTerms,
+          mortgageTerms: formData.buyHoldMortgagePayment,
           otherExpenses: formData.buyHoldOtherExpenses,
           calculations: {
             allInCost: (() => {
@@ -568,13 +564,12 @@ const Index = () => {
         } : null
       };
 
-      // Create garage display string
-      const garageDisplay = formData.garageSpaces ? 
-        `${formData.garageType} ${formData.garageSpaces}-car garage` : '';
+      // Create parking display string
+      const parkingDisplay = formData.parkingSpaces ? 
+        `${formData.parkingType} ${formData.parkingSpaces}-space parking` : '';
 
       // Create business hours display string
-      const businessHoursDisplay = formData.businessHoursStart && formData.businessHoursEnd && formData.businessHoursTimezone ?
-        `${formData.businessHoursStart} - ${formData.businessHoursEnd} ${formData.businessHoursTimezone}` : '';
+      const businessHoursDisplay = formData.businessHours || '';
 
       // First, save property data to Supabase WITHOUT html_content
       const propertyData = {
@@ -599,7 +594,7 @@ const Index = () => {
         lot_size: formData.lotSize,
         foundation_type: formData.foundationType,
         utilities: Array.isArray(formData.utilities) ? formData.utilities.join(', ') : formData.utilities,
-        garage: garageDisplay,
+        garage: parkingDisplay,
         pool: formData.pool ? 'Yes' : 'No',
         current_occupancy: formData.occupancy,
         closing_occupancy: formData.occupancyOnDelivery,
@@ -1638,8 +1633,8 @@ const Index = () => {
                       <Label>Pending Date (Optional)</Label>
                       <Input
                         type="date"
-                        value={comp.pendingDate}
-                        onChange={(e) => updateComp(index, 'pendingDate', e.target.value)}
+                        value={comp.soldListedDate}
+                        onChange={(e) => updateComp(index, 'soldListedDate', e.target.value)}
                       />
                     </div>
 
@@ -1647,8 +1642,8 @@ const Index = () => {
                       <Label>Listed Rent Price (Optional)</Label>
                       <Input
                         placeholder="$1,350/mo"
-                        value={comp.rentPrice}
-                        onChange={(e) => updateComp(index, 'rentPrice', e.target.value)}
+                        value={comp.comments}
+                        onChange={(e) => updateComp(index, 'comments', e.target.value)}
                       />
                     </div>
                   </div>
@@ -1732,10 +1727,10 @@ const Index = () => {
               <div>
                 <Label htmlFor="buyHoldMortgageTerms">Mortgage / Loan Terms</Label>
                 <Input
-                  id="buyHoldMortgageTerms"
-                  placeholder="30yr fixed @ 6.5%, $1,200/mo payment"
-                  value={formData.buyHoldMortgageTerms}
-                  onChange={(e) => updateFormData('buyHoldMortgageTerms', e.target.value)}
+                  id="buyHoldMortgagePayment"
+                  placeholder="$1,200"
+                  value={formData.buyHoldMortgagePayment}
+                  onChange={(e) => updateFormData('buyHoldMortgagePayment', e.target.value)}
                 />
                 <p className="text-xs text-gray-500 mt-1">
                   Enter loan details or monthly payment amount
