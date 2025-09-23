@@ -47,7 +47,6 @@ interface FormData {
   landCondition: string;
   roadFrontage: string;
   roadFrontageUnit: 'ft' | 'miles';
-  landZoning: string;
   
   // Property Overview
   bedrooms: string;
@@ -174,7 +173,6 @@ const Index = () => {
     landCondition: '',
     roadFrontage: '',
     roadFrontageUnit: 'ft',
-    landZoning: '',
     
     // Property Overview
     bedrooms: '',
@@ -1041,16 +1039,6 @@ const Index = () => {
                         <Label htmlFor="roadFrontageUnit-miles" className="text-sm">Miles</Label>
                       </div>
                     </div>
-                  </div>
-
-                  <div>
-                    <Label htmlFor="landZoning">Zoning</Label>
-                    <Input
-                      id="landZoning"
-                      placeholder="Agricultural, Residential, etc."
-                      value={formData.landZoning}
-                      onChange={(e) => updateFormData('landZoning', e.target.value)}
-                    />
                   </div>
                 </div>
               )}
