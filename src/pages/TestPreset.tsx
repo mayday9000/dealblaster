@@ -281,7 +281,7 @@ const TestPreset = () => {
       }
 
       const htmlResult = await response.text();
-      console.log('HTML result received from webhook');
+      console.log('HTML result received from webhook:', htmlResult.substring(0, 200) + '...');
 
       const addressSlug = slugify(`${formData.address} ${formData.city}`);
       const propertyRecord = {
