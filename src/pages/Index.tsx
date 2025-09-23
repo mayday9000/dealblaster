@@ -42,6 +42,13 @@ interface FormData {
   photoLink: string;
   frontPhoto: File | null;
   
+  // Land Option
+  isLand: boolean;
+  landCondition: string;
+  roadFrontage: string;
+  roadFrontageUnit: 'ft' | 'miles';
+  landZoning: string;
+  
   // Property Overview
   bedrooms: string;
   bathrooms: string;
@@ -49,19 +56,23 @@ interface FormData {
   yearBuilt: string;
   zoning: string;
   lotSize: string;
+  lotSizeUnit: 'acres' | 'sqft';
   foundationType: string;
   utilities: string[];
   utilitiesOther: string;
-  garageSpaces: string;
-  garageType: 'attached' | 'detached' | '';
-  pool: boolean;
   
-  // Big Ticket Systems
+  // Parking (replaces garage)
+  parkingSpaces: string;
+  parkingType: 'garage' | 'carport' | 'driveway' | '';
+  
+  // Pool with type
+  pool: boolean;
+  poolType: 'inground' | 'above-ground' | '';
+  
+  // Big Ticket Systems - flexible input
   bigTicketItems: Array<{
     type: string;
-    age: string;
-    ageType: 'range' | 'specific';
-    specificYear: string;
+    input: string; // Single input for year or age
     condition: string;
     lastServiced: string;
   }>;
@@ -78,6 +89,9 @@ interface FormData {
   grossProfit: string;
   exitStrategy: string;
   
+  // 1% Rule
+  includeOnePercentRule: boolean;
+  
   // Comps
   comps: Array<{
     address: string;
@@ -92,9 +106,12 @@ interface FormData {
     assetTypeOther: string;
     status: string;
     soldListedPrice: string;
+    soldListedPriceType: 'Listed' | 'Sold';
     soldListedDate: string;
-    pendingDate: string;
-    rentPrice: string;
+    currentlyListed: string;
+    dom: string;
+    distanceFromSubject: string;
+    comments: string;
   }>;
   
   // Contact Info
@@ -102,9 +119,7 @@ interface FormData {
   contactPhone: string;
   contactEmail: string;
   officeNumber: string;
-  businessHoursStart: string;
-  businessHoursEnd: string;
-  businessHoursTimezone: string;
+  businessHours: string;
   contactImage: File | null;
   companyLogo: File | null;
   website: string;
@@ -112,17 +127,20 @@ interface FormData {
   // Legal Disclosures
   emdAmount: string;
   emdDueDate: string;
-  postPossession: boolean;
+  postPossession: string;
   additionalDisclosures: string;
   
   // Buy & Hold Snapshot
+  buyHoldType: 'standard' | 'subject-to';
   buyHoldPurchasePrice: string;
   buyHoldRehabCost: string;
   buyHoldMonthlyRent: string;
   buyHoldMonthlyTaxes: string;
   buyHoldMonthlyInsurance: string;
-  buyHoldMortgageTerms: string;
   buyHoldOtherExpenses: string;
+  // Subject-To specific
+  buyHoldMortgagePayment: string;
+  buyHoldCashToSeller: string;
 }
 
 const Index = () => {
@@ -150,6 +168,13 @@ const Index = () => {
     photoLink: '',
     frontPhoto: null,
     
+    // Land Option
+    isLand: false,
+    landCondition: '',
+    roadFrontage: '',
+    roadFrontageUnit: 'ft',
+    landZoning: '',
+    
     // Property Overview
     bedrooms: '',
     bathrooms: '',
@@ -157,18 +182,24 @@ const Index = () => {
     yearBuilt: '',
     zoning: '',
     lotSize: '',
+    lotSizeUnit: 'acres',
     foundationType: '',
     utilities: [],
     utilitiesOther: '',
-    garageSpaces: '',
-    garageType: '',
-    pool: false,
     
-    // Big Ticket Systems
+    // Parking (replaces garage)
+    parkingSpaces: '',
+    parkingType: '',
+    
+    // Pool with type
+    pool: false,
+    poolType: '',
+    
+    // Big Ticket Systems - simplified
     bigTicketItems: [
-      { type: 'Roof', age: '', ageType: 'range', specificYear: '', condition: '', lastServiced: '' },
-      { type: 'HVAC', age: '', ageType: 'range', specificYear: '', condition: '', lastServiced: '' },
-      { type: 'Water Heater', age: '', ageType: 'range', specificYear: '', condition: '', lastServiced: '' }
+      { type: 'Roof', input: '', condition: '', lastServiced: '' },
+      { type: 'HVAC', input: '', condition: '', lastServiced: '' },
+      { type: 'Water Heater', input: '', condition: '', lastServiced: '' }
     ],
     
     // Occupancy
@@ -182,6 +213,9 @@ const Index = () => {
     allIn: '',
     grossProfit: '',
     exitStrategy: '',
+    
+    // 1% Rule
+    includeOnePercentRule: true,
     
     // Comps
     comps: [
@@ -198,9 +232,12 @@ const Index = () => {
         assetTypeOther: '',
         status: '',
         soldListedPrice: '',
+        soldListedPriceType: 'Listed',
         soldListedDate: '',
-        pendingDate: '',
-        rentPrice: '',
+        currentlyListed: '',
+        dom: '',
+        distanceFromSubject: '',
+        comments: '',
       },
       {
         address: '',
@@ -215,9 +252,12 @@ const Index = () => {
         assetTypeOther: '',
         status: '',
         soldListedPrice: '',
+        soldListedPriceType: 'Listed',
         soldListedDate: '',
-        pendingDate: '',
-        rentPrice: '',
+        currentlyListed: '',
+        dom: '',
+        distanceFromSubject: '',
+        comments: '',
       }
     ],
     
@@ -226,9 +266,7 @@ const Index = () => {
     contactPhone: '',
     contactEmail: '',
     officeNumber: '',
-    businessHoursStart: '',
-    businessHoursEnd: '',
-    businessHoursTimezone: '',
+    businessHours: '',
     contactImage: null,
     companyLogo: null,
     website: '',
@@ -236,17 +274,20 @@ const Index = () => {
     // Legal Disclosures
     emdAmount: '',
     emdDueDate: '',
-    postPossession: false,
+    postPossession: '',
     additionalDisclosures: '',
     
     // Buy & Hold Snapshot
+    buyHoldType: 'standard',
     buyHoldPurchasePrice: '',
     buyHoldRehabCost: '',
     buyHoldMonthlyRent: '',
     buyHoldMonthlyTaxes: '',
     buyHoldMonthlyInsurance: '',
-    buyHoldMortgageTerms: '',
     buyHoldOtherExpenses: '',
+    // Subject-To specific
+    buyHoldMortgagePayment: '',
+    buyHoldCashToSeller: '',
   });
 
   const [isGenerating, setIsGenerating] = useState(false);
@@ -285,9 +326,12 @@ const Index = () => {
         assetTypeOther: '',
         status: '',
         soldListedPrice: '',
+        soldListedPriceType: 'Listed',
         soldListedDate: '',
-        pendingDate: '',
-        rentPrice: '',
+        currentlyListed: '',
+        dom: '',
+        distanceFromSubject: '',
+        comments: '',
       }]
     }));
   };
@@ -306,9 +350,7 @@ const Index = () => {
       ...prev,
       bigTicketItems: [...prev.bigTicketItems, {
         type: '',
-        age: '',
-        ageType: 'range',
-        specificYear: '',
+        input: '',
         condition: '',
         lastServiced: ''
       }]
@@ -328,13 +370,7 @@ const Index = () => {
     setFormData(prev => ({
       ...prev,
       bigTicketItems: prev.bigTicketItems.map((item, i) => 
-        i === index ? { 
-          ...item, 
-          [field]: value,
-          // Clear the irrelevant field when ageType changes
-          ...(field === 'ageType' && value === 'range' ? { specificYear: '' } : {}),
-          ...(field === 'ageType' && value === 'specific' ? { age: '' } : {})
-        } : item
+        i === index ? { ...item, [field]: value } : item
       )
     }));
   };
@@ -912,6 +948,85 @@ const Index = () => {
             </CardContent>
           </Card>
 
+          {/* Land Option */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MapPin className="h-5 w-5" />
+                Property Type
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="isLand" 
+                  checked={formData.isLand}
+                  onCheckedChange={(checked) => updateFormData('isLand', checked)}
+                />
+                <Label htmlFor="isLand">Is this Land?</Label>
+              </div>
+
+              {formData.isLand && (
+                <div className="space-y-4 p-4 border rounded-lg bg-amber-50">
+                  <h4 className="font-medium">Land-Specific Information</h4>
+                  
+                  <div>
+                    <Label htmlFor="landCondition">Land Condition</Label>
+                    <Select value={formData.landCondition} onValueChange={(value) => updateFormData('landCondition', value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select land condition" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="wooded">Wooded</SelectItem>
+                        <SelectItem value="partially-cleared">Partially Cleared</SelectItem>
+                        <SelectItem value="cleared">Cleared</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="roadFrontage">Road Frontage</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="roadFrontage"
+                        type="number"
+                        step="0.1"
+                        placeholder="100"
+                        value={formData.roadFrontage}
+                        onChange={(e) => updateFormData('roadFrontage', e.target.value)}
+                        className="flex-1"
+                      />
+                      <div className="flex items-center space-x-2">
+                        <Checkbox 
+                          id="roadFrontageUnit-ft"
+                          checked={formData.roadFrontageUnit === 'ft'}
+                          onCheckedChange={(checked) => updateFormData('roadFrontageUnit', checked ? 'ft' : 'miles')}
+                        />
+                        <Label htmlFor="roadFrontageUnit-ft" className="text-sm">Ft</Label>
+                        <Checkbox 
+                          id="roadFrontageUnit-miles"
+                          checked={formData.roadFrontageUnit === 'miles'}
+                          onCheckedChange={(checked) => updateFormData('roadFrontageUnit', checked ? 'miles' : 'ft')}
+                        />
+                        <Label htmlFor="roadFrontageUnit-miles" className="text-sm">Miles</Label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="landZoning">Zoning</Label>
+                    <Input
+                      id="landZoning"
+                      placeholder="Agricultural, Residential, etc."
+                      value={formData.landZoning}
+                      onChange={(e) => updateFormData('landZoning', e.target.value)}
+                    />
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
           {/* Property Overview */}
           <Card>
             <CardHeader>
@@ -922,24 +1037,28 @@ const Index = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div>
-                  <Label htmlFor="bedrooms">Bedrooms *</Label>
-                  <Input
-                    id="bedrooms"
-                    placeholder="3"
-                    value={formData.bedrooms}
-                    onChange={(e) => updateFormData('bedrooms', e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="bathrooms">Bathrooms *</Label>
-                  <Input
-                    id="bathrooms"
-                    placeholder="2"
-                    value={formData.bathrooms}
-                    onChange={(e) => updateFormData('bathrooms', e.target.value)}
-                  />
-                </div>
+                {!formData.isLand && (
+                  <>
+                    <div>
+                      <Label htmlFor="bedrooms">Bedrooms *</Label>
+                      <Input
+                        id="bedrooms"
+                        placeholder="3"
+                        value={formData.bedrooms}
+                        onChange={(e) => updateFormData('bedrooms', e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="bathrooms">Bathrooms *</Label>
+                      <Input
+                        id="bathrooms"
+                        placeholder="2"
+                        value={formData.bathrooms}
+                        onChange={(e) => updateFormData('bathrooms', e.target.value)}
+                      />
+                    </div>
+                  </>
+                )}
                 <div>
                   <Label htmlFor="squareFootage">Square Footage *</Label>
                   <Input
@@ -969,12 +1088,36 @@ const Index = () => {
                 </div>
                 <div>
                   <Label htmlFor="lotSize">Lot Size</Label>
-                  <Input
-                    id="lotSize"
-                    placeholder="0.25 acres"
-                    value={formData.lotSize}
-                    onChange={(e) => updateFormData('lotSize', e.target.value)}
-                  />
+                  <div className="flex gap-2">
+                    <Input
+                      id="lotSize"
+                      type="number"
+                      step="0.01"
+                      placeholder="0.25"
+                      value={formData.lotSize}
+                      onChange={(e) => updateFormData('lotSize', e.target.value)}
+                      className="flex-1"
+                    />
+                    <div className="flex items-center space-x-2">
+                      <Checkbox 
+                        id="lotSizeAcres"
+                        checked={formData.lotSizeUnit === 'acres'}
+                        onCheckedChange={(checked) => updateFormData('lotSizeUnit', checked ? 'acres' : 'sqft')}
+                      />
+                      <Label htmlFor="lotSizeAcres" className="text-sm">Acres</Label>
+                      <Checkbox 
+                        id="lotSizeSqFt"
+                        checked={formData.lotSizeUnit === 'sqft'}
+                        onCheckedChange={(checked) => updateFormData('lotSizeUnit', checked ? 'sqft' : 'acres')}
+                      />
+                      <Label htmlFor="lotSizeSqFt" className="text-sm">Sq Ft</Label>
+                    </div>
+                  </div>
+                  {formData.lotSize && (
+                    <p className="text-sm text-gray-600 mt-1">
+                      Display: "{formData.lotSize} {formData.lotSizeUnit}"
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -1038,170 +1181,166 @@ const Index = () => {
                 )}
               </div>
 
-              <div>
-                <Label>Garage</Label>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+              {!formData.isLand && (
+                <>
                   <div>
-                    <Label htmlFor="garageSpaces">Number of Spaces</Label>
-                    <Input
-                      id="garageSpaces"
-                      placeholder="2"
-                      value={formData.garageSpaces}
-                      onChange={(e) => updateFormData('garageSpaces', e.target.value)}
-                    />
+                    <Label>Parking Options</Label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                      <div>
+                        <Label htmlFor="parkingSpaces">Number of Parking Spaces</Label>
+                        <Input
+                          id="parkingSpaces"
+                          type="number"
+                          placeholder="2"
+                          value={formData.parkingSpaces}
+                          onChange={(e) => updateFormData('parkingSpaces', e.target.value)}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="parkingType">Parking Type</Label>
+                        <Select value={formData.parkingType} onValueChange={(value) => updateFormData('parkingType', value)}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="garage">Garage</SelectItem>
+                            <SelectItem value="carport">Carport</SelectItem>
+                            <SelectItem value="driveway">Driveway</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    {formData.parkingSpaces && formData.parkingType && (
+                      <p className="text-sm text-gray-600 mt-2">
+                        Display: "{formData.parkingSpaces} {formData.parkingType} spaces"
+                      </p>
+                    )}
                   </div>
-                  <div>
-                    <Label htmlFor="garageType">Type</Label>
-                    <Select value={formData.garageType} onValueChange={(value) => updateFormData('garageType', value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="attached">Attached</SelectItem>
-                        <SelectItem value="detached">Detached</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                {formData.garageSpaces && formData.garageType && (
-                  <p className="text-sm text-gray-600 mt-2">
-                    Display: "{formData.garageType.charAt(0).toUpperCase() + formData.garageType.slice(1)} {formData.garageSpaces}-car garage"
-                  </p>
-                )}
-              </div>
 
-              <div className="flex items-center space-x-2">
-                <Checkbox 
-                  id="pool" 
-                  checked={formData.pool}
-                  onCheckedChange={(checked) => updateFormData('pool', checked)}
-                />
-                <Label htmlFor="pool">Pool</Label>
-              </div>
+                  <div>
+                    <div className="flex items-center space-x-2 mb-2">
+                      <Checkbox 
+                        id="pool" 
+                        checked={formData.pool}
+                        onCheckedChange={(checked) => {
+                          updateFormData('pool', checked);
+                          if (!checked) updateFormData('poolType', '');
+                        }}
+                      />
+                      <Label htmlFor="pool">Pool</Label>
+                    </div>
+                    {formData.pool && (
+                      <div className="ml-6">
+                        <Label htmlFor="poolType">Pool Type</Label>
+                        <Select value={formData.poolType} onValueChange={(value) => updateFormData('poolType', value)}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select pool type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="inground">Inground</SelectItem>
+                            <SelectItem value="above-ground">Above-ground</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
             </CardContent>
           </Card>
 
           {/* Big Ticket Systems */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Wrench className="h-5 w-5" />
-                Big Ticket Systems (Required)
-              </CardTitle>
-              <CardDescription>Information about major home systems</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {formData.bigTicketItems.map((item, index) => (
-                <div key={index} className="border rounded-lg p-4 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <Label htmlFor={`item-type-${index}`}>System Type *</Label>
-                      {index < 3 ? (
-                        <Input
-                          id={`item-type-${index}`}
-                          value={item.type}
-                          disabled
-                          className="bg-gray-100"
-                        />
-                      ) : (
-                        <Input
-                          id={`item-type-${index}`}
-                          placeholder="e.g., Furnace, Solar System"
-                          value={item.type}
-                          onChange={(e) => updateBigTicketItem(index, 'type', e.target.value)}
-                        />
+          {!formData.isLand && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Wrench className="h-5 w-5" />
+                  Big Ticket Systems (Required)
+                </CardTitle>
+                <CardDescription>Information about major home systems - enter year (e.g., "2010") or age (e.g., "10 years old")</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {formData.bigTicketItems.map((item, index) => (
+                  <div key={index} className="border rounded-lg p-4 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <Label htmlFor={`item-type-${index}`}>System Type *</Label>
+                        {index < 3 ? (
+                          <Input
+                            id={`item-type-${index}`}
+                            value={item.type}
+                            disabled
+                            className="bg-gray-100"
+                          />
+                        ) : (
+                          <Input
+                            id={`item-type-${index}`}
+                            placeholder="e.g., Furnace, Solar System"
+                            value={item.type}
+                            onChange={(e) => updateBigTicketItem(index, 'type', e.target.value)}
+                          />
+                        )}
+                      </div>
+                      {index >= 3 && (
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => removeBigTicketItem(index)}
+                          className="ml-2"
+                        >
+                          <Minus className="h-4 w-4" />
+                        </Button>
                       )}
                     </div>
-                    {index >= 3 && (
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={() => removeBigTicketItem(index)}
-                        className="ml-2"
-                      >
-                        <Minus className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
 
-                  <div>
-                    <Label>Age *</Label>
-                    <RadioGroup 
-                      value={item.ageType} 
-                      onValueChange={(value) => updateBigTicketItem(index, 'ageType', value)}
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="range" id={`range-${index}`} />
-                        <Label htmlFor={`range-${index}`}>Age Range</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="specific" id={`specific-${index}`} />
-                        <Label htmlFor={`specific-${index}`}>Specific Year</Label>
-                      </div>
-                    </RadioGroup>
+                    <div>
+                      <Label htmlFor={`input-${index}`}>Year or Age *</Label>
+                      <Input
+                        id={`input-${index}`}
+                        placeholder="e.g., 2010 or 10 years old"
+                        value={item.input}
+                        onChange={(e) => updateBigTicketItem(index, 'input', e.target.value)}
+                      />
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Enter a year (e.g., "2010") or age (e.g., "10 years old")
+                      </p>
+                    </div>
 
-                    {item.ageType === 'range' ? (
-                      <Select value={item.age} onValueChange={(value) => updateBigTicketItem(index, 'age', value)}>
-                        <SelectTrigger className="mt-2">
-                          <SelectValue placeholder="Select age range" />
+                    <div>
+                      <Label htmlFor={`condition-${index}`}>Condition *</Label>
+                      <Select value={item.condition} onValueChange={(value) => updateBigTicketItem(index, 'condition', value)}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select condition" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="0-5 years">0-5 years</SelectItem>
-                          <SelectItem value="6-10 years">6-10 years</SelectItem>
-                          <SelectItem value="11-15 years">11-15 years</SelectItem>
-                          <SelectItem value="16-20 years">16-20 years</SelectItem>
-                          <SelectItem value="20+ years">20+ years</SelectItem>
+                          <SelectItem value="Excellent">Excellent</SelectItem>
+                          <SelectItem value="Good">Good</SelectItem>
+                          <SelectItem value="Fair">Fair</SelectItem>
+                          <SelectItem value="Poor">Poor</SelectItem>
+                          <SelectItem value="Sh*t Box">Sh*t Box</SelectItem>
                         </SelectContent>
                       </Select>
-                    ) : (
-                      <div className="mt-2 space-y-1">
-                        <Input
-                          placeholder="e.g., 2015"
-                          value={item.specificYear}
-                          onChange={(e) => updateBigTicketItem(index, 'specificYear', e.target.value)}
-                          inputMode="numeric"
-                          pattern="\d{4}"
-                          maxLength={4}
-                        />
-                        <p className="text-sm text-muted-foreground">Enter a 4-digit year</p>
-                      </div>
-                    )}
-                  </div>
+                    </div>
 
-                  <div>
-                    <Label htmlFor={`condition-${index}`}>Condition *</Label>
-                    <Select value={item.condition} onValueChange={(value) => updateBigTicketItem(index, 'condition', value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select condition" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="New">New</SelectItem>
-                        <SelectItem value="Good">Good</SelectItem>
-                        <SelectItem value="Fair">Fair</SelectItem>
-                        <SelectItem value="Poor">Poor</SelectItem>
-                        <SelectItem value="Other">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <div>
+                      <Label htmlFor={`lastServiced-${index}`}>Last Serviced (Optional)</Label>
+                      <Input
+                        id={`lastServiced-${index}`}
+                        placeholder="e.g., Spring 2023"
+                        value={item.lastServiced}
+                        onChange={(e) => updateBigTicketItem(index, 'lastServiced', e.target.value)}
+                      />
+                    </div>
                   </div>
+                ))}
 
-                  <div>
-                    <Label htmlFor={`lastServiced-${index}`}>Last Serviced (Optional)</Label>
-                    <Input
-                      id={`lastServiced-${index}`}
-                      placeholder="e.g., Spring 2023"
-                      value={item.lastServiced}
-                      onChange={(e) => updateBigTicketItem(index, 'lastServiced', e.target.value)}
-                    />
-                  </div>
-                </div>
-              ))}
-
-              <Button onClick={addBigTicketItem} variant="outline" className="w-full">
-                <Plus className="h-4 w-4 mr-2" />
-                Add Big Ticket Item
-              </Button>
-            </CardContent>
-          </Card>
+                <Button onClick={addBigTicketItem} variant="outline" className="w-full">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Additional System
+                </Button>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Occupancy */}
           <Card>
@@ -1603,22 +1742,61 @@ const Index = () => {
                 </p>
               </div>
 
-              {/* Buy & Hold Calculations - Only show if we have some data */}
-              {(formData.buyHoldPurchasePrice || formData.buyHoldMonthlyRent) && (
+              {/* Investment Analysis - Show if we have data */}
+              {formData.buyHoldMonthlyRent && (
                 <div className="mt-6 p-4 bg-gray-50 rounded-lg">
                   <h4 className="font-semibold mb-3">Investment Analysis</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
-                    <div>
-                      <span className="font-medium">All-In Cost:</span>
-                      <div className="text-lg font-bold text-blue-600">
-                        {(() => {
-                          const purchase = parseFloat(formData.buyHoldPurchasePrice.replace(/[^\d.]/g, '')) || 0;
-                          const rehab = parseFloat(formData.buyHoldRehabCost.replace(/[^\d.]/g, '')) || 0;
-                          const allIn = purchase + rehab;
-                          return allIn > 0 ? `$${allIn.toLocaleString()}` : '$0';
-                        })()}
-                      </div>
-                    </div>
+                    {formData.buyHoldType === 'standard' && (
+                      <>
+                        <div>
+                          <span className="font-medium">All-In Cost:</span>
+                          <div className="text-lg font-bold text-blue-600">
+                            {(() => {
+                              const purchase = parseFloat(formData.buyHoldPurchasePrice.replace(/[^\d.]/g, '')) || 0;
+                              const rehab = parseFloat(formData.buyHoldRehabCost.replace(/[^\d.]/g, '')) || 0;
+                              const allIn = purchase + rehab;
+                              return allIn > 0 ? `$${allIn.toLocaleString()}` : '$0';
+                            })()}
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <span className="font-medium">Cash-on-Cash %:</span>
+                          <div className="text-lg font-bold text-orange-600">
+                            {(() => {
+                              const rent = parseFloat(formData.buyHoldMonthlyRent.replace(/[^\d.]/g, '')) || 0;
+                              const taxes = parseFloat(formData.buyHoldMonthlyTaxes.replace(/[^\d.]/g, '')) || 0;
+                              const insurance = parseFloat(formData.buyHoldMonthlyInsurance.replace(/[^\d.]/g, '')) || 0;
+                              const other = parseFloat(formData.buyHoldOtherExpenses.replace(/[^\d.]/g, '')) || 0;
+                              const purchase = parseFloat(formData.buyHoldPurchasePrice.replace(/[^\d.]/g, '')) || 0;
+                              const rehab = parseFloat(formData.buyHoldRehabCost.replace(/[^\d.]/g, '')) || 0;
+                              const allIn = purchase + rehab;
+                              const annualCashFlow = (rent - taxes - insurance - other) * 12;
+                              const cocReturn = allIn > 0 ? (annualCashFlow / allIn) * 100 : 0;
+                              return cocReturn !== 0 ? `${cocReturn.toFixed(1)}%` : '0%';
+                            })()}
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <span className="font-medium">Cap Rate %:</span>
+                          <div className="text-lg font-bold text-teal-600">
+                            {(() => {
+                              const rent = parseFloat(formData.buyHoldMonthlyRent.replace(/[^\d.]/g, '')) || 0;
+                              const taxes = parseFloat(formData.buyHoldMonthlyTaxes.replace(/[^\d.]/g, '')) || 0;
+                              const insurance = parseFloat(formData.buyHoldMonthlyInsurance.replace(/[^\d.]/g, '')) || 0;
+                              const purchase = parseFloat(formData.buyHoldPurchasePrice.replace(/[^\d.]/g, '')) || 0;
+                              const rehab = parseFloat(formData.buyHoldRehabCost.replace(/[^\d.]/g, '')) || 0;
+                              const allIn = purchase + rehab;
+                              const annualNOI = (rent - taxes - insurance) * 12;
+                              const capRate = allIn > 0 ? (annualNOI / allIn) * 100 : 0;
+                              return capRate !== 0 ? `${capRate.toFixed(1)}%` : '0%';
+                            })()}
+                          </div>
+                        </div>
+                      </>
+                    )}
                     
                     <div>
                       <span className="font-medium">Gross Monthly Income:</span>
@@ -1637,21 +1815,10 @@ const Index = () => {
                           const taxes = parseFloat(formData.buyHoldMonthlyTaxes.replace(/[^\d.]/g, '')) || 0;
                           const insurance = parseFloat(formData.buyHoldMonthlyInsurance.replace(/[^\d.]/g, '')) || 0;
                           const other = parseFloat(formData.buyHoldOtherExpenses.replace(/[^\d.]/g, '')) || 0;
-                          const totalExpenses = taxes + insurance + other;
+                          const mortgage = formData.buyHoldType === 'subject-to' ? 
+                            parseFloat(formData.buyHoldMortgagePayment.replace(/[^\d.]/g, '')) || 0 : 0;
+                          const totalExpenses = taxes + insurance + other + mortgage;
                           return totalExpenses > 0 ? `$${totalExpenses.toLocaleString()}` : '$0';
-                        })()}
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <span className="font-medium">NOI (Monthly):</span>
-                      <div className="text-lg font-bold text-purple-600">
-                        {(() => {
-                          const rent = parseFloat(formData.buyHoldMonthlyRent.replace(/[^\d.]/g, '')) || 0;
-                          const taxes = parseFloat(formData.buyHoldMonthlyTaxes.replace(/[^\d.]/g, '')) || 0;
-                          const insurance = parseFloat(formData.buyHoldMonthlyInsurance.replace(/[^\d.]/g, '')) || 0;
-                          const noi = rent - taxes - insurance;
-                          return noi !== 0 ? `$${noi.toLocaleString()}` : '$0';
                         })()}
                       </div>
                     </div>
@@ -1664,53 +1831,37 @@ const Index = () => {
                           const taxes = parseFloat(formData.buyHoldMonthlyTaxes.replace(/[^\d.]/g, '')) || 0;
                           const insurance = parseFloat(formData.buyHoldMonthlyInsurance.replace(/[^\d.]/g, '')) || 0;
                           const other = parseFloat(formData.buyHoldOtherExpenses.replace(/[^\d.]/g, '')) || 0;
-                          const cashFlow = rent - taxes - insurance - other;
+                          const mortgage = formData.buyHoldType === 'subject-to' ? 
+                            parseFloat(formData.buyHoldMortgagePayment.replace(/[^\d.]/g, '')) || 0 : 0;
+                          const cashFlow = rent - taxes - insurance - other - mortgage;
                           return cashFlow !== 0 ? `$${cashFlow.toLocaleString()}` : '$0';
                         })()}
                       </div>
                     </div>
-                    
-                    <div>
-                      <span className="font-medium">Cash-on-Cash %:</span>
-                      <div className="text-lg font-bold text-orange-600">
-                        {(() => {
-                          const rent = parseFloat(formData.buyHoldMonthlyRent.replace(/[^\d.]/g, '')) || 0;
-                          const taxes = parseFloat(formData.buyHoldMonthlyTaxes.replace(/[^\d.]/g, '')) || 0;
-                          const insurance = parseFloat(formData.buyHoldMonthlyInsurance.replace(/[^\d.]/g, '')) || 0;
-                          const other = parseFloat(formData.buyHoldOtherExpenses.replace(/[^\d.]/g, '')) || 0;
-                          const purchase = parseFloat(formData.buyHoldPurchasePrice.replace(/[^\d.]/g, '')) || 0;
-                          const rehab = parseFloat(formData.buyHoldRehabCost.replace(/[^\d.]/g, '')) || 0;
-                          const allIn = purchase + rehab;
-                          const annualCashFlow = (rent - taxes - insurance - other) * 12;
-                          const cocReturn = allIn > 0 ? (annualCashFlow / allIn) * 100 : 0;
-                          return cocReturn !== 0 ? `${cocReturn.toFixed(1)}%` : '0%';
-                        })()}
+
+                    {formData.buyHoldType === 'subject-to' && (
+                      <div>
+                        <span className="font-medium">PITI (Total Monthly):</span>
+                        <div className="text-lg font-bold text-purple-600">
+                          {(() => {
+                            const mortgage = parseFloat(formData.buyHoldMortgagePayment.replace(/[^\d.]/g, '')) || 0;
+                            const taxes = parseFloat(formData.buyHoldMonthlyTaxes.replace(/[^\d.]/g, '')) || 0;
+                            const insurance = parseFloat(formData.buyHoldMonthlyInsurance.replace(/[^\d.]/g, '')) || 0;
+                            const piti = mortgage + taxes + insurance;
+                            return piti > 0 ? `$${piti.toLocaleString()}` : '$0';
+                          })()}
+                        </div>
                       </div>
-                    </div>
-                    
-                    <div>
-                      <span className="font-medium">Cap Rate %:</span>
-                      <div className="text-lg font-bold text-teal-600">
-                        {(() => {
-                          const rent = parseFloat(formData.buyHoldMonthlyRent.replace(/[^\d.]/g, '')) || 0;
-                          const taxes = parseFloat(formData.buyHoldMonthlyTaxes.replace(/[^\d.]/g, '')) || 0;
-                          const insurance = parseFloat(formData.buyHoldMonthlyInsurance.replace(/[^\d.]/g, '')) || 0;
-                          const purchase = parseFloat(formData.buyHoldPurchasePrice.replace(/[^\d.]/g, '')) || 0;
-                          const rehab = parseFloat(formData.buyHoldRehabCost.replace(/[^\d.]/g, '')) || 0;
-                          const allIn = purchase + rehab;
-                          const annualNOI = (rent - taxes - insurance) * 12;
-                          const capRate = allIn > 0 ? (annualNOI / allIn) * 100 : 0;
-                          return capRate !== 0 ? `${capRate.toFixed(1)}%` : '0%';
-                        })()}
-                      </div>
-                    </div>
+                    )}
                     
                     <div>
                       <span className="font-medium">1% Rule Check:</span>
                       <div className="text-lg font-bold">
                         {(() => {
                           const rent = parseFloat(formData.buyHoldMonthlyRent.replace(/[^\d.]/g, '')) || 0;
-                          const purchase = parseFloat(formData.buyHoldPurchasePrice.replace(/[^\d.]/g, '')) || 0;
+                          const purchase = formData.buyHoldType === 'standard' ? 
+                            parseFloat(formData.buyHoldPurchasePrice.replace(/[^\d.]/g, '')) || 0 :
+                            parseFloat(formData.buyHoldCashToSeller.replace(/[^\d.]/g, '')) || 0;
                           const onePercentRule = purchase > 0 ? (rent / purchase) * 100 : 0;
                           const passes = onePercentRule >= 1;
                           return (
@@ -1787,41 +1938,13 @@ const Index = () => {
               </div>
 
               <div>
-                <Label>Business Hours</Label>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
-                  <div>
-                    <Label htmlFor="businessHoursStart">Start Time</Label>
-                    <Input
-                      id="businessHoursStart"
-                      type="time"
-                      value={formData.businessHoursStart}
-                      onChange={(e) => updateFormData('businessHoursStart', e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="businessHoursEnd">End Time</Label>
-                    <Input
-                      id="businessHoursEnd"
-                      type="time"
-                      value={formData.businessHoursEnd}
-                      onChange={(e) => updateFormData('businessHoursEnd', e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="businessHoursTimezone">Timezone</Label>
-                    <Select value={formData.businessHoursTimezone} onValueChange={(value) => updateFormData('businessHoursTimezone', value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select timezone" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="EST">EST</SelectItem>
-                        <SelectItem value="CST">CST</SelectItem>
-                        <SelectItem value="MST">MST</SelectItem>
-                        <SelectItem value="PST">PST</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
+                <Label htmlFor="businessHours">Business Hours</Label>
+                <Input
+                  id="businessHours"
+                  placeholder="Mon-Fri 9AM-6PM, Sat 10AM-4PM"
+                  value={formData.businessHours}
+                  onChange={(e) => updateFormData('businessHours', e.target.value)}
+                />
               </div>
 
               <div>
@@ -1881,13 +2004,14 @@ const Index = () => {
                 )}
               </div>
 
-              <div className="flex items-center space-x-2">
-                <Checkbox 
-                  id="postPossession" 
-                  checked={formData.postPossession}
-                  onCheckedChange={(checked) => updateFormData('postPossession', checked)}
+              <div>
+                <Label htmlFor="postPossession">Post-Possession</Label>
+                <Input
+                  id="postPossession"
+                  placeholder="Available at closing"
+                  value={formData.postPossession}
+                  onChange={(e) => updateFormData('postPossession', e.target.value)}
                 />
-                <Label htmlFor="postPossession">Post-Possession Available</Label>
               </div>
 
               <div>
