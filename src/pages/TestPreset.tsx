@@ -254,57 +254,21 @@ const TestPreset = () => {
       }
 
       const webhookData = {
-        address: formData.address,
-        city: formData.city,
-        state: formData.state,
-        zip: formData.zip,
-        dealType: formData.dealType,
-        hook: formData.hook,
-        selectedTitle: formData.selectedTitle || formData.generatedTitles[0],
-        isPremarket: formData.isPremarket,
-        askingPrice: formData.askingPrice,
-        financingTypes: formData.financingTypes,
-        financingOther: formData.financingOther,
-        closingDate: formData.closingDate,
-        closingDateType: formData.closingDateType,
-        photoLink: formData.photoLink,
+        ...formData,
         frontPhoto: frontPhotoBase64,
-        bedrooms: formData.bedrooms,
-        bathrooms: formData.bathrooms,
-        squareFootage: formData.squareFootage,
-        yearBuilt: formData.yearBuilt,
-        zoning: formData.zoning,
-        lotSize: formData.lotSize,
-        foundationType: formData.foundationType,
-        utilities: formData.utilities,
-        utilitiesOther: formData.utilitiesOther,
-        garageSpaces: formData.garageSpaces,
-        garageType: formData.garageType,
-        pool: formData.pool,
-        bigTicketItems: formData.bigTicketItems,
-        occupancy: formData.occupancy,
-        occupancyOnDelivery: formData.occupancyOnDelivery,
-        includeFinancialBreakdown: formData.includeFinancialBreakdown,
-        arv: formData.arv,
-        rehabEstimate: formData.rehabEstimate,
-        allIn: formData.allIn,
-        grossProfit: formData.grossProfit,
-        exitStrategy: formData.exitStrategy,
-        comps: formData.comps,
-        contactName: formData.contactName,
-        contactPhone: formData.contactPhone,
-        contactEmail: formData.contactEmail,
-        officeNumber: formData.officeNumber,
-        businessHours: formData.businessHours,
         contactImage: contactImageBase64,
-        website: formData.website,
-        emdAmount: formData.emdAmount,
-        emdDueDate: formData.emdDueDate,
-        postPossession: formData.postPossession,
-        additionalDisclosures: formData.additionalDisclosures
+        companyLogo: '', // No company logo in test preset
+        title: formData.selectedTitle || formData.generatedTitles[0] || `${formData.city} ${formData.dealType} Opportunity`,
+        subtitle: `${formData.dealType} Investment Property - ${formData.isPremarket ? `${formData.city}, ${formData.state}` : formData.address}`,
+        
+        // Buy & Hold Calculations (empty for test preset)
+        buyHoldAnalysis: null
       };
 
-      const response = await fetch('https://hook.us2.make.com/4ca8fudqhsoa5bvjjngek6fy6q0hv8m4', {
+      // Log the JSON payload being sent to webhook (same as main form)
+      console.log('Webhook JSON payload:', JSON.stringify(webhookData, null, 2));
+
+      const response = await fetch('https://primary-production-b0d4.up.railway.app/webhook/dealblaster', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
