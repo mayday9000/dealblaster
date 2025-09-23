@@ -511,6 +511,19 @@ const Index = () => {
         slugify(`${formData.city}-${formData.state}-premarket-${Date.now()}`) :
         slugify(formData.address);
 
+      // Create display strings for compound fields
+      const poolDisplay = formData.pool ? 
+        (formData.poolType ? `${formData.poolType.replace('-', ' ')} pool` : 'pool') : '';
+      
+      const lotSizeDisplay = formData.lotSize ? 
+        `${formData.lotSize} ${formData.lotSizeUnit}` : '';
+        
+      const roadFrontageDisplay = formData.roadFrontage ? 
+        `${formData.roadFrontage} ${formData.roadFrontageUnit}` : '';
+        
+      const closingDateDisplay = formData.closingDate ? 
+        (formData.closingDateType === 'onBefore' ? `On or before ${formData.closingDate}` : formData.closingDate) : '';
+
       // Prepare data for webhook
       const webhookData = {
         ...formData,
@@ -519,6 +532,12 @@ const Index = () => {
         companyLogo: companyLogoBase64,
         title: formData.selectedTitle || formData.generatedTitles[0] || `${formData.city} ${formData.dealType} Opportunity`,
         subtitle: `${formData.dealType} Investment Property - ${formData.isPremarket ? `${formData.city}, ${formData.state}` : formData.address}`,
+        
+        // Display strings for compound fields
+        poolDisplay,
+        lotSizeDisplay,
+        roadFrontageDisplay,
+        closingDateDisplay,
         
         // Format big ticket items with proper age formatting
         bigTicketItems: formData.bigTicketItems.map(item => ({
@@ -534,6 +553,7 @@ const Index = () => {
         
         // Buy & Hold Calculations (only include if there's data)
         buyHoldAnalysis: (formData.buyHoldPurchasePrice || formData.buyHoldMonthlyRent) ? {
+          type: formData.buyHoldType,
           purchasePrice: formData.buyHoldPurchasePrice,
           rehabCost: formData.buyHoldRehabCost,
           monthlyRent: formData.buyHoldMonthlyRent,
@@ -541,6 +561,8 @@ const Index = () => {
           monthlyInsurance: formData.buyHoldMonthlyInsurance,
           mortgageTerms: formData.buyHoldMortgagePayment,
           otherExpenses: formData.buyHoldOtherExpenses,
+          // Subject-To specific fields
+          cashToSeller: formData.buyHoldCashToSeller,
           calculations: {
             allInCost: (() => {
               const purchase = parseFloat(formData.buyHoldPurchasePrice.replace(/[^\d.]/g, '')) || 0;
@@ -552,7 +574,10 @@ const Index = () => {
               const taxes = parseFloat(formData.buyHoldMonthlyTaxes.replace(/[^\d.]/g, '')) || 0;
               const insurance = parseFloat(formData.buyHoldMonthlyInsurance.replace(/[^\d.]/g, '')) || 0;
               const other = parseFloat(formData.buyHoldOtherExpenses.replace(/[^\d.]/g, '')) || 0;
-              return taxes + insurance + other;
+              // For Subject-To, include mortgage payment in expenses
+              const mortgage = formData.buyHoldType === 'subject-to' ? 
+                (parseFloat(formData.buyHoldMortgagePayment.replace(/[^\d.]/g, '')) || 0) : 0;
+              return taxes + insurance + other + mortgage;
             })(),
             noi: (() => {
               const rent = parseFloat(formData.buyHoldMonthlyRent.replace(/[^\d.]/g, '')) || 0;
@@ -565,7 +590,10 @@ const Index = () => {
               const taxes = parseFloat(formData.buyHoldMonthlyTaxes.replace(/[^\d.]/g, '')) || 0;
               const insurance = parseFloat(formData.buyHoldMonthlyInsurance.replace(/[^\d.]/g, '')) || 0;
               const other = parseFloat(formData.buyHoldOtherExpenses.replace(/[^\d.]/g, '')) || 0;
-              return rent - taxes - insurance - other;
+              // For Subject-To, include mortgage payment in cash flow calculation
+              const mortgage = formData.buyHoldType === 'subject-to' ? 
+                (parseFloat(formData.buyHoldMortgagePayment.replace(/[^\d.]/g, '')) || 0) : 0;
+              return rent - taxes - insurance - other - mortgage;
             })(),
             cashOnCashReturn: (() => {
               const rent = parseFloat(formData.buyHoldMonthlyRent.replace(/[^\d.]/g, '')) || 0;
@@ -574,9 +602,20 @@ const Index = () => {
               const other = parseFloat(formData.buyHoldOtherExpenses.replace(/[^\d.]/g, '')) || 0;
               const purchase = parseFloat(formData.buyHoldPurchasePrice.replace(/[^\d.]/g, '')) || 0;
               const rehab = parseFloat(formData.buyHoldRehabCost.replace(/[^\d.]/g, '')) || 0;
-              const allIn = purchase + rehab;
-              const annualCashFlow = (rent - taxes - insurance - other) * 12;
-              return allIn > 0 ? (annualCashFlow / allIn) * 100 : 0;
+              
+              // For Subject-To, calculate cash invested differently
+              let cashInvested;
+              if (formData.buyHoldType === 'subject-to') {
+                const cashToSeller = parseFloat(formData.buyHoldCashToSeller.replace(/[^\d.]/g, '')) || 0;
+                cashInvested = cashToSeller + rehab;
+              } else {
+                cashInvested = purchase + rehab;
+              }
+              
+              const mortgage = formData.buyHoldType === 'subject-to' ? 
+                (parseFloat(formData.buyHoldMortgagePayment.replace(/[^\d.]/g, '')) || 0) : 0;
+              const annualCashFlow = (rent - taxes - insurance - other - mortgage) * 12;
+              return cashInvested > 0 ? (annualCashFlow / cashInvested) * 100 : 0;
             })(),
             capRate: (() => {
               const rent = parseFloat(formData.buyHoldMonthlyRent.replace(/[^\d.]/g, '')) || 0;
@@ -616,7 +655,7 @@ const Index = () => {
         address: formData.address,
         asking_price: formData.askingPrice,
         financing_types: formData.financingTypes,
-        closing_date: formData.closingDate,
+        closing_date: closingDateDisplay,
         photo_link: formData.photoLink,
         front_photo: frontPhotoBase64,
         bedrooms: formData.bedrooms,
@@ -624,11 +663,13 @@ const Index = () => {
         square_footage: formData.squareFootage,
         year_built: formData.yearBuilt,
         zoning: formData.zoning,
-        lot_size: formData.lotSize,
+        lot_size: lotSizeDisplay,
         foundation_type: formData.foundationType,
-        utilities: Array.isArray(formData.utilities) ? formData.utilities.join(', ') : formData.utilities,
+        utilities: Array.isArray(formData.utilities) ? 
+          formData.utilities.concat(formData.utilitiesOther ? [formData.utilitiesOther] : []).join(', ') : 
+          formData.utilities,
         garage: parkingDisplay,
-        pool: formData.pool ? 'Yes' : 'No',
+        pool: poolDisplay || (formData.pool ? 'Yes' : 'No'),
         current_occupancy: formData.occupancy,
         closing_occupancy: formData.occupancyOnDelivery,
         include_financial_breakdown: formData.includeFinancialBreakdown,
