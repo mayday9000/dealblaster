@@ -665,10 +665,19 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2 flex items-center justify-center gap-2">
-            <Building className="h-8 w-8 text-blue-600" />
-            Property Flyer Generator
-          </h1>
+          <div className="flex items-center justify-center gap-4 mb-2">
+            <h1 className="text-4xl font-bold text-gray-900 flex items-center gap-2">
+              <Building className="h-8 w-8 text-blue-600" />
+              Property Flyer Generator
+            </h1>
+            <Button 
+              variant="outline" 
+              onClick={() => navigate('/test')}
+              className="flex items-center gap-2"
+            >
+              Test with Preset Data
+            </Button>
+          </div>
           <p className="text-gray-600">Create professional investment property flyers in minutes</p>
         </div>
 
