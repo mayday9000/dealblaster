@@ -16,6 +16,8 @@ const Property = () => {
   const [error, setError] = useState<string>('');
   
   const addressSlug = searchParams.get('address');
+  
+  console.log('Property page - URL address parameter:', addressSlug);
 
   useEffect(() => {
     const fetchProperty = async () => {
@@ -26,6 +28,8 @@ const Property = () => {
       }
 
       try {
+        console.log('Querying database for address_slug:', addressSlug);
+        
         // Get all property data from Supabase
         const { data: property, error: supabaseError } = await supabase
           .from('properties')

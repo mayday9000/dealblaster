@@ -284,6 +284,8 @@ const TestPreset = () => {
       console.log('HTML result received from webhook:', htmlResult.substring(0, 200) + '...');
 
       const addressSlug = slugify(`${formData.address} ${formData.city}`);
+      console.log('Generated address slug:', addressSlug);
+      
       const propertyRecord = {
         address: formData.address,
         city: formData.city,
@@ -291,6 +293,8 @@ const TestPreset = () => {
         address_slug: addressSlug,
         html_content: htmlResult,
       };
+
+      console.log('Property record to save:', propertyRecord);
 
       const { data: insertResult, error: supabaseError } = await (supabase as any)
         .rpc('secure_upsert_property', { 
@@ -305,6 +309,7 @@ const TestPreset = () => {
       console.log('Property saved successfully:', insertResult);
 
       const propertyUrl = `/property?address=${addressSlug}`;
+      console.log('Generated property URL:', propertyUrl);
       setShareUrl(propertyUrl);
       setShowSuccessModal(true);
 
