@@ -102,6 +102,8 @@ interface FormData {
     bathrooms: string;
     squareFootage: string;
     lotSize: string;
+    roadFrontage: string;
+    roadFrontageUnit: 'ft' | 'miles';
     compType: string;
     conditionLabel: string;
     assetType: string;
@@ -237,6 +239,8 @@ const Index = () => {
         bathrooms: '',
         squareFootage: '',
         lotSize: '',
+        roadFrontage: '',
+        roadFrontageUnit: 'ft',
         compType: '',
         conditionLabel: '',
         assetType: '',
@@ -257,6 +261,8 @@ const Index = () => {
         bathrooms: '',
         squareFootage: '',
         lotSize: '',
+        roadFrontage: '',
+        roadFrontageUnit: 'ft',
         compType: '',
         conditionLabel: '',
         assetType: '',
@@ -341,6 +347,8 @@ const Index = () => {
         bathrooms: '',
         squareFootage: '',
         lotSize: '',
+        roadFrontage: '',
+        roadFrontageUnit: 'ft',
         compType: '',
         conditionLabel: '',
         assetType: '',
@@ -2043,6 +2051,41 @@ const Index = () => {
                         onChange={(e) => updateComp(index, 'lotSize', e.target.value)}
                       />
                     </div>
+                    
+                    {/* Road Frontage - only show for land */}
+                    {formData.isLand && (
+                      <div>
+                        <Label>Road Frontage (Optional)</Label>
+                        <div className="flex gap-2">
+                          <Input
+                            type="number"
+                            step="0.1"
+                            placeholder="100"
+                            value={comp.roadFrontage}
+                            onChange={(e) => updateComp(index, 'roadFrontage', e.target.value)}
+                            className="flex-1"
+                          />
+                          <div className="flex items-center space-x-2">
+                            <input
+                              id={`roadFrontageUnit-ft-${index}`}
+                              type="checkbox"
+                              checked={comp.roadFrontageUnit === 'ft'}
+                              onChange={(e) => updateComp(index, 'roadFrontageUnit', e.target.checked ? 'ft' : 'miles')}
+                              className="rounded border border-gray-300"
+                            />
+                            <Label htmlFor={`roadFrontageUnit-ft-${index}`} className="text-sm">Ft</Label>
+                            <input
+                              id={`roadFrontageUnit-miles-${index}`}
+                              type="checkbox"
+                              checked={comp.roadFrontageUnit === 'miles'}
+                              onChange={(e) => updateComp(index, 'roadFrontageUnit', e.target.checked ? 'miles' : 'ft')}
+                              className="rounded border border-gray-300"
+                            />
+                            <Label htmlFor={`roadFrontageUnit-miles-${index}`} className="text-sm">Miles</Label>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                     
                     <div>
                       <Label>Comp Type *</Label>
