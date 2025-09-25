@@ -1384,7 +1384,9 @@ const Index = () => {
                   <div key={index} className="border rounded-lg p-4 space-y-4">
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
-                        <Label htmlFor={`item-type-${index}`}>System Type *</Label>
+                        <Label htmlFor={`item-type-${index}`}>
+                          System Type{(item.type === 'Water Heater') ? '' : ' *'}
+                        </Label>
                         {index < 3 ? (
                           <Input
                             id={`item-type-${index}`}
@@ -1415,7 +1417,9 @@ const Index = () => {
 
                     {/* Format Selector */}
                     <div>
-                      <Label htmlFor={`format-${index}`}>Input Format *</Label>
+                      <Label htmlFor={`format-${index}`}>
+                        Input Format{(item.isShitbox || (item.type === 'HVAC' && item.noHVAC) || item.type === 'Water Heater') ? '' : ' *'}
+                      </Label>
                       <Select
                         value={item.inputFormat}
                         onValueChange={(value) => updateBigTicketItem(index, 'inputFormat', value)}
@@ -1434,7 +1438,9 @@ const Index = () => {
                     {/* Input Field - Show different inputs based on format */}
                     {item.inputFormat === 'age-range' ? (
                       <div>
-                        <Label htmlFor={`ageRange-${index}`}>Age Range *</Label>
+                        <Label htmlFor={`ageRange-${index}`}>
+                          Age Range{(item.isShitbox || (item.type === 'HVAC' && item.noHVAC) || item.type === 'Water Heater') ? '' : ' *'}
+                        </Label>
                         <Select
                           value={item.ageRange}
                           onValueChange={(value) => updateBigTicketItem(index, 'ageRange', value)}
@@ -1457,7 +1463,10 @@ const Index = () => {
                     ) : (
                       <div>
                         <Label htmlFor={`input-${index}`}>
-                          {item.inputFormat === 'year' ? 'Year Installed *' : 'Age in Years *'}
+                          {item.inputFormat === 'year' 
+                            ? `Year Installed${(item.isShitbox || (item.type === 'HVAC' && item.noHVAC) || item.type === 'Water Heater') ? '' : ' *'}`
+                            : `Age in Years${(item.isShitbox || (item.type === 'HVAC' && item.noHVAC) || item.type === 'Water Heater') ? '' : ' *'}`
+                          }
                         </Label>
                         <Input
                           id={`input-${index}`}
