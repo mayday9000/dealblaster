@@ -2003,35 +2003,40 @@ const Index = () => {
                       />
                     </div>
                     
-                    <div>
-                      <Label>Bedrooms *</Label>
-                      <Input
-                        placeholder="3"
-                        value={comp.bedrooms}
-                        onChange={(e) => updateComp(index, 'bedrooms', e.target.value)}
-                      />
-                    </div>
+                    {/* Residential fields - only show when not land */}
+                    {!formData.isLand && (
+                      <>
+                        <div>
+                          <Label>Bedrooms *</Label>
+                          <Input
+                            placeholder="3"
+                            value={comp.bedrooms}
+                            onChange={(e) => updateComp(index, 'bedrooms', e.target.value)}
+                          />
+                        </div>
+                        
+                        <div>
+                          <Label>Bathrooms *</Label>
+                          <Input
+                            placeholder="2"
+                            value={comp.bathrooms}
+                            onChange={(e) => updateComp(index, 'bathrooms', e.target.value)}
+                          />
+                        </div>
+                        
+                        <div>
+                          <Label>Square Footage *</Label>
+                          <Input
+                            placeholder="1,200"
+                            value={comp.squareFootage}
+                            onChange={(e) => updateComp(index, 'squareFootage', e.target.value)}
+                          />
+                        </div>
+                      </>
+                    )}
                     
                     <div>
-                      <Label>Bathrooms *</Label>
-                      <Input
-                        placeholder="2"
-                        value={comp.bathrooms}
-                        onChange={(e) => updateComp(index, 'bathrooms', e.target.value)}
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label>Square Footage *</Label>
-                      <Input
-                        placeholder="1,200"
-                        value={comp.squareFootage}
-                        onChange={(e) => updateComp(index, 'squareFootage', e.target.value)}
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label>Lot Size (Optional)</Label>
+                      <Label>Lot Size {formData.isLand ? '*' : '(Optional)'}</Label>
                       <Input
                         placeholder="0.25 acres or 10,890 sq ft"
                         value={comp.lotSize}
@@ -2066,23 +2071,34 @@ const Index = () => {
                           <SelectItem value="Sold">Sold</SelectItem>
                           <SelectItem value="Pending">Pending</SelectItem>
                           <SelectItem value="Contingent">Contingent</SelectItem>
-                          <SelectItem value="Listed for Rent">Listed for Rent</SelectItem>
+                          {/* Remove Listed for Rent option when Is Land is checked */}
+                          {!formData.isLand && <SelectItem value="Listed for Rent">Listed for Rent</SelectItem>}
                           <SelectItem value="Off-Market">Off-Market</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                     
                     <div>
-                      <Label>Condition *</Label>
+                      <Label>{formData.isLand ? 'Land Condition *' : 'Condition *'}</Label>
                       <Select value={comp.conditionLabel} onValueChange={(value) => updateComp(index, 'conditionLabel', value)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Select condition" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="Flip Condition">Flip Condition</SelectItem>
-                          <SelectItem value="Retail Condition">Retail Condition</SelectItem>
-                          <SelectItem value="Move-in Ready">Move-in Ready</SelectItem>
-                          <SelectItem value="Needs Work">Needs Work</SelectItem>
+                          {formData.isLand ? (
+                            <>
+                              <SelectItem value="Wooded">Wooded</SelectItem>
+                              <SelectItem value="Partially Cleared">Partially Cleared</SelectItem>
+                              <SelectItem value="Cleared">Cleared</SelectItem>
+                            </>
+                          ) : (
+                            <>
+                              <SelectItem value="Flip Condition">Flip Condition</SelectItem>
+                              <SelectItem value="Retail Condition">Retail Condition</SelectItem>
+                              <SelectItem value="Move-in Ready">Move-in Ready</SelectItem>
+                              <SelectItem value="Needs Work">Needs Work</SelectItem>
+                            </>
+                          )}
                         </SelectContent>
                       </Select>
                     </div>
@@ -2139,14 +2155,17 @@ const Index = () => {
                       />
                     </div>
 
-                    <div>
-                      <Label>Listed Rent Price (Optional)</Label>
-                      <Input
-                        placeholder="$1,350/mo"
-                        value={comp.comments}
-                        onChange={(e) => updateComp(index, 'comments', e.target.value)}
-                      />
-                    </div>
+                    {/* Listed Rent Price - only show when not land */}
+                    {!formData.isLand && (
+                      <div>
+                        <Label>Listed Rent Price (Optional)</Label>
+                        <Input
+                          placeholder="$1,350/mo"
+                          value={comp.comments}
+                          onChange={(e) => updateComp(index, 'comments', e.target.value)}
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
