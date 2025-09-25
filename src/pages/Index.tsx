@@ -71,8 +71,9 @@ interface FormData {
   // Big Ticket Systems - flexible input
   bigTicketItems: Array<{
     type: string;
-    inputFormat: 'year' | 'age'; // New field to track format selection
+    inputFormat: 'year' | 'age' | 'age-range'; // Added age-range option
     input: string; // Single input for year or age
+    ageRange: string; // New field for age range selection
     isShitbox: boolean;
     lastServiced: string;
   }>;
@@ -206,9 +207,9 @@ const Index = () => {
     
     // Big Ticket Systems - simplified
     bigTicketItems: [
-      { type: 'Roof', inputFormat: 'year', input: '', isShitbox: false, lastServiced: '' },
-      { type: 'HVAC', inputFormat: 'year', input: '', isShitbox: false, lastServiced: '' },
-      { type: 'Water Heater', inputFormat: 'year', input: '', isShitbox: false, lastServiced: '' }
+      { type: 'Roof', inputFormat: 'year', input: '', ageRange: '', isShitbox: false, lastServiced: '' },
+      { type: 'HVAC', inputFormat: 'year', input: '', ageRange: '', isShitbox: false, lastServiced: '' },
+      { type: 'Water Heater', inputFormat: 'year', input: '', ageRange: '', isShitbox: false, lastServiced: '' }
     ],
     
     // Occupancy
@@ -371,6 +372,7 @@ const Index = () => {
         type: '',
         inputFormat: 'year',
         input: '',
+        ageRange: '',
         isShitbox: false,
         lastServiced: ''
       }]
@@ -391,9 +393,9 @@ const Index = () => {
       ...prev,
       bigTicketItems: prev.bigTicketItems.map((item, i) => {
         if (i === index) {
-          // If updating inputFormat, clear the input value
+          // If updating inputFormat, clear the input and ageRange values
           if (field === 'inputFormat') {
-            return { ...item, [field]: value, input: '' };
+            return { ...item, [field]: value, input: '', ageRange: '' };
           }
           // If updating input and format is 'age', ensure it's just a number
           if (field === 'input' && item.inputFormat === 'age') {
@@ -478,8 +480,8 @@ const Index = () => {
       const requiredBigTicketTypes = ['Roof', 'HVAC', 'Water Heater'];
       for (const requiredType of requiredBigTicketTypes) {
         const item = formData.bigTicketItems.find(item => item.type === requiredType);
-        if (!item || !item.input.trim()) {
-          errors.push(`${requiredType} year/range`);
+        if (!item || (!item.input.trim() && !item.ageRange.trim())) {
+          errors.push(`${requiredType} year/age/range`);
         }
       }
     }
@@ -563,9 +565,11 @@ const Index = () => {
         bigTicketItems: formData.bigTicketItems.map(item => ({
           type: item.type,
           age: item.inputFormat === 'age' && item.input.trim() 
-            ? `${item.input.trim()} years old` 
+            ? `${item.input.trim()} years old`
+            : item.inputFormat === 'age-range' && item.ageRange.trim()
+            ? `${item.ageRange.trim()} years old`
             : item.input,
-          ageType: item.inputFormat === 'age' ? 'range' : 'specific',
+          ageType: item.inputFormat === 'age' ? 'specific' : item.inputFormat === 'age-range' ? 'range' : 'specific',
           specificYear: item.inputFormat === 'year' ? item.input : '',
           isShitbox: item.isShitbox,
           lastServiced: item.lastServiced
@@ -1411,27 +1415,53 @@ const Index = () => {
                         <SelectContent className="bg-background border shadow-lg z-50">
                           <SelectItem value="year">Year (e.g., 2010)</SelectItem>
                           <SelectItem value="age">Age (e.g., 10)</SelectItem>
+                          <SelectItem value="age-range">Age Range (e.g., 0-5 years)</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
 
-                    <div>
-                      <Label htmlFor={`input-${index}`}>
-                        {item.inputFormat === 'year' ? 'Year Installed *' : 'Age in Years *'}
-                      </Label>
-                      <Input
-                        id={`input-${index}`}
-                        placeholder={item.inputFormat === 'year' ? 'e.g., 2010' : 'e.g., 10'}
-                        value={item.input}
-                        onChange={(e) => updateBigTicketItem(index, 'input', e.target.value)}
-                      />
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {item.inputFormat === 'year' 
-                          ? 'Enter the year it was installed (e.g., "2010")'
-                          : 'Enter age in years (e.g., "10") - "years old" will be added automatically'
-                        }
-                      </p>
-                    </div>
+                    {/* Input Field - Show different inputs based on format */}
+                    {item.inputFormat === 'age-range' ? (
+                      <div>
+                        <Label htmlFor={`ageRange-${index}`}>Age Range *</Label>
+                        <Select
+                          value={item.ageRange}
+                          onValueChange={(value) => updateBigTicketItem(index, 'ageRange', value)}
+                        >
+                          <SelectTrigger className="bg-background border z-50">
+                            <SelectValue placeholder="Select age range" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-background border shadow-lg z-50">
+                            <SelectItem value="0-5">0-5 years</SelectItem>
+                            <SelectItem value="6-10">6-10 years</SelectItem>
+                            <SelectItem value="11-15">11-15 years</SelectItem>
+                            <SelectItem value="16-20">16-20 years</SelectItem>
+                            <SelectItem value="20+">20+ years</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Select the age range for this system
+                        </p>
+                      </div>
+                    ) : (
+                      <div>
+                        <Label htmlFor={`input-${index}`}>
+                          {item.inputFormat === 'year' ? 'Year Installed *' : 'Age in Years *'}
+                        </Label>
+                        <Input
+                          id={`input-${index}`}
+                          placeholder={item.inputFormat === 'year' ? 'e.g., 2010' : 'e.g., 10'}
+                          value={item.input}
+                          onChange={(e) => updateBigTicketItem(index, 'input', e.target.value)}
+                        />
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {item.inputFormat === 'year' 
+                            ? 'Enter the year it was installed (e.g., "2010")'
+                            : 'Enter age in years (e.g., "10") - "years old" will be added automatically'
+                          }
+                        </p>
+                      </div>
+                    )}
 
                     <div className="flex items-center space-x-2">
                       <input
