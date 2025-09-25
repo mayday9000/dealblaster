@@ -119,7 +119,16 @@ interface FormData {
   contactPhone: string;
   contactEmail: string;
   officeNumber: string;
-  businessHours: string;
+  businessHours: {
+    monday: { isOpen: boolean; openTime: string; closeTime: string; };
+    tuesday: { isOpen: boolean; openTime: string; closeTime: string; };
+    wednesday: { isOpen: boolean; openTime: string; closeTime: string; };
+    thursday: { isOpen: boolean; openTime: string; closeTime: string; };
+    friday: { isOpen: boolean; openTime: string; closeTime: string; };
+    saturday: { isOpen: boolean; openTime: string; closeTime: string; };
+    sunday: { isOpen: boolean; openTime: string; closeTime: string; };
+    timeZone: string;
+  };
   contactImage: File | null;
   companyLogo: File | null;
   website: string;
@@ -265,7 +274,16 @@ const Index = () => {
     contactPhone: '',
     contactEmail: '',
     officeNumber: '',
-    businessHours: '',
+    businessHours: {
+      monday: { isOpen: true, openTime: '09:00', closeTime: '18:00' },
+      tuesday: { isOpen: true, openTime: '09:00', closeTime: '18:00' },
+      wednesday: { isOpen: true, openTime: '09:00', closeTime: '18:00' },
+      thursday: { isOpen: true, openTime: '09:00', closeTime: '18:00' },
+      friday: { isOpen: true, openTime: '09:00', closeTime: '18:00' },
+      saturday: { isOpen: true, openTime: '10:00', closeTime: '16:00' },
+      sunday: { isOpen: false, openTime: '09:00', closeTime: '17:00' },
+      timeZone: 'EST'
+    },
     contactImage: null,
     companyLogo: null,
     website: '',
@@ -641,7 +659,25 @@ const Index = () => {
         `${formData.parkingType} ${formData.parkingSpaces}-space parking` : '';
 
       // Create business hours display string
-      const businessHoursDisplay = formData.businessHours || '';
+      const businessHoursDisplay = (() => {
+        const businessHours = formData.businessHours as any;
+        const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+        const openDays = days.filter(day => businessHours[day]?.isOpen);
+        if (openDays.length === 0) return 'Closed';
+        
+        const formatTime = (time: string) => {
+          const [hour, minute] = time.split(':');
+          const h = parseInt(hour);
+          const ampm = h >= 12 ? 'PM' : 'AM';
+          const displayHour = h === 0 ? 12 : h > 12 ? h - 12 : h;
+          return `${displayHour}:${minute}${ampm}`;
+        };
+        
+        return openDays.map(day => {
+          const dayHours = businessHours[day];
+          return `${day.charAt(0).toUpperCase() + day.slice(1)} ${formatTime(dayHours.openTime)}-${formatTime(dayHours.closeTime)}`;
+        }).join(', ') + ` (${businessHours.timeZone})`;
+      })();
 
       // First, save property data to Supabase WITHOUT html_content
       const propertyData = {
@@ -2100,13 +2136,77 @@ const Index = () => {
               </div>
 
               <div>
-                <Label htmlFor="businessHours">Business Hours</Label>
-                <Input
-                  id="businessHours"
-                  placeholder="Mon-Fri 9AM-6PM, Sat 10AM-4PM"
-                  value={formData.businessHours}
-                  onChange={(e) => updateFormData('businessHours', e.target.value)}
-                />
+                <Label>Business Hours</Label>
+                <div className="space-y-3 p-4 border rounded-lg">
+                  <div className="flex justify-between items-center">
+                    <Label htmlFor="timeZone" className="text-sm font-medium">Time Zone</Label>
+                    <Select 
+                      value={formData.businessHours.timeZone} 
+                      onValueChange={(value) => updateFormData('businessHours', { ...formData.businessHours, timeZone: value })}
+                    >
+                      <SelectTrigger className="w-32">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="EST">EST</SelectItem>
+                        <SelectItem value="CST">CST</SelectItem>
+                        <SelectItem value="MST">MST</SelectItem>
+                        <SelectItem value="PST">PST</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map((day) => (
+                    <div key={day} className="flex items-center gap-4">
+                      <div className="w-20">
+                        <Checkbox
+                          id={`${day}-open`}
+                          checked={(formData.businessHours as any)[day]?.isOpen || false}
+                          onCheckedChange={(checked) => {
+                            const currentDay = (formData.businessHours as any)[day];
+                            updateFormData('businessHours', {
+                              ...formData.businessHours,
+                              [day]: { ...currentDay, isOpen: checked }
+                            });
+                          }}
+                        />
+                        <Label htmlFor={`${day}-open`} className="ml-2 text-sm capitalize">
+                          {day.slice(0, 3)}
+                        </Label>
+                      </div>
+                      
+                      {(formData.businessHours as any)[day]?.isOpen && (
+                        <div className="flex items-center gap-2">
+                          <Input
+                            type="time"
+                            value={(formData.businessHours as any)[day]?.openTime || '09:00'}
+                            onChange={(e) => {
+                              const currentDay = (formData.businessHours as any)[day];
+                              updateFormData('businessHours', {
+                                ...formData.businessHours,
+                                [day]: { ...currentDay, openTime: e.target.value }
+                              });
+                            }}
+                            className="w-24"
+                          />
+                          <span className="text-sm">to</span>
+                          <Input
+                            type="time"
+                            value={(formData.businessHours as any)[day]?.closeTime || '17:00'}
+                            onChange={(e) => {
+                              const currentDay = (formData.businessHours as any)[day];
+                              updateFormData('businessHours', {
+                                ...formData.businessHours,
+                                [day]: { ...currentDay, closeTime: e.target.value }
+                              });
+                            }}
+                            className="w-24"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
 
               <div>
