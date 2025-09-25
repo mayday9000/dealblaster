@@ -75,6 +75,7 @@ interface FormData {
     input: string; // Single input for year or age
     ageRange: string; // New field for age range selection
     isShitbox: boolean;
+    noHVAC: boolean; // New field for "No HVAC" option
     lastServiced: string;
   }>;
   
@@ -207,9 +208,9 @@ const Index = () => {
     
     // Big Ticket Systems - simplified
     bigTicketItems: [
-      { type: 'Roof', inputFormat: 'year', input: '', ageRange: '', isShitbox: false, lastServiced: '' },
-      { type: 'HVAC', inputFormat: 'year', input: '', ageRange: '', isShitbox: false, lastServiced: '' },
-      { type: 'Water Heater', inputFormat: 'year', input: '', ageRange: '', isShitbox: false, lastServiced: '' }
+      { type: 'Roof', inputFormat: 'year', input: '', ageRange: '', isShitbox: false, noHVAC: false, lastServiced: '' },
+      { type: 'HVAC', inputFormat: 'year', input: '', ageRange: '', isShitbox: false, noHVAC: false, lastServiced: '' },
+      { type: 'Water Heater', inputFormat: 'year', input: '', ageRange: '', isShitbox: false, noHVAC: false, lastServiced: '' }
     ],
     
     // Occupancy
@@ -374,6 +375,7 @@ const Index = () => {
         input: '',
         ageRange: '',
         isShitbox: false,
+        noHVAC: false,
         lastServiced: ''
       }]
     }));
@@ -477,13 +479,19 @@ const Index = () => {
     
     // Validate big ticket systems only for residential properties
     if (!formData.isLand) {
-      const requiredBigTicketTypes = ['Roof', 'HVAC', 'Water Heater'];
-      for (const requiredType of requiredBigTicketTypes) {
-        const item = formData.bigTicketItems.find(item => item.type === requiredType);
-        if (!item || (!item.input.trim() && !item.ageRange.trim())) {
-          errors.push(`${requiredType} year/age/range`);
-        }
+      // Roof is always required
+      const roofItem = formData.bigTicketItems.find(item => item.type === 'Roof');
+      if (!roofItem || (!roofItem.input.trim() && !roofItem.ageRange.trim() && !roofItem.isShitbox)) {
+        errors.push('Roof year/age/range');
       }
+      
+      // HVAC is required unless "No HVAC" is checked
+      const hvacItem = formData.bigTicketItems.find(item => item.type === 'HVAC');
+      if (!hvacItem || (!hvacItem.input.trim() && !hvacItem.ageRange.trim() && !hvacItem.isShitbox && !hvacItem.noHVAC)) {
+        errors.push('HVAC year/age/range or No HVAC selection');
+      }
+      
+      // Water Heater is now optional - no validation needed
     }
     
     // Validate at least 2 comps with required fields
@@ -568,10 +576,13 @@ const Index = () => {
             ? `${item.input.trim()} years old`
             : item.inputFormat === 'age-range' && item.ageRange.trim()
             ? `${item.ageRange.trim()} years old`
+            : item.noHVAC && item.type === 'HVAC'
+            ? 'No HVAC'
             : item.input,
           ageType: item.inputFormat === 'age' ? 'specific' : item.inputFormat === 'age-range' ? 'range' : 'specific',
           specificYear: item.inputFormat === 'year' ? item.input : '',
           isShitbox: item.isShitbox,
+          noHVAC: item.noHVAC || false,
           lastServiced: item.lastServiced
         })),
         
@@ -1096,7 +1107,7 @@ const Index = () => {
                   </div>
 
                   <div>
-                    <Label htmlFor="roadFrontage">Road Frontage</Label>
+                    <Label htmlFor="roadFrontage">Road Frontage (Optional)</Label>
                     <div className="flex gap-2">
                       <Input
                         id="roadFrontage"
@@ -1473,6 +1484,20 @@ const Index = () => {
                       />
                       <Label htmlFor={`shitbox-${index}`}>Shitbox (Distressed Property)</Label>
                     </div>
+
+                    {/* No HVAC option - only show for HVAC items */}
+                    {item.type === 'HVAC' && (
+                      <div className="flex items-center space-x-2">
+                        <input
+                          id={`noHVAC-${index}`}
+                          type="checkbox"
+                          checked={item.noHVAC}
+                          onChange={(e) => updateBigTicketItem(index, 'noHVAC', e.target.checked)}
+                          className="rounded border border-gray-300"
+                        />
+                        <Label htmlFor={`noHVAC-${index}`}>No HVAC?</Label>
+                      </div>
+                    )}
 
                     <div>
                       <Label htmlFor={`lastServiced-${index}`}>Last Serviced (Optional)</Label>
