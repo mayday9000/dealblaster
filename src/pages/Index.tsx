@@ -945,6 +945,75 @@ const Index = () => {
             </CardContent>
           </Card>
 
+          {/* Property Type */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MapPin className="h-5 w-5" />
+                Property Type
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="isLand" 
+                  checked={formData.isLand}
+                  onCheckedChange={(checked) => updateFormData('isLand', checked)}
+                />
+                <Label htmlFor="isLand">Is this Land?</Label>
+              </div>
+
+              {formData.isLand && (
+                <div className="space-y-4 p-4 border rounded-lg bg-amber-50">
+                  <h4 className="font-medium">Land-Specific Information</h4>
+                  
+                  <div>
+                    <Label htmlFor="landCondition">Land Condition</Label>
+                    <Select value={formData.landCondition} onValueChange={(value) => updateFormData('landCondition', value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select land condition" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="wooded">Wooded</SelectItem>
+                        <SelectItem value="partially-cleared">Partially Cleared</SelectItem>
+                        <SelectItem value="cleared">Cleared</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="roadFrontage">Road Frontage (Optional)</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="roadFrontage"
+                        type="number"
+                        step="0.1"
+                        placeholder="100"
+                        value={formData.roadFrontage}
+                        onChange={(e) => updateFormData('roadFrontage', e.target.value)}
+                        className="flex-1"
+                      />
+                      <div className="flex items-center space-x-2">
+                        <Checkbox 
+                          id="roadFrontageUnit-ft"
+                          checked={formData.roadFrontageUnit === 'ft'}
+                          onCheckedChange={(checked) => updateFormData('roadFrontageUnit', checked ? 'ft' : 'miles')}
+                        />
+                        <Label htmlFor="roadFrontageUnit-ft" className="text-sm">Ft</Label>
+                        <Checkbox 
+                          id="roadFrontageUnit-miles"
+                          checked={formData.roadFrontageUnit === 'miles'}
+                          onCheckedChange={(checked) => updateFormData('roadFrontageUnit', checked ? 'miles' : 'ft')}
+                        />
+                        <Label htmlFor="roadFrontageUnit-miles" className="text-sm">Miles</Label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
           {/* Basic Property Info */}
           <Card>
             <CardHeader>
@@ -1078,74 +1147,6 @@ const Index = () => {
             </CardContent>
           </Card>
 
-          {/* Land Option */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MapPin className="h-5 w-5" />
-                Property Type
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center space-x-2">
-                <Checkbox 
-                  id="isLand" 
-                  checked={formData.isLand}
-                  onCheckedChange={(checked) => updateFormData('isLand', checked)}
-                />
-                <Label htmlFor="isLand">Is this Land?</Label>
-              </div>
-
-              {formData.isLand && (
-                <div className="space-y-4 p-4 border rounded-lg bg-amber-50">
-                  <h4 className="font-medium">Land-Specific Information</h4>
-                  
-                  <div>
-                    <Label htmlFor="landCondition">Land Condition</Label>
-                    <Select value={formData.landCondition} onValueChange={(value) => updateFormData('landCondition', value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select land condition" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="wooded">Wooded</SelectItem>
-                        <SelectItem value="partially-cleared">Partially Cleared</SelectItem>
-                        <SelectItem value="cleared">Cleared</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <Label htmlFor="roadFrontage">Road Frontage (Optional)</Label>
-                    <div className="flex gap-2">
-                      <Input
-                        id="roadFrontage"
-                        type="number"
-                        step="0.1"
-                        placeholder="100"
-                        value={formData.roadFrontage}
-                        onChange={(e) => updateFormData('roadFrontage', e.target.value)}
-                        className="flex-1"
-                      />
-                      <div className="flex items-center space-x-2">
-                        <Checkbox 
-                          id="roadFrontageUnit-ft"
-                          checked={formData.roadFrontageUnit === 'ft'}
-                          onCheckedChange={(checked) => updateFormData('roadFrontageUnit', checked ? 'ft' : 'miles')}
-                        />
-                        <Label htmlFor="roadFrontageUnit-ft" className="text-sm">Ft</Label>
-                        <Checkbox 
-                          id="roadFrontageUnit-miles"
-                          checked={formData.roadFrontageUnit === 'miles'}
-                          onCheckedChange={(checked) => updateFormData('roadFrontageUnit', checked ? 'miles' : 'ft')}
-                        />
-                        <Label htmlFor="roadFrontageUnit-miles" className="text-sm">Miles</Label>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
 
           {/* Property Overview */}
           <Card>
