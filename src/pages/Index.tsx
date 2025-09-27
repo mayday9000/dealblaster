@@ -113,6 +113,7 @@ interface FormData {
     soldListedPrice: string;
     soldListedPriceType: 'Listed' | 'Sold';
     soldListedDate: string;
+    pendingDate: string;
     currentlyListed: string;
     dom: string;
     distanceFromSubject: string;
@@ -246,6 +247,7 @@ const Index = () => {
         soldListedPrice: '',
         soldListedPriceType: 'Listed',
         soldListedDate: '',
+        pendingDate: '',
         currentlyListed: '',
         dom: '',
         distanceFromSubject: '',
@@ -268,6 +270,7 @@ const Index = () => {
         soldListedPrice: '',
         soldListedPriceType: 'Listed',
         soldListedDate: '',
+        pendingDate: '',
         currentlyListed: '',
         dom: '',
         distanceFromSubject: '',
@@ -349,6 +352,7 @@ const Index = () => {
         soldListedPrice: '',
         soldListedPriceType: 'Listed',
         soldListedDate: '',
+        pendingDate: '',
         currentlyListed: '',
         dom: '',
         distanceFromSubject: '',
@@ -2195,8 +2199,8 @@ const Index = () => {
                       <Label>Pending Date (Optional)</Label>
                       <Input
                         type="date"
-                        value={comp.soldListedDate}
-                        onChange={(e) => updateComp(index, 'soldListedDate', e.target.value)}
+                        value={comp.pendingDate}
+                        onChange={(e) => updateComp(index, 'pendingDate', e.target.value)}
                       />
                     </div>
 
