@@ -2108,7 +2108,7 @@ const Index = () => {
                     </div>
                     
                     <div>
-                      <Label>{formData.isLand ? 'Land Condition *' : 'Condition *'}</Label>
+                      <Label>{formData.isLand ? 'Land Condition' : 'Condition *'}</Label>
                       <Select value={comp.conditionLabel} onValueChange={(value) => updateComp(index, 'conditionLabel', value)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Select condition" />
