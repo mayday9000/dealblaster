@@ -9,7 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon, Download, FileText, DollarSign, Home, MapPin, Phone, Mail, Building, Calculator, Plus, Minus, Wrench, Users, Lock, Upload, User, Sparkles, ArrowLeft } from 'lucide-react';
+import { CalendarIcon, Download, FileText, DollarSign, Home, MapPin, Phone, Mail, Building, Calculator, Plus, Minus, Wrench, Users, Lock, Upload, User, Sparkles, ArrowLeft, Clock } from 'lucide-react';
 import SuccessModal from '@/components/SuccessModal';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -124,13 +124,8 @@ interface FormData {
   contactEmail: string;
   officeNumber: string;
   businessHours: {
-    monday: { isOpen: boolean; openTime: string; closeTime: string; };
-    tuesday: { isOpen: boolean; openTime: string; closeTime: string; };
-    wednesday: { isOpen: boolean; openTime: string; closeTime: string; };
-    thursday: { isOpen: boolean; openTime: string; closeTime: string; };
-    friday: { isOpen: boolean; openTime: string; closeTime: string; };
-    saturday: { isOpen: boolean; openTime: string; closeTime: string; };
-    sunday: { isOpen: boolean; openTime: string; closeTime: string; };
+    startTime: string;
+    endTime: string;
     timeZone: string;
   };
   contactImage: File | null;
@@ -284,13 +279,8 @@ const Index = () => {
     contactEmail: '',
     officeNumber: '',
     businessHours: {
-      monday: { isOpen: true, openTime: '09:00', closeTime: '18:00' },
-      tuesday: { isOpen: true, openTime: '09:00', closeTime: '18:00' },
-      wednesday: { isOpen: true, openTime: '09:00', closeTime: '18:00' },
-      thursday: { isOpen: true, openTime: '09:00', closeTime: '18:00' },
-      friday: { isOpen: true, openTime: '09:00', closeTime: '18:00' },
-      saturday: { isOpen: true, openTime: '10:00', closeTime: '16:00' },
-      sunday: { isOpen: false, openTime: '09:00', closeTime: '17:00' },
+      startTime: '',
+      endTime: '',
       timeZone: 'EST'
     },
     contactImage: null,
@@ -685,10 +675,8 @@ const Index = () => {
 
       // Create business hours display string
       const businessHoursDisplay = (() => {
-        const businessHours = formData.businessHours as any;
-        const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-        const openDays = days.filter(day => businessHours[day]?.isOpen);
-        if (openDays.length === 0) return 'Closed';
+        const businessHours = formData.businessHours;
+        if (!businessHours.startTime || !businessHours.endTime) return 'Hours not specified';
         
         const formatTime = (time: string) => {
           const [hour, minute] = time.split(':');
@@ -698,10 +686,7 @@ const Index = () => {
           return `${displayHour}:${minute}${ampm}`;
         };
         
-        return openDays.map(day => {
-          const dayHours = businessHours[day];
-          return `${day.charAt(0).toUpperCase() + day.slice(1)} ${formatTime(dayHours.openTime)}-${formatTime(dayHours.closeTime)}`;
-        }).join(', ') + ` (${businessHours.timeZone})`;
+        return `${formatTime(businessHours.startTime)} - ${formatTime(businessHours.endTime)} (${businessHours.timeZone})`;
       })();
 
       // First, save property data to Supabase WITHOUT html_content
@@ -2282,15 +2267,45 @@ const Index = () => {
 
               <div>
                 <Label>Business Hours</Label>
-                <div className="space-y-3 p-4 border rounded-lg">
-                  <div className="flex justify-between items-center">
-                    <Label htmlFor="timeZone" className="text-sm font-medium">Time Zone</Label>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <Label htmlFor="startTime" className="text-sm font-medium">Start Time</Label>
+                    <div className="relative">
+                      <Input
+                        id="startTime"
+                        type="time"
+                        placeholder="--:-- --"
+                        value={formData.businessHours.startTime || ''}
+                        onChange={(e) => updateFormData('businessHours', { ...formData.businessHours, startTime: e.target.value })}
+                        className="pr-10"
+                      />
+                      <Clock className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="endTime" className="text-sm font-medium">End Time</Label>
+                    <div className="relative">
+                      <Input
+                        id="endTime"
+                        type="time"
+                        placeholder="--:-- --"
+                        value={formData.businessHours.endTime || ''}
+                        onChange={(e) => updateFormData('businessHours', { ...formData.businessHours, endTime: e.target.value })}
+                        className="pr-10"
+                      />
+                      <Clock className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="timezone" className="text-sm font-medium">Timezone</Label>
                     <Select 
-                      value={formData.businessHours.timeZone} 
+                      value={formData.businessHours.timeZone || ''} 
                       onValueChange={(value) => updateFormData('businessHours', { ...formData.businessHours, timeZone: value })}
                     >
-                      <SelectTrigger className="w-32">
-                        <SelectValue />
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select timezone" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="EST">EST</SelectItem>
@@ -2300,57 +2315,6 @@ const Index = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                  
-                  {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map((day) => (
-                    <div key={day} className="flex items-center gap-4">
-                      <div className="w-20">
-                        <Checkbox
-                          id={`${day}-open`}
-                          checked={(formData.businessHours as any)[day]?.isOpen || false}
-                          onCheckedChange={(checked) => {
-                            const currentDay = (formData.businessHours as any)[day];
-                            updateFormData('businessHours', {
-                              ...formData.businessHours,
-                              [day]: { ...currentDay, isOpen: checked }
-                            });
-                          }}
-                        />
-                        <Label htmlFor={`${day}-open`} className="ml-2 text-sm capitalize">
-                          {day.slice(0, 3)}
-                        </Label>
-                      </div>
-                      
-                      {(formData.businessHours as any)[day]?.isOpen && (
-                        <div className="flex items-center gap-2">
-                          <Input
-                            type="time"
-                            value={(formData.businessHours as any)[day]?.openTime || '09:00'}
-                            onChange={(e) => {
-                              const currentDay = (formData.businessHours as any)[day];
-                              updateFormData('businessHours', {
-                                ...formData.businessHours,
-                                [day]: { ...currentDay, openTime: e.target.value }
-                              });
-                            }}
-                            className="w-24"
-                          />
-                          <span className="text-sm">to</span>
-                          <Input
-                            type="time"
-                            value={(formData.businessHours as any)[day]?.closeTime || '17:00'}
-                            onChange={(e) => {
-                              const currentDay = (formData.businessHours as any)[day];
-                              updateFormData('businessHours', {
-                                ...formData.businessHours,
-                                [day]: { ...currentDay, closeTime: e.target.value }
-                              });
-                            }}
-                            className="w-24"
-                          />
-                        </div>
-                      )}
-                    </div>
-                  ))}
                 </div>
               </div>
 
