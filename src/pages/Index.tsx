@@ -32,6 +32,7 @@ interface FormData {
   
   // Basic Info
   address: string;
+  apn: string;
   askingPrice: string;
   financingTypes: string[];
   financingOther: string;
@@ -167,6 +168,7 @@ const Index = () => {
     
     // Basic Info
     address: '',
+    apn: '',
     askingPrice: '',
     financingTypes: [],
     financingOther: '',
@@ -1019,6 +1021,20 @@ const Index = () => {
                   />
                 </div>
               )}
+
+              <div>
+                <Label htmlFor="apn">APN {formData.isLand ? '*' : '(Optional)'}</Label>
+                <Input
+                  id="apn"
+                  placeholder="123456789"
+                  value={formData.apn}
+                  onChange={(e) => {
+                    // Only allow digits
+                    const value = e.target.value.replace(/\D/g, '');
+                    updateFormData('apn', value);
+                  }}
+                />
+              </div>
 
               <div>
                 <Label htmlFor="askingPrice">Asking Price * (Numbers only)</Label>
