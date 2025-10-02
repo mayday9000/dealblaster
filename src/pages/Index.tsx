@@ -1111,11 +1111,33 @@ const Index = () => {
                       <Label htmlFor="onBefore">On/Before Date</Label>
                     </div>
                   </RadioGroup>
-                  <Input
-                    type="date"
-                    value={formData.closingDate}
-                    onChange={(e) => updateFormData('closingDate', e.target.value)}
-                  />
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !formData.closingDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {formData.closingDate ? (
+                          format(new Date(formData.closingDate), "MM/dd/yyyy")
+                        ) : (
+                          <span>Pick a date</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={formData.closingDate ? new Date(formData.closingDate) : undefined}
+                        onSelect={(date) => updateFormData('closingDate', date ? date.toISOString() : '')}
+                        initialFocus
+                        className="pointer-events-auto"
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </div>
               </div>
             </CardContent>
@@ -2188,20 +2210,64 @@ const Index = () => {
                     
                     <div>
                       <Label>Sold/Listed Date (Optional)</Label>
-                      <Input
-                        type="date"
-                        value={comp.soldListedDate}
-                        onChange={(e) => updateComp(index, 'soldListedDate', e.target.value)}
-                      />
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className={cn(
+                              "w-full justify-start text-left font-normal",
+                              !comp.soldListedDate && "text-muted-foreground"
+                            )}
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {comp.soldListedDate ? (
+                              format(new Date(comp.soldListedDate), "MM/dd/yyyy")
+                            ) : (
+                              <span>Pick a date</span>
+                            )}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={comp.soldListedDate ? new Date(comp.soldListedDate) : undefined}
+                            onSelect={(date) => updateComp(index, 'soldListedDate', date ? date.toISOString() : '')}
+                            initialFocus
+                            className="pointer-events-auto"
+                          />
+                        </PopoverContent>
+                      </Popover>
                     </div>
                     
                     <div>
                       <Label>Pending Date (Optional)</Label>
-                      <Input
-                        type="date"
-                        value={comp.pendingDate}
-                        onChange={(e) => updateComp(index, 'pendingDate', e.target.value)}
-                      />
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className={cn(
+                              "w-full justify-start text-left font-normal",
+                              !comp.pendingDate && "text-muted-foreground"
+                            )}
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {comp.pendingDate ? (
+                              format(new Date(comp.pendingDate), "MM/dd/yyyy")
+                            ) : (
+                              <span>Pick a date</span>
+                            )}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={comp.pendingDate ? new Date(comp.pendingDate) : undefined}
+                            onSelect={(date) => updateComp(index, 'pendingDate', date ? date.toISOString() : '')}
+                            initialFocus
+                            className="pointer-events-auto"
+                          />
+                        </PopoverContent>
+                      </Popover>
                     </div>
 
                     {/* Listed Rent Price - only show when not land */}
