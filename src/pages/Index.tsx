@@ -748,7 +748,7 @@ const Index = () => {
       console.log('Webhook JSON payload:', JSON.stringify(webhookData, null, 2));
 
       // Send data to webhook with no timeout - wait as long as needed
-      const response = await fetch('https://primary-production-b0d4.up.railway.app/webhook/dealblaster', {
+      const response = await fetch('https://dealblaster.app.n8n.cloud/webhook/dealblaster', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

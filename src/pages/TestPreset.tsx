@@ -268,7 +268,7 @@ const TestPreset = () => {
       // Log the JSON payload being sent to webhook (same as main form)
       console.log('Webhook JSON payload:', JSON.stringify(webhookData, null, 2));
 
-      const response = await fetch('https://primary-production-b0d4.up.railway.app/webhook/dealblaster', {
+      const response = await fetch('https://dealblaster.app.n8n.cloud/webhook/dealblaster', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
