@@ -683,21 +683,28 @@ const Index = () => {
     
     try {
       // Convert files to base64 for JSON transmission
-      let frontPhotoBase64: string | null = null;
-      let contactImageBase64: string | null = null;
-      let companyLogoBase64: string | null = null;
-      
-      if (formData.frontPhoto) {
-        frontPhotoBase64 = await convertFileToBase64(formData.frontPhoto);
-      }
-      
-      if (formData.contactImage) {
-        contactImageBase64 = await convertFileToBase64(formData.contactImage);
-      }
+    let frontPhotoBase64: string | null = null;
+    let contactImageBase64: string | null = null;
+    let companyLogoBase64: string | null = null;
 
-      if (formData.companyLogo) {
-        companyLogoBase64 = await convertFileToBase64(formData.companyLogo);
-      }
+    // Use new file if uploaded, otherwise fall back to existing image
+    if (formData.frontPhoto) {
+      frontPhotoBase64 = await convertFileToBase64(formData.frontPhoto);
+    } else if (existingFrontPhoto) {
+      frontPhotoBase64 = existingFrontPhoto;
+    }
+
+    if (formData.contactImage) {
+      contactImageBase64 = await convertFileToBase64(formData.contactImage);
+    } else if (existingContactImage) {
+      contactImageBase64 = existingContactImage;
+    }
+
+    if (formData.companyLogo) {
+      companyLogoBase64 = await convertFileToBase64(formData.companyLogo);
+    } else if (existingCompanyLogo) {
+      companyLogoBase64 = existingCompanyLogo;
+    }
 
       // Create address slug
       const addressSlug = formData.isPremarket ? 
