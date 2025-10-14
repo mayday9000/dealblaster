@@ -616,12 +616,21 @@ const Index = () => {
   };
 
   const validateRequiredFields = () => {
-    const errors = [];
+    const errors: string[] = [];
+    const isEditMode = !!editSlug;
     
+    // Always-required basics
     if (!formData.city) errors.push('City');
     if (!formData.state) errors.push('State');
     if (!formData.dealType) errors.push('Deal Type');
     if (!formData.isPremarket && !formData.address) errors.push('Full Address (unless premarket)');
+
+    // In edit mode, keep validation minimal to allow quick regeneration
+    if (isEditMode) {
+      return errors;
+    }
+    
+    // Strict validation for new entries
     if (!formData.askingPrice) errors.push('Asking Price');
     if (!formData.financingTypes.length) errors.push('Financing Types');
     if (!formData.closingDate) errors.push('Closing Date');
@@ -706,10 +715,12 @@ const Index = () => {
       companyLogoBase64 = existingCompanyLogo;
     }
 
-      // Create address slug
-      const addressSlug = formData.isPremarket ? 
-        slugify(`${formData.city}-${formData.state}-premarket-${Date.now()}`) :
-        slugify(formData.address);
+      // Create address slug (preserve existing slug in edit mode)
+      const addressSlug = editSlug || (
+        formData.isPremarket 
+          ? slugify(`${formData.city}-${formData.state}-premarket-${Date.now()}`)
+          : slugify(formData.address)
+      );
 
       // Create display strings for compound fields
       const poolDisplay = formData.pool ? 
