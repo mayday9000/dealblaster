@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -17,7 +17,8 @@ import { toast } from '@/hooks/use-toast';
 import { generatePDF } from '@/utils/pdfGenerator';
 import { supabase } from '@/integrations/supabase/client';
 import { slugify } from '@/utils/slugify';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface FormData {
   // Listing Headline
@@ -156,6 +157,9 @@ interface FormData {
 
 const Index = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const editSlug = searchParams.get('edit');
+  
   const [formData, setFormData] = useState<FormData>({
     // Listing Headline
     city: '',
@@ -315,6 +319,161 @@ const Index = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
+  const [isLoadingProperty, setIsLoadingProperty] = useState(false);
+  const [existingFrontPhoto, setExistingFrontPhoto] = useState<string | null>(null);
+  const [existingContactImage, setExistingContactImage] = useState<string | null>(null);
+  const [existingCompanyLogo, setExistingCompanyLogo] = useState<string | null>(null);
+
+  // Fetch property data when in edit mode
+  useEffect(() => {
+    const fetchPropertyData = async () => {
+      if (!editSlug) return;
+      
+      setIsLoadingProperty(true);
+      try {
+        // Fetch property data directly from the properties table to get all fields including company_logo
+        const { data: propertyData, error: propertyError } = await supabase
+          .from('properties')
+          .select('*')
+          .eq('address_slug', editSlug)
+          .maybeSingle();
+
+        if (propertyError) throw propertyError;
+        if (!propertyData) {
+          toast({
+            title: "Property not found",
+            description: "The property you're trying to edit doesn't exist.",
+            variant: "destructive"
+          });
+          setSearchParams({});
+          return;
+        }
+
+        // Contact info is already in propertyData
+        const contactData = propertyData;
+
+        // Map database fields to form data
+        const mappedData: FormData = {
+          city: propertyData.city || '',
+          state: propertyData.state || '',
+          zip: propertyData.zip || '',
+          dealType: propertyData.deal_type || '',
+          hook: propertyData.hook || '',
+          generatedTitles: propertyData.generated_titles || [],
+          selectedTitle: propertyData.selected_title || '',
+          isPremarket: propertyData.is_premarket || false,
+          address: propertyData.address || '',
+          apn: propertyData.apn || '',
+          askingPrice: propertyData.asking_price || '',
+          financingTypes: propertyData.financing_types || [],
+          financingOther: propertyData.financing_other || '',
+          closingDate: propertyData.closing_date || '',
+          closingDateType: (propertyData.closing_date_type as 'exact' | 'onBefore') || 'exact',
+          photoLink: propertyData.photo_link || '',
+          frontPhoto: null,
+          isLand: propertyData.is_land || false,
+          landCondition: propertyData.land_condition || '',
+          roadFrontage: propertyData.road_frontage || '',
+          roadFrontageUnit: (propertyData.road_frontage_unit as 'ft' | 'miles') || 'ft',
+          bedrooms: propertyData.bedrooms || '',
+          bathrooms: propertyData.bathrooms || '',
+          squareFootage: propertyData.square_footage || '',
+          yearBuilt: propertyData.year_built || '',
+          zoning: propertyData.zoning || '',
+          lotSize: propertyData.lot_size || '',
+          lotSizeUnit: (propertyData.lot_size_unit as 'acres' | 'sqft') || 'acres',
+          foundationType: propertyData.foundation_type || '',
+          utilities: (Array.isArray(propertyData.utilities) ? propertyData.utilities : []) as string[],
+          utilitiesOther: propertyData.utilities_other || '',
+          parkingSpaces: propertyData.parking_spaces || '',
+          parkingType: (propertyData.parking_type as 'garage' | 'carport' | 'driveway' | '') || '',
+          pool: propertyData.pool || false,
+          poolType: (propertyData.pool_type as 'inground' | 'above-ground' | '') || '',
+          bigTicketItems: (Array.isArray(propertyData.big_ticket_items) && propertyData.big_ticket_items.length > 0 ? propertyData.big_ticket_items : [
+            { type: 'Roof', inputFormat: 'year', input: '', ageRange: '', isShitbox: false, noHVAC: false, lastServiced: '' },
+            { type: 'HVAC', inputFormat: 'year', input: '', ageRange: '', isShitbox: false, noHVAC: false, lastServiced: '' },
+            { type: 'Water Heater', inputFormat: 'year', input: '', ageRange: '', isShitbox: false, noHVAC: false, lastServiced: '' }
+          ]) as FormData['bigTicketItems'],
+          occupancy: propertyData.current_occupancy || '',
+          occupancyOnDelivery: propertyData.closing_occupancy || '',
+          includeFinancialBreakdown: propertyData.include_financial_breakdown || false,
+          arv: propertyData.arv || '',
+          rehabEstimate: propertyData.rehab_estimate || '',
+          allIn: propertyData.all_in || '',
+          grossProfit: propertyData.gross_profit || '',
+          exitStrategy: propertyData.exit_strategy || '',
+          includeOnePercentRule: propertyData.include_one_percent_rule ?? true,
+          comps: (Array.isArray(propertyData.comps) && propertyData.comps.length > 0 ? propertyData.comps : [
+            {
+              address: '', zillowLink: '', bedrooms: '', bathrooms: '', squareFootage: '',
+              lotSize: '', roadFrontage: '', roadFrontageUnit: 'ft', compType: '',
+              conditionLabel: '', assetType: '', assetTypeOther: '', status: '',
+              soldListedPrice: '', soldListedPriceType: 'Listed', soldListedDate: '',
+              pendingDate: '', currentlyListed: '', dom: '', distanceFromSubject: '', comments: ''
+            },
+            {
+              address: '', zillowLink: '', bedrooms: '', bathrooms: '', squareFootage: '',
+              lotSize: '', roadFrontage: '', roadFrontageUnit: 'ft', compType: '',
+              conditionLabel: '', assetType: '', assetTypeOther: '', status: '',
+              soldListedPrice: '', soldListedPriceType: 'Listed', soldListedDate: '',
+              pendingDate: '', currentlyListed: '', dom: '', distanceFromSubject: '', comments: ''
+            }
+          ]) as FormData['comps'],
+          contactName: contactData?.contact_name || '',
+          contactPhone: contactData?.contact_phone || '',
+          contactEmail: contactData?.contact_email || '',
+          officeNumber: contactData?.office_number || '',
+          businessHours: contactData?.business_hours ? 
+            (typeof contactData.business_hours === 'string' ? 
+              JSON.parse(contactData.business_hours) : 
+              contactData.business_hours) : 
+            { startTime: '', endTime: '', timeZone: 'EST' },
+          contactImage: null,
+          companyLogo: null,
+          website: contactData?.website || '',
+          emdAmount: propertyData.emd_amount || '',
+          emdDueDate: propertyData.emd_due_date || '',
+          postPossession: propertyData.post_possession || '',
+          additionalDisclosures: propertyData.additional_disclosures || '',
+          includeBuyHoldSnapshot: propertyData.include_buy_hold_snapshot || false,
+          buyHoldType: (propertyData.buy_hold_type as 'standard' | 'subject-to') || 'standard',
+          buyHoldPurchasePrice: propertyData.buy_hold_purchase_price || '',
+          buyHoldRehabCost: propertyData.buy_hold_rehab_cost || '',
+          buyHoldMonthlyRent: propertyData.buy_hold_monthly_rent || '',
+          buyHoldMonthlyTaxes: propertyData.buy_hold_monthly_taxes || '',
+          buyHoldMonthlyInsurance: propertyData.buy_hold_monthly_insurance || '',
+          buyHoldOtherExpenses: propertyData.buy_hold_other_expenses || '',
+          buyHoldMortgagePayment: propertyData.buy_hold_mortgage_payment || '',
+          buyHoldCashToSeller: propertyData.buy_hold_cash_to_seller || ''
+        };
+
+        setFormData(mappedData);
+        
+        // Store existing images  
+        setExistingFrontPhoto(propertyData.front_photo || null);
+        setExistingContactImage(propertyData.contact_image || null);
+        setExistingCompanyLogo(propertyData.company_logo || null);
+
+        toast({
+          title: "Property loaded",
+          description: `Editing: ${propertyData.address}`
+        });
+
+      } catch (error) {
+        console.error('Error loading property:', error);
+        toast({
+          title: "Error loading property",
+          description: "Unable to load property data. Please try again.",
+          variant: "destructive"
+        });
+        setSearchParams({});
+      } finally {
+        setIsLoadingProperty(false);
+      }
+    };
+
+    fetchPropertyData();
+  }, [editSlug]);
 
   const updateFormData = (field: keyof FormData, value: any) => {
     setFormData(prev => ({
@@ -934,6 +1093,34 @@ const Index = () => {
           <p className="text-gray-600">Create professional investment property flyers in minutes</p>
         </div>
 
+        {/* Edit Mode Banner */}
+        {editSlug && (
+          <Alert className="mb-6">
+            <AlertDescription className="flex items-center justify-between">
+              <span className="font-medium">
+                Editing Property: {formData.address || editSlug}
+              </span>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => {
+                  setSearchParams({});
+                  window.location.reload();
+                }}
+              >
+                Start New Property
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {isLoadingProperty && (
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Loading property data...</p>
+          </div>
+        )}
+
         <div className="space-y-6">
           {/* Listing Headline Section */}
           <Card>
@@ -1260,12 +1447,21 @@ const Index = () => {
 
               <div>
                 <Label htmlFor="frontPhoto">Upload Front Photo (Optional)</Label>
+                {existingFrontPhoto && !formData.frontPhoto && (
+                  <div className="mb-2 p-2 border rounded">
+                    <p className="text-sm text-muted-foreground mb-1">Current photo:</p>
+                    <img src={existingFrontPhoto} alt="Current front photo" className="max-h-32 object-contain" />
+                  </div>
+                )}
                 <Input
                   id="frontPhoto"
                   type="file"
                   accept="image/*"
                   onChange={(e) => updateFormData('frontPhoto', e.target.files?.[0] || null)}
                 />
+                {existingFrontPhoto && !formData.frontPhoto && (
+                  <p className="text-xs text-muted-foreground mt-1">Upload a new photo to replace the current one</p>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -2502,22 +2698,40 @@ const Index = () => {
 
               <div>
                 <Label htmlFor="companyLogo">Company Logo (Optional)</Label>
+                {existingCompanyLogo && !formData.companyLogo && (
+                  <div className="mb-2 p-2 border rounded">
+                    <p className="text-sm text-muted-foreground mb-1">Current logo:</p>
+                    <img src={existingCompanyLogo} alt="Current logo" className="max-h-32 object-contain" />
+                  </div>
+                )}
                 <Input
                   id="companyLogo"
                   type="file"
                   accept="image/*"
                   onChange={(e) => updateFormData('companyLogo', e.target.files?.[0] || null)}
                 />
+                {existingCompanyLogo && !formData.companyLogo && (
+                  <p className="text-xs text-muted-foreground mt-1">Upload a new logo to replace the current one</p>
+                )}
               </div>
 
               <div>
                 <Label htmlFor="contactImage">Personal Headshot (Optional)</Label>
+                {existingContactImage && !formData.contactImage && (
+                  <div className="mb-2 p-2 border rounded">
+                    <p className="text-sm text-muted-foreground mb-1">Current headshot:</p>
+                    <img src={existingContactImage} alt="Current contact" className="max-h-32 object-contain" />
+                  </div>
+                )}
                 <Input
                   id="contactImage"
                   type="file"
                   accept="image/*"
                   onChange={(e) => updateFormData('contactImage', e.target.files?.[0] || null)}
                 />
+                {existingContactImage && !formData.contactImage && (
+                  <p className="text-xs text-muted-foreground mt-1">Upload a new photo to replace the current one</p>
+                )}
               </div>
             </CardContent>
           </Card>

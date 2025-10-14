@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Download, ArrowLeft, Printer } from 'lucide-react';
+import { Download, ArrowLeft, Printer, Edit } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 
@@ -148,10 +148,19 @@ const Property = () => {
               </Link>
             </Button>
             
-            <Button onClick={handleDownloadPDF} className="flex items-center gap-2">
-              <Download className="w-4 h-4" />
-              Download as PDF
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" asChild>
+                <Link to={`/?edit=${addressSlug}`}>
+                  <Edit className="w-4 h-4 mr-2" />
+                  Edit Property
+                </Link>
+              </Button>
+              
+              <Button onClick={handleDownloadPDF} className="flex items-center gap-2">
+                <Download className="w-4 h-4" />
+                Download as PDF
+              </Button>
+            </div>
           </div>
         </div>
       </div>
