@@ -23,6 +23,7 @@ interface FormData {
   
   // Basic Info
   address: string;
+  apn: string;
   askingPrice: string;
   financingTypes: string[];
   financingOther: string;
@@ -33,6 +34,12 @@ interface FormData {
   photoLink: string;
   frontPhoto: File | null;
   
+  // Land
+  isLand: boolean;
+  landCondition: string;
+  roadFrontage: string;
+  roadFrontageUnit: string;
+  
   // Property Overview
   bedrooms: string;
   bathrooms: string;
@@ -40,12 +47,14 @@ interface FormData {
   yearBuilt: string;
   zoning: string;
   lotSize: string;
+  lotSizeUnit: string;
   foundationType: string;
   utilities: string[];
   utilitiesOther: string;
   garageSpaces: string;
   garageType: string;
   pool: boolean;
+  poolType: string;
   
   // Big Ticket Systems
   bigTicketItems: any[];
@@ -61,6 +70,21 @@ interface FormData {
   allIn: string;
   grossProfit: string;
   exitStrategy: string;
+  
+  // 1% Rule
+  includeOnePercentRule: boolean;
+  
+  // Buy & Hold
+  includeBuyHoldSnapshot: boolean;
+  buyHoldType: string;
+  buyHoldPurchasePrice: string;
+  buyHoldRehabCost: string;
+  buyHoldMonthlyRent: string;
+  buyHoldMonthlyTaxes: string;
+  buyHoldMonthlyInsurance: string;
+  buyHoldOtherExpenses: string;
+  buyHoldMortgagePayment: string;
+  buyHoldCashToSeller: string;
   
   // Comps
   comps: any[];
@@ -100,6 +124,7 @@ const TestPreset = () => {
     
     // Basic Info - PRESET DATA
     address: '123 Main Street',
+    apn: '',
     askingPrice: '285000',
     financingTypes: ['Cash', 'Conventional Loan'],
     financingOther: '',
@@ -110,6 +135,12 @@ const TestPreset = () => {
     photoLink: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994',
     frontPhoto: null,
     
+    // Land - PRESET DATA
+    isLand: false,
+    landCondition: '',
+    roadFrontage: '',
+    roadFrontageUnit: 'ft',
+    
     // Property Overview - PRESET DATA
     bedrooms: '3',
     bathrooms: '2',
@@ -117,12 +148,14 @@ const TestPreset = () => {
     yearBuilt: '1985',
     zoning: 'R-4',
     lotSize: '0.25',
+    lotSizeUnit: 'acres',
     foundationType: 'Slab',
     utilities: ['Electricity', 'Water', 'Sewer', 'Natural Gas'],
     utilitiesOther: '',
     garageSpaces: '2',
     garageType: 'Attached',
     pool: false,
+    poolType: '',
     
     // Big Ticket Systems - PRESET DATA
     bigTicketItems: [
@@ -142,6 +175,21 @@ const TestPreset = () => {
     allIn: '300000',
     grossProfit: '20000',
     exitStrategy: 'Rental Property',
+    
+    // 1% Rule - PRESET DATA
+    includeOnePercentRule: false,
+    
+    // Buy & Hold - PRESET DATA
+    includeBuyHoldSnapshot: false,
+    buyHoldType: 'standard',
+    buyHoldPurchasePrice: '',
+    buyHoldRehabCost: '',
+    buyHoldMonthlyRent: '',
+    buyHoldMonthlyTaxes: '',
+    buyHoldMonthlyInsurance: '',
+    buyHoldOtherExpenses: '',
+    buyHoldMortgagePayment: '',
+    buyHoldCashToSeller: '',
     
     // Comps - PRESET DATA
     comps: [
@@ -303,6 +351,7 @@ const TestPreset = () => {
         is_premarket: formData.isPremarket,
         
         // Basic Info
+        apn: formData.apn,
         asking_price: formData.askingPrice,
         financing_types: formData.financingTypes,
         financing_other: formData.financingOther,
@@ -313,6 +362,12 @@ const TestPreset = () => {
         photo_link: formData.photoLink,
         front_photo: frontPhotoBase64,
         
+        // Land
+        is_land: formData.isLand,
+        land_condition: formData.landCondition,
+        road_frontage: formData.roadFrontage,
+        road_frontage_unit: formData.roadFrontageUnit,
+        
         // Property Overview
         bedrooms: formData.bedrooms,
         bathrooms: formData.bathrooms,
@@ -320,16 +375,18 @@ const TestPreset = () => {
         year_built: formData.yearBuilt,
         zoning: formData.zoning,
         lot_size: formData.lotSize,
+        lot_size_unit: formData.lotSizeUnit,
         foundation_type: formData.foundationType,
         utilities: formData.utilities,
         utilities_other: formData.utilitiesOther,
         
-        // Parking (using old garage fields for now)
+        // Parking
         parking_spaces: formData.garageSpaces,
         parking_type: formData.garageType,
         
         // Pool
         pool: formData.pool,
+        pool_type: formData.poolType,
         
         // Big Ticket Items
         big_ticket_items: formData.bigTicketItems,
@@ -346,6 +403,21 @@ const TestPreset = () => {
         gross_profit: formData.grossProfit,
         exit_strategy: formData.exitStrategy,
         
+        // 1% Rule
+        include_one_percent_rule: formData.includeOnePercentRule,
+        
+        // Buy & Hold Snapshot
+        include_buy_hold_snapshot: formData.includeBuyHoldSnapshot,
+        buy_hold_type: formData.buyHoldType,
+        buy_hold_purchase_price: formData.buyHoldPurchasePrice,
+        buy_hold_rehab_cost: formData.buyHoldRehabCost,
+        buy_hold_monthly_rent: formData.buyHoldMonthlyRent,
+        buy_hold_monthly_taxes: formData.buyHoldMonthlyTaxes,
+        buy_hold_monthly_insurance: formData.buyHoldMonthlyInsurance,
+        buy_hold_other_expenses: formData.buyHoldOtherExpenses,
+        buy_hold_mortgage_payment: formData.buyHoldMortgagePayment,
+        buy_hold_cash_to_seller: formData.buyHoldCashToSeller,
+        
         // Comps
         comps: formData.comps,
         
@@ -354,8 +426,9 @@ const TestPreset = () => {
         contact_phone: formData.contactPhone,
         contact_email: formData.contactEmail,
         office_number: formData.officeNumber,
-        business_hours: formData.businessHours,
+        business_hours: JSON.stringify(formData.businessHours),
         contact_image: contactImageBase64,
+        company_logo: '', // No company logo in test preset
         website: formData.website,
         
         // Legal Disclosures
