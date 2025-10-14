@@ -287,11 +287,82 @@ const TestPreset = () => {
       console.log('Generated address slug:', addressSlug);
       
       const propertyRecord = {
-        address: formData.address,
-        city: formData.city,
-        deal_type: formData.dealType,
+        // Required fields
         address_slug: addressSlug,
         html_content: htmlResult,
+        city: formData.city,
+        deal_type: formData.dealType,
+        address: formData.address,
+        
+        // Listing Headline
+        state: formData.state,
+        zip: formData.zip,
+        hook: formData.hook,
+        generated_titles: formData.generatedTitles,
+        selected_title: formData.selectedTitle,
+        is_premarket: formData.isPremarket,
+        
+        // Basic Info
+        asking_price: formData.askingPrice,
+        financing_types: formData.financingTypes,
+        financing_other: formData.financingOther,
+        closing_date: formData.closingDate,
+        closing_date_type: formData.closingDateType,
+        
+        // Photos
+        photo_link: formData.photoLink,
+        front_photo: frontPhotoBase64,
+        
+        // Property Overview
+        bedrooms: formData.bedrooms,
+        bathrooms: formData.bathrooms,
+        square_footage: formData.squareFootage,
+        year_built: formData.yearBuilt,
+        zoning: formData.zoning,
+        lot_size: formData.lotSize,
+        foundation_type: formData.foundationType,
+        utilities: formData.utilities,
+        utilities_other: formData.utilitiesOther,
+        
+        // Parking (using old garage fields for now)
+        parking_spaces: formData.garageSpaces,
+        parking_type: formData.garageType,
+        
+        // Pool
+        pool: formData.pool,
+        
+        // Big Ticket Items
+        big_ticket_items: formData.bigTicketItems,
+        
+        // Occupancy
+        current_occupancy: formData.occupancy,
+        closing_occupancy: formData.occupancyOnDelivery,
+        
+        // Financial Snapshot
+        include_financial_breakdown: formData.includeFinancialBreakdown,
+        arv: formData.arv,
+        rehab_estimate: formData.rehabEstimate,
+        all_in: formData.allIn,
+        gross_profit: formData.grossProfit,
+        exit_strategy: formData.exitStrategy,
+        
+        // Comps
+        comps: formData.comps,
+        
+        // Contact Info
+        contact_name: formData.contactName,
+        contact_phone: formData.contactPhone,
+        contact_email: formData.contactEmail,
+        office_number: formData.officeNumber,
+        business_hours: formData.businessHours,
+        contact_image: contactImageBase64,
+        website: formData.website,
+        
+        // Legal Disclosures
+        emd_amount: formData.emdAmount,
+        emd_due_date: formData.emdDueDate,
+        post_possession: formData.postPossession,
+        additional_disclosures: formData.additionalDisclosures,
       };
 
       console.log('Property record to save:', propertyRecord);

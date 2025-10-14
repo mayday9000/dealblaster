@@ -763,13 +763,109 @@ const Index = () => {
       const htmlResult = await response.text();
       console.log('HTML result received from webhook');
 
-      // Save only the HTML content and basic identifiers to Supabase
+      // Save all form data to Supabase
       const propertyRecord = {
+        // Required fields
         address_slug: addressSlug,
         html_content: htmlResult,
         city: formData.city,
         deal_type: formData.dealType,
         address: formData.address,
+        
+        // Listing Headline
+        state: formData.state,
+        zip: formData.zip,
+        hook: formData.hook,
+        generated_titles: formData.generatedTitles,
+        selected_title: formData.selectedTitle,
+        is_premarket: formData.isPremarket,
+        
+        // Basic Info
+        apn: formData.apn,
+        asking_price: formData.askingPrice,
+        financing_types: formData.financingTypes,
+        financing_other: formData.financingOther,
+        closing_date: formData.closingDate,
+        closing_date_type: formData.closingDateType,
+        
+        // Photos
+        photo_link: formData.photoLink,
+        front_photo: frontPhotoBase64,
+        
+        // Land
+        is_land: formData.isLand,
+        land_condition: formData.landCondition,
+        road_frontage: formData.roadFrontage,
+        road_frontage_unit: formData.roadFrontageUnit,
+        
+        // Property Overview
+        bedrooms: formData.bedrooms,
+        bathrooms: formData.bathrooms,
+        square_footage: formData.squareFootage,
+        year_built: formData.yearBuilt,
+        zoning: formData.zoning,
+        lot_size: formData.lotSize,
+        lot_size_unit: formData.lotSizeUnit,
+        foundation_type: formData.foundationType,
+        utilities: formData.utilities,
+        utilities_other: formData.utilitiesOther,
+        
+        // Parking
+        parking_spaces: formData.parkingSpaces,
+        parking_type: formData.parkingType,
+        
+        // Pool
+        pool: formData.pool,
+        pool_type: formData.poolType,
+        
+        // Big Ticket Items
+        big_ticket_items: formData.bigTicketItems,
+        
+        // Occupancy
+        current_occupancy: formData.occupancy,
+        closing_occupancy: formData.occupancyOnDelivery,
+        
+        // Financial Snapshot
+        include_financial_breakdown: formData.includeFinancialBreakdown,
+        arv: formData.arv,
+        rehab_estimate: formData.rehabEstimate,
+        all_in: formData.allIn,
+        gross_profit: formData.grossProfit,
+        exit_strategy: formData.exitStrategy,
+        
+        // 1% Rule
+        include_one_percent_rule: formData.includeOnePercentRule,
+        
+        // Buy & Hold Snapshot
+        include_buy_hold_snapshot: formData.includeBuyHoldSnapshot,
+        buy_hold_type: formData.buyHoldType,
+        buy_hold_purchase_price: formData.buyHoldPurchasePrice,
+        buy_hold_rehab_cost: formData.buyHoldRehabCost,
+        buy_hold_monthly_rent: formData.buyHoldMonthlyRent,
+        buy_hold_monthly_taxes: formData.buyHoldMonthlyTaxes,
+        buy_hold_monthly_insurance: formData.buyHoldMonthlyInsurance,
+        buy_hold_other_expenses: formData.buyHoldOtherExpenses,
+        buy_hold_mortgage_payment: formData.buyHoldMortgagePayment,
+        buy_hold_cash_to_seller: formData.buyHoldCashToSeller,
+        
+        // Comps
+        comps: formData.comps,
+        
+        // Contact Info
+        contact_name: formData.contactName,
+        contact_phone: formData.contactPhone,
+        contact_email: formData.contactEmail,
+        office_number: formData.officeNumber,
+        business_hours: JSON.stringify(formData.businessHours),
+        contact_image: contactImageBase64,
+        company_logo: companyLogoBase64,
+        website: formData.website,
+        
+        // Legal Disclosures
+        emd_amount: formData.emdAmount,
+        emd_due_date: formData.emdDueDate,
+        post_possession: formData.postPossession,
+        additional_disclosures: formData.additionalDisclosures,
       };
 
       const { data: insertResult, error: supabaseError } = await (supabase as any)

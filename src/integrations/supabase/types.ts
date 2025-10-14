@@ -20,14 +20,27 @@ export type Database = {
           address: string
           address_slug: string
           all_in: string | null
+          apn: string | null
           arv: string | null
           asking_price: string | null
           bathrooms: string | null
           bedrooms: string | null
+          big_ticket_items: Json | null
           business_hours: string | null
+          buy_hold_cash_to_seller: string | null
+          buy_hold_monthly_insurance: string | null
+          buy_hold_monthly_rent: string | null
+          buy_hold_monthly_taxes: string | null
+          buy_hold_mortgage_payment: string | null
+          buy_hold_other_expenses: string | null
+          buy_hold_purchase_price: string | null
+          buy_hold_rehab_cost: string | null
+          buy_hold_type: string | null
           city: string
           closing_date: string | null
+          closing_date_type: string | null
           closing_occupancy: string | null
+          company_logo: string | null
           comps: Json | null
           contact_email: string | null
           contact_image: string | null
@@ -39,28 +52,42 @@ export type Database = {
           emd_amount: string | null
           emd_due_date: string | null
           exit_strategy: string | null
+          financing_other: string | null
           financing_types: string[] | null
           foundation_type: string | null
           front_photo: string | null
-          garage: string | null
           generated_titles: string[] | null
           gross_profit: string | null
           hook: string | null
           html_content: string | null
           id: string
+          include_buy_hold_snapshot: boolean | null
           include_financial_breakdown: boolean | null
+          include_one_percent_rule: boolean | null
+          is_land: boolean | null
+          is_premarket: boolean | null
+          land_condition: string | null
           lot_size: string | null
+          lot_size_unit: string | null
           office_number: string | null
+          parking_spaces: string | null
+          parking_type: string | null
           photo_link: string | null
-          pool: string | null
+          pool: boolean | null
+          pool_type: string | null
           post_possession: string | null
           rehab_estimate: string | null
+          road_frontage: string | null
+          road_frontage_unit: string | null
           selected_title: string | null
           square_footage: string | null
+          state: string | null
           updated_at: string
-          utilities: string | null
+          utilities: Json | null
+          utilities_other: string | null
           website: string | null
           year_built: string | null
+          zip: string | null
           zoning: string | null
         }
         Insert: {
@@ -68,14 +95,27 @@ export type Database = {
           address: string
           address_slug: string
           all_in?: string | null
+          apn?: string | null
           arv?: string | null
           asking_price?: string | null
           bathrooms?: string | null
           bedrooms?: string | null
+          big_ticket_items?: Json | null
           business_hours?: string | null
+          buy_hold_cash_to_seller?: string | null
+          buy_hold_monthly_insurance?: string | null
+          buy_hold_monthly_rent?: string | null
+          buy_hold_monthly_taxes?: string | null
+          buy_hold_mortgage_payment?: string | null
+          buy_hold_other_expenses?: string | null
+          buy_hold_purchase_price?: string | null
+          buy_hold_rehab_cost?: string | null
+          buy_hold_type?: string | null
           city: string
           closing_date?: string | null
+          closing_date_type?: string | null
           closing_occupancy?: string | null
+          company_logo?: string | null
           comps?: Json | null
           contact_email?: string | null
           contact_image?: string | null
@@ -87,28 +127,42 @@ export type Database = {
           emd_amount?: string | null
           emd_due_date?: string | null
           exit_strategy?: string | null
+          financing_other?: string | null
           financing_types?: string[] | null
           foundation_type?: string | null
           front_photo?: string | null
-          garage?: string | null
           generated_titles?: string[] | null
           gross_profit?: string | null
           hook?: string | null
           html_content?: string | null
           id?: string
+          include_buy_hold_snapshot?: boolean | null
           include_financial_breakdown?: boolean | null
+          include_one_percent_rule?: boolean | null
+          is_land?: boolean | null
+          is_premarket?: boolean | null
+          land_condition?: string | null
           lot_size?: string | null
+          lot_size_unit?: string | null
           office_number?: string | null
+          parking_spaces?: string | null
+          parking_type?: string | null
           photo_link?: string | null
-          pool?: string | null
+          pool?: boolean | null
+          pool_type?: string | null
           post_possession?: string | null
           rehab_estimate?: string | null
+          road_frontage?: string | null
+          road_frontage_unit?: string | null
           selected_title?: string | null
           square_footage?: string | null
+          state?: string | null
           updated_at?: string
-          utilities?: string | null
+          utilities?: Json | null
+          utilities_other?: string | null
           website?: string | null
           year_built?: string | null
+          zip?: string | null
           zoning?: string | null
         }
         Update: {
@@ -116,14 +170,27 @@ export type Database = {
           address?: string
           address_slug?: string
           all_in?: string | null
+          apn?: string | null
           arv?: string | null
           asking_price?: string | null
           bathrooms?: string | null
           bedrooms?: string | null
+          big_ticket_items?: Json | null
           business_hours?: string | null
+          buy_hold_cash_to_seller?: string | null
+          buy_hold_monthly_insurance?: string | null
+          buy_hold_monthly_rent?: string | null
+          buy_hold_monthly_taxes?: string | null
+          buy_hold_mortgage_payment?: string | null
+          buy_hold_other_expenses?: string | null
+          buy_hold_purchase_price?: string | null
+          buy_hold_rehab_cost?: string | null
+          buy_hold_type?: string | null
           city?: string
           closing_date?: string | null
+          closing_date_type?: string | null
           closing_occupancy?: string | null
+          company_logo?: string | null
           comps?: Json | null
           contact_email?: string | null
           contact_image?: string | null
@@ -135,28 +202,42 @@ export type Database = {
           emd_amount?: string | null
           emd_due_date?: string | null
           exit_strategy?: string | null
+          financing_other?: string | null
           financing_types?: string[] | null
           foundation_type?: string | null
           front_photo?: string | null
-          garage?: string | null
           generated_titles?: string[] | null
           gross_profit?: string | null
           hook?: string | null
           html_content?: string | null
           id?: string
+          include_buy_hold_snapshot?: boolean | null
           include_financial_breakdown?: boolean | null
+          include_one_percent_rule?: boolean | null
+          is_land?: boolean | null
+          is_premarket?: boolean | null
+          land_condition?: string | null
           lot_size?: string | null
+          lot_size_unit?: string | null
           office_number?: string | null
+          parking_spaces?: string | null
+          parking_type?: string | null
           photo_link?: string | null
-          pool?: string | null
+          pool?: boolean | null
+          pool_type?: string | null
           post_possession?: string | null
           rehab_estimate?: string | null
+          road_frontage?: string | null
+          road_frontage_unit?: string | null
           selected_title?: string | null
           square_footage?: string | null
+          state?: string | null
           updated_at?: string
-          utilities?: string | null
+          utilities?: Json | null
+          utilities_other?: string | null
           website?: string | null
           year_built?: string | null
+          zip?: string | null
           zoning?: string | null
         }
         Relationships: []
@@ -185,12 +266,24 @@ export type Database = {
           address: string
           address_slug: string
           all_in: string
+          apn: string
           arv: string
           asking_price: string
           bathrooms: string
           bedrooms: string
+          big_ticket_items: Json
+          buy_hold_cash_to_seller: string
+          buy_hold_monthly_insurance: string
+          buy_hold_monthly_rent: string
+          buy_hold_monthly_taxes: string
+          buy_hold_mortgage_payment: string
+          buy_hold_other_expenses: string
+          buy_hold_purchase_price: string
+          buy_hold_rehab_cost: string
+          buy_hold_type: string
           city: string
           closing_date: string
+          closing_date_type: string
           closing_occupancy: string
           comps: Json
           created_at: string
@@ -199,26 +292,40 @@ export type Database = {
           emd_amount: string
           emd_due_date: string
           exit_strategy: string
+          financing_other: string
           financing_types: string[]
           foundation_type: string
           front_photo: string
-          garage: string
           generated_titles: string[]
           gross_profit: string
           hook: string
           html_content: string
           id: string
+          include_buy_hold_snapshot: boolean
           include_financial_breakdown: boolean
+          include_one_percent_rule: boolean
+          is_land: boolean
+          is_premarket: boolean
+          land_condition: string
           lot_size: string
+          lot_size_unit: string
+          parking_spaces: string
+          parking_type: string
           photo_link: string
-          pool: string
+          pool: boolean
+          pool_type: string
           post_possession: string
           rehab_estimate: string
+          road_frontage: string
+          road_frontage_unit: string
           selected_title: string
           square_footage: string
+          state: string
           updated_at: string
-          utilities: string
+          utilities: Json
+          utilities_other: string
           year_built: string
+          zip: string
           zoning: string
         }[]
       }
