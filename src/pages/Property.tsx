@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Download, ArrowLeft, Printer, Edit } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { useSession } from '@/hooks/useSession';
 
 
 const Property = () => {
@@ -14,6 +15,7 @@ const Property = () => {
   const [propertyData, setPropertyData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
+  const { session } = useSession();
   
   const addressSlug = searchParams.get('address');
   
@@ -141,20 +143,26 @@ const Property = () => {
       <div className="fixed top-0 left-0 right-0 bg-card border-b print:hidden z-50 shadow-sm">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <Button variant="outline" asChild>
-              <Link to="/">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Generator
-              </Link>
-            </Button>
-            
-            <div className="flex items-center gap-2">
+            {session ? (
               <Button variant="outline" asChild>
-                <Link to={`/?edit=${addressSlug}`}>
-                  <Edit className="w-4 h-4 mr-2" />
-                  Edit Property
+                <Link to="/">
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back to Generator
                 </Link>
               </Button>
+            ) : (
+              <div /> 
+            )}
+            
+            <div className="flex items-center gap-2">
+              {session && (
+                <Button variant="outline" asChild>
+                  <Link to={`/?edit=${addressSlug}`}>
+                    <Edit className="w-4 h-4 mr-2" />
+                    Edit Property
+                  </Link>
+                </Button>
+              )}
               
               <Button onClick={handleDownloadPDF} className="flex items-center gap-2">
                 <Download className="w-4 h-4" />

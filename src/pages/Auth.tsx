@@ -1,21 +1,40 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useSession } from '@/hooks/useSession';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
+import { isInIframe } from '@/utils/iframeDetection';
 
 export default function Auth() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [magicLinkSent, setMagicLinkSent] = useState(false);
+  const [isInValidIframe, setIsInValidIframe] = useState<boolean | null>(null);
   const { session } = useSession();
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    // Check if we're in an iframe
+    const inIframe = isInIframe();
+    setIsInValidIframe(inIframe);
+    console.log('Iframe detected:', inIframe);
+  }, []);
+
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Check if we're in a valid iframe BEFORE sending magic link
+    if (!isInValidIframe) {
+      toast({
+        title: "Access Restricted",
+        description: "This authentication system is only available through authorized platforms.",
+        variant: "destructive",
+      });
+      return;
+    }
     
     if (!email) {
       toast({
@@ -53,6 +72,34 @@ export default function Auth() {
       setLoading(false);
     }
   };
+
+  // If NOT in iframe, show "paid product" message
+  if (isInValidIframe === false) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="max-w-md w-full mx-auto p-8">
+          <div className="text-center">
+            <h1 className="text-3xl font-bold mb-4">🔒 Access Restricted</h1>
+            <p className="text-muted-foreground mb-6">
+              This is a premium product available exclusively through authorized platforms.
+            </p>
+            <p className="text-sm text-muted-foreground">
+              If you're a client looking to view a property, please use the link provided to you.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // If checking iframe status, show loading
+  if (isInValidIframe === null) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   if (session) {
     return (
