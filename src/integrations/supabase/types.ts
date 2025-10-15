@@ -83,6 +83,7 @@ export type Database = {
           square_footage: string | null
           state: string | null
           updated_at: string
+          user_id: string | null
           utilities: Json | null
           utilities_other: string | null
           website: string | null
@@ -158,6 +159,7 @@ export type Database = {
           square_footage?: string | null
           state?: string | null
           updated_at?: string
+          user_id?: string | null
           utilities?: Json | null
           utilities_other?: string | null
           website?: string | null
@@ -233,6 +235,7 @@ export type Database = {
           square_footage?: string | null
           state?: string | null
           updated_at?: string
+          user_id?: string | null
           utilities?: Json | null
           utilities_other?: string | null
           website?: string | null

@@ -8,6 +8,7 @@ import Property from "./pages/Property";
 import TestPreset from "./pages/TestPreset";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
+import MyProperties from "./pages/MyProperties";
 
 const queryClient = new QueryClient();
 
@@ -22,6 +23,7 @@ const App = () => (
           <Route path="/property" element={<Property />} />
           <Route path="/test" element={<TestPreset />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/my-properties" element={<MyProperties />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

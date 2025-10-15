@@ -19,6 +19,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { slugify } from '@/utils/slugify';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AuthGate } from '@/components/AuthGate';
+import { Header } from '@/components/Header';
+import { useSession } from '@/hooks/useSession';
 
 interface FormData {
   // Listing Headline
@@ -158,7 +161,8 @@ interface FormData {
 const Index = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const editSlug = searchParams.get('edit');
+  const editSlug = searchParams.get('editSlug');
+  const { user } = useSession();
   
   const [formData, setFormData] = useState<FormData>({
     // Listing Headline
@@ -677,6 +681,17 @@ const Index = () => {
   };
 
   const handleGeneratePDF = async () => {
+    // Check if user is authenticated
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to create or edit property listings.",
+        variant: "destructive",
+      });
+      navigate('/auth');
+      return;
+    }
+
     const validationErrors = validateRequiredFields();
     
     if (validationErrors.length > 0) {
@@ -738,6 +753,7 @@ const Index = () => {
       // Prepare data for webhook
       const webhookData = {
         ...formData,
+        user_id: user.id,
         frontPhoto: frontPhotoBase64,
         contactImage: contactImageBase64,
         companyLogo: companyLogoBase64,
@@ -1092,8 +1108,11 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <div className="max-w-4xl mx-auto">
+    <AuthGate>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+        <Header />
+        <div className="p-4">
+          <div className="max-w-4xl mx-auto">
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-4 mb-2">
             <h1 className="text-4xl font-bold text-gray-900 flex items-center gap-2">
@@ -2843,7 +2862,9 @@ const Index = () => {
         onCopyUrl={copyShareUrl}
         onViewProperty={() => window.open(shareUrl, '_blank')}
       />
-    </div>
+        </div>
+      </div>
+    </AuthGate>
   );
 };
 
