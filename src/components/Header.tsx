@@ -3,7 +3,7 @@ import { useSession } from '@/hooks/useSession';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { FolderOpen } from 'lucide-react';
+import { FolderOpen, User } from 'lucide-react';
 
 export function Header() {
   const { session, loading } = useSession();
@@ -45,6 +45,12 @@ export function Header() {
                 <Link to="/my-properties" className="flex items-center gap-2">
                   <FolderOpen className="h-4 w-4" />
                   <span className="hidden sm:inline">My Properties</span>
+                </Link>
+              </Button>
+              <Button asChild variant="ghost" size="sm">
+                <Link to="/contact-info" className="flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  <span className="hidden sm:inline">Contact Info</span>
                 </Link>
               </Button>
               <Button onClick={handleSignOut} variant="outline" size="sm">

@@ -245,6 +245,51 @@ export type Database = {
         }
         Relationships: []
       }
+      user_profiles: {
+        Row: {
+          business_hours: Json | null
+          company_logo: string | null
+          contact_email: string | null
+          contact_image: string | null
+          contact_name: string | null
+          contact_phone: string | null
+          created_at: string
+          id: string
+          office_number: string | null
+          updated_at: string
+          user_id: string
+          website: string | null
+        }
+        Insert: {
+          business_hours?: Json | null
+          company_logo?: string | null
+          contact_email?: string | null
+          contact_image?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          office_number?: string | null
+          updated_at?: string
+          user_id: string
+          website?: string | null
+        }
+        Update: {
+          business_hours?: Json | null
+          company_logo?: string | null
+          contact_email?: string | null
+          contact_image?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          office_number?: string | null
+          updated_at?: string
+          user_id?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

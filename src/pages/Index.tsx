@@ -479,6 +479,51 @@ const Index = () => {
     fetchPropertyData();
   }, [editSlug]);
 
+  // Auto-populate contact info from user profile for new properties
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      // Only fetch profile when NOT in edit mode and user is authenticated
+      if (editSlug || !user) return;
+
+      try {
+        const { data, error } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (error) throw error;
+
+        if (data) {
+          const businessHours = data.business_hours as { startTime: string; endTime: string; timeZone: string } | null;
+          
+          // Pre-populate contact fields
+          setFormData(prev => ({
+            ...prev,
+            contactName: data.contact_name || prev.contactName,
+            contactPhone: data.contact_phone || prev.contactPhone,
+            contactEmail: data.contact_email || prev.contactEmail,
+            officeNumber: data.office_number || prev.officeNumber,
+            website: data.website || prev.website,
+            businessHours: businessHours || prev.businessHours,
+          }));
+
+          // Pre-populate existing images for preview
+          if (data.contact_image) {
+            setExistingContactImage(data.contact_image);
+          }
+          if (data.company_logo) {
+            setExistingCompanyLogo(data.company_logo);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+      }
+    };
+
+    fetchUserProfile();
+  }, [user, editSlug]);
+
   const updateFormData = (field: keyof FormData, value: any) => {
     setFormData(prev => ({
       ...prev,
