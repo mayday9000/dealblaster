@@ -1,1 +1,4 @@
 project_id = "xqlmeprrvijmcxvbaubq"
+
+[functions.fetch-property-details]
+verify_jwt = false

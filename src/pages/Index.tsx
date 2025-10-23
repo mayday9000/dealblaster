@@ -9,7 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon, Download, FileText, DollarSign, Home, MapPin, Phone, Mail, Building, Calculator, Plus, Minus, Wrench, Users, Lock, Upload, User, Sparkles, ArrowLeft, Clock } from 'lucide-react';
+import { CalendarIcon, Download, FileText, DollarSign, Home, MapPin, Phone, Mail, Building, Calculator, Plus, Minus, Wrench, Users, Lock, Upload, User, Sparkles, ArrowLeft, Clock, Database } from 'lucide-react';
 import SuccessModal from '@/components/SuccessModal';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -575,6 +575,107 @@ const Index = () => {
         ...prev,
         comps: prev.comps.filter((_, i) => i !== index)
       }));
+    }
+  };
+
+  const handleAttomDataFetch = async () => {
+    // Validate address exists
+    if (!formData.address) {
+      toast({
+        title: "Address required",
+        description: "Please enter a property address first",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const toastId = toast({
+      title: "Fetching property details...",
+      description: "Getting data from ATTOM Data API",
+    });
+
+    try {
+      const { data, error } = await supabase.functions.invoke('fetch-property-details', {
+        body: { address: formData.address }
+      });
+
+      if (error) {
+        console.error('Edge function error:', error);
+        throw new Error(error.message || 'Failed to fetch property data');
+      }
+
+      if (!data) {
+        throw new Error('No data returned from API');
+      }
+
+      // Count populated fields
+      let populatedCount = 0;
+
+      // Update form data with the response
+      setFormData(prev => {
+        const updates: Partial<FormData> = {};
+
+        if (data.bedrooms) {
+          updates.bedrooms = data.bedrooms;
+          populatedCount++;
+        }
+        if (data.bathrooms) {
+          updates.bathrooms = data.bathrooms;
+          populatedCount++;
+        }
+        if (data.squareFootage) {
+          updates.squareFootage = data.squareFootage;
+          populatedCount++;
+        }
+        if (data.yearBuilt) {
+          updates.yearBuilt = data.yearBuilt;
+          populatedCount++;
+        }
+
+        // Handle lot size - prefer acres
+        if (data.lotSizeAcres) {
+          updates.lotSize = data.lotSizeAcres.toString();
+          updates.lotSizeUnit = 'acres';
+          populatedCount++;
+        } else if (data.lotSizeSqFt) {
+          updates.lotSize = data.lotSizeSqFt.toString();
+          updates.lotSizeUnit = 'sqft';
+          populatedCount++;
+        }
+
+        // Handle pool
+        if (data.poolType) {
+          if (data.poolType === 'NO POOL') {
+            updates.pool = false;
+            updates.poolType = '';
+          } else {
+            updates.pool = true;
+            // Try to determine pool type from the value
+            const poolTypeStr = data.poolType.toLowerCase();
+            if (poolTypeStr.includes('inground')) {
+              updates.poolType = 'inground';
+            } else {
+              updates.poolType = 'above-ground';
+            }
+          }
+          populatedCount++;
+        }
+
+        return { ...prev, ...updates };
+      });
+
+      toast({
+        title: "Success!",
+        description: `Auto-populated ${populatedCount} of 6 fields from ATTOM Data`,
+      });
+
+    } catch (error) {
+      console.error('Error fetching ATTOM data:', error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to fetch property data",
+        variant: "destructive"
+      });
     }
   };
 
@@ -1559,10 +1660,24 @@ const Index = () => {
           {/* Property Overview */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Building className="h-5 w-5" />
-                Property Overview
-              </CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <Building className="h-5 w-5" />
+                  Property Overview
+                </CardTitle>
+                {formData.address && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleAttomDataFetch}
+                    className="flex items-center gap-2"
+                  >
+                    <Database className="h-4 w-4" />
+                    Auto-Fill from ATTOM Data
+                  </Button>
+                )}
+              </div>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
