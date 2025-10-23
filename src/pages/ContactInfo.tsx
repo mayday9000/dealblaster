@@ -37,8 +37,8 @@ const ContactInfo = () => {
     office_number: '',
     website: '',
     business_hours: {
-      startTime: '',
-      endTime: '',
+      startTime: '09:00',
+      endTime: '17:00',
       timeZone: 'EST'
     },
     company_logo: null,
@@ -74,7 +74,7 @@ const ContactInfo = () => {
           contact_email: data.contact_email || '',
           office_number: data.office_number || '',
           website: data.website || '',
-          business_hours: businessHours || { startTime: '', endTime: '', timeZone: 'EST' },
+          business_hours: businessHours || { startTime: '09:00', endTime: '17:00', timeZone: 'EST' },
           company_logo: data.company_logo || null,
           contact_image: data.contact_image || null
         });
@@ -177,17 +177,6 @@ const ContactInfo = () => {
     }
   };
 
-  const timeOptions = [
-    '12:00 AM', '12:30 AM', '1:00 AM', '1:30 AM', '2:00 AM', '2:30 AM',
-    '3:00 AM', '3:30 AM', '4:00 AM', '4:30 AM', '5:00 AM', '5:30 AM',
-    '6:00 AM', '6:30 AM', '7:00 AM', '7:30 AM', '8:00 AM', '8:30 AM',
-    '9:00 AM', '9:30 AM', '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM',
-    '12:00 PM', '12:30 PM', '1:00 PM', '1:30 PM', '2:00 PM', '2:30 PM',
-    '3:00 PM', '3:30 PM', '4:00 PM', '4:30 PM', '5:00 PM', '5:30 PM',
-    '6:00 PM', '6:30 PM', '7:00 PM', '7:30 PM', '8:00 PM', '8:30 PM',
-    '9:00 PM', '9:30 PM', '10:00 PM', '10:30 PM', '11:00 PM', '11:30 PM'
-  ];
-
   const timezones = ['EST', 'CST', 'MST', 'PST', 'AKST', 'HST'];
 
   if (loading) {
@@ -287,42 +276,28 @@ const ContactInfo = () => {
               <div className="grid gap-4 md:grid-cols-3">
                 <div className="space-y-2">
                   <Label htmlFor="start_time">Start Time</Label>
-                  <Select
+                  <Input
+                    id="start_time"
+                    type="time"
                     value={profileData.business_hours.startTime}
-                    onValueChange={(value) => setProfileData({
+                    onChange={(e) => setProfileData({
                       ...profileData,
-                      business_hours: { ...profileData.business_hours, startTime: value }
+                      business_hours: { ...profileData.business_hours, startTime: e.target.value }
                     })}
-                  >
-                    <SelectTrigger id="start_time">
-                      <SelectValue placeholder="Select start time" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {timeOptions.map((time) => (
-                        <SelectItem key={time} value={time}>{time}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  />
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="end_time">End Time</Label>
-                  <Select
+                  <Input
+                    id="end_time"
+                    type="time"
                     value={profileData.business_hours.endTime}
-                    onValueChange={(value) => setProfileData({
+                    onChange={(e) => setProfileData({
                       ...profileData,
-                      business_hours: { ...profileData.business_hours, endTime: value }
+                      business_hours: { ...profileData.business_hours, endTime: e.target.value }
                     })}
-                  >
-                    <SelectTrigger id="end_time">
-                      <SelectValue placeholder="Select end time" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {timeOptions.map((time) => (
-                        <SelectItem key={time} value={time}>{time}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  />
                 </div>
 
                 <div className="space-y-2">

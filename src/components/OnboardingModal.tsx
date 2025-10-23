@@ -20,8 +20,8 @@ export function OnboardingModal() {
     office_number: '',
     website: '',
     business_hours: {
-      startTime: '9:00 AM',
-      endTime: '5:00 PM',
+      startTime: '09:00',
+      endTime: '17:00',
       timeZone: 'EST'
     }
   });
@@ -101,7 +101,7 @@ export function OnboardingModal() {
         contact_email: null,
         office_number: null,
         website: null,
-        business_hours: { startTime: '', endTime: '', timeZone: 'EST' },
+        business_hours: { startTime: '09:00', endTime: '17:00', timeZone: 'EST' },
         company_logo: null,
         contact_image: null
       })
@@ -109,17 +109,6 @@ export function OnboardingModal() {
         setOpen(false);
       });
   };
-
-  const timeOptions = [
-    '12:00 AM', '12:30 AM', '1:00 AM', '1:30 AM', '2:00 AM', '2:30 AM',
-    '3:00 AM', '3:30 AM', '4:00 AM', '4:30 AM', '5:00 AM', '5:30 AM',
-    '6:00 AM', '6:30 AM', '7:00 AM', '7:30 AM', '8:00 AM', '8:30 AM',
-    '9:00 AM', '9:30 AM', '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM',
-    '12:00 PM', '12:30 PM', '1:00 PM', '1:30 PM', '2:00 PM', '2:30 PM',
-    '3:00 PM', '3:30 PM', '4:00 PM', '4:30 PM', '5:00 PM', '5:30 PM',
-    '6:00 PM', '6:30 PM', '7:00 PM', '7:30 PM', '8:00 PM', '8:30 PM',
-    '9:00 PM', '9:30 PM', '10:00 PM', '10:30 PM', '11:00 PM', '11:30 PM'
-  ];
 
   const timezones = ['EST', 'CST', 'MST', 'PST', 'AKST', 'HST'];
 
@@ -195,42 +184,28 @@ export function OnboardingModal() {
             <div className="grid gap-3 md:grid-cols-3">
               <div className="space-y-2">
                 <Label htmlFor="onboard_start_time" className="text-sm">Start Time</Label>
-                <Select
+                <Input
+                  id="onboard_start_time"
+                  type="time"
                   value={formData.business_hours.startTime}
-                  onValueChange={(value) => setFormData({
+                  onChange={(e) => setFormData({
                     ...formData,
-                    business_hours: { ...formData.business_hours, startTime: value }
+                    business_hours: { ...formData.business_hours, startTime: e.target.value }
                   })}
-                >
-                  <SelectTrigger id="onboard_start_time">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {timeOptions.map((time) => (
-                      <SelectItem key={time} value={time}>{time}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="onboard_end_time" className="text-sm">End Time</Label>
-                <Select
+                <Input
+                  id="onboard_end_time"
+                  type="time"
                   value={formData.business_hours.endTime}
-                  onValueChange={(value) => setFormData({
+                  onChange={(e) => setFormData({
                     ...formData,
-                    business_hours: { ...formData.business_hours, endTime: value }
+                    business_hours: { ...formData.business_hours, endTime: e.target.value }
                   })}
-                >
-                  <SelectTrigger id="onboard_end_time">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {timeOptions.map((time) => (
-                      <SelectItem key={time} value={time}>{time}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                />
               </div>
 
               <div className="space-y-2">

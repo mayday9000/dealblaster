@@ -923,11 +923,18 @@ const Index = () => {
         if (!businessHours.startTime || !businessHours.endTime) return 'Hours not specified';
         
         const formatTime = (time: string) => {
+          // Handle both 24-hour format (e.g., "09:00") and 12-hour format (e.g., "9:00 AM")
+          if (time.includes('AM') || time.includes('PM')) {
+            // Legacy 12-hour format - return as is
+            return time;
+          }
+          
+          // 24-hour format - convert to 12-hour
           const [hour, minute] = time.split(':');
           const h = parseInt(hour);
           const ampm = h >= 12 ? 'PM' : 'AM';
           const displayHour = h === 0 ? 12 : h > 12 ? h - 12 : h;
-          return `${displayHour}:${minute}${ampm}`;
+          return `${displayHour}:${minute} ${ampm}`;
         };
         
         return `${formatTime(businessHours.startTime)} - ${formatTime(businessHours.endTime)} (${businessHours.timeZone})`;
