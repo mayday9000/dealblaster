@@ -679,6 +679,87 @@ const Index = () => {
     }
   };
 
+  const handleCompAttomDataFetch = async (compIndex: number) => {
+    const comp = formData.comps[compIndex];
+    
+    if (!comp.address) {
+      toast({
+        title: "Address required",
+        description: "Please enter a comp address first",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    toast({
+      title: "Fetching comp details...",
+      description: `Getting data for Comp #${compIndex + 1}`,
+    });
+
+    try {
+      const { data, error } = await supabase.functions.invoke('fetch-property-details', {
+        body: { address: comp.address }
+      });
+
+      if (error) {
+        console.error('Edge function error:', error);
+        throw new Error(error.message || 'Failed to fetch property data');
+      }
+
+      if (!data) {
+        throw new Error('No data returned from API');
+      }
+
+      // Count populated fields
+      let populatedCount = 0;
+
+      // Update the specific comp with the response
+      setFormData(prev => {
+        const updatedComps = [...prev.comps];
+        const compUpdates: any = {};
+
+        if (data.bedrooms) {
+          compUpdates.bedrooms = data.bedrooms;
+          populatedCount++;
+        }
+        if (data.bathrooms) {
+          compUpdates.bathrooms = data.bathrooms;
+          populatedCount++;
+        }
+        if (data.squareFootage) {
+          compUpdates.squareFootage = data.squareFootage;
+          populatedCount++;
+        }
+
+        // Handle lot size - format as string with unit
+        if (data.lotSizeAcres) {
+          compUpdates.lotSize = `${data.lotSizeAcres} acres`;
+          populatedCount++;
+        } else if (data.lotSizeSqFt) {
+          compUpdates.lotSize = `${data.lotSizeSqFt} sq ft`;
+          populatedCount++;
+        }
+
+        updatedComps[compIndex] = { ...updatedComps[compIndex], ...compUpdates };
+
+        return { ...prev, comps: updatedComps };
+      });
+
+      toast({
+        title: "Success!",
+        description: `Auto-populated ${populatedCount} fields for Comp #${compIndex + 1}`,
+      });
+
+    } catch (error) {
+      console.error('Error fetching ATTOM data for comp:', error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to fetch comp data",
+        variant: "destructive"
+      });
+    }
+  };
+
   const addBigTicketItem = () => {
     setFormData(prev => ({
       ...prev,
@@ -2505,15 +2586,29 @@ const Index = () => {
                 <div key={index} className="border rounded-lg p-4 space-y-4">
                   <div className="flex items-center justify-between">
                     <h4 className="font-medium">Comp #{index + 1}</h4>
-                    {formData.comps.length > 2 && (
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={() => removeComp(index)}
-                      >
-                        <Minus className="h-4 w-4" />
-                      </Button>
-                    )}
+                    <div className="flex items-center gap-2">
+                      {comp.address && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleCompAttomDataFetch(index)}
+                          className="flex items-center gap-2"
+                        >
+                          <Database className="h-4 w-4" />
+                          Auto-Fill
+                        </Button>
+                      )}
+                      {formData.comps.length > 2 && (
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => removeComp(index)}
+                        >
+                          <Minus className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
