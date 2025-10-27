@@ -2816,9 +2816,10 @@ const Index = () => {
                             )}
                           >
                             <CalendarIcon className="mr-2 h-4 w-4" />
-                            {comp.soldListedDate ? (
-                              format(new Date(comp.soldListedDate), "MM/dd/yyyy")
-                            ) : (
+                            {comp.soldListedDate ? (() => {
+                              const [year, month, day] = comp.soldListedDate.split('-');
+                              return format(new Date(parseInt(year), parseInt(month) - 1, parseInt(day)), "MM/dd/yyyy");
+                            })() : (
                               <span>Pick a date</span>
                             )}
                           </Button>
@@ -2826,8 +2827,20 @@ const Index = () => {
                         <PopoverContent className="w-auto p-0" align="start">
                           <Calendar
                             mode="single"
-                            selected={comp.soldListedDate ? new Date(comp.soldListedDate) : undefined}
-                            onSelect={(date) => updateComp(index, 'soldListedDate', date ? date.toISOString() : '')}
+                            selected={comp.soldListedDate ? (() => {
+                              const [year, month, day] = comp.soldListedDate.split('-');
+                              return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+                            })() : undefined}
+                            onSelect={(date) => {
+                              if (date) {
+                                const year = date.getFullYear();
+                                const month = String(date.getMonth() + 1).padStart(2, '0');
+                                const day = String(date.getDate()).padStart(2, '0');
+                                updateComp(index, 'soldListedDate', `${year}-${month}-${day}`);
+                              } else {
+                                updateComp(index, 'soldListedDate', '');
+                              }
+                            }}
                             initialFocus
                             className="pointer-events-auto"
                           />
