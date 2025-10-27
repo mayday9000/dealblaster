@@ -704,6 +704,12 @@ const Index = () => {
         const updatedComps = [...prev.comps];
         const compUpdates: any = {};
 
+        // Address - use oneLine if available
+        if (data.addressOneLine) {
+          compUpdates.address = data.addressOneLine;
+          populatedCount++;
+        }
+
         if (data.bedrooms) {
           compUpdates.bedrooms = data.bedrooms;
           populatedCount++;
@@ -723,6 +729,19 @@ const Index = () => {
           populatedCount++;
         } else if (data.lotSizeSqFt) {
           compUpdates.lotSize = `${data.lotSizeSqFt} sq ft`;
+          populatedCount++;
+        }
+
+        // Sold/Listed Price - format with $ and commas
+        if (data.salePrice) {
+          const formattedPrice = `$${parseInt(data.salePrice).toLocaleString()}`;
+          compUpdates.soldListedPrice = formattedPrice;
+          populatedCount++;
+        }
+
+        // Sold/Listed Date
+        if (data.saleTransDate) {
+          compUpdates.soldListedDate = data.saleTransDate;
           populatedCount++;
         }
 

@@ -80,11 +80,22 @@ serve(async (req) => {
     const extractedData = {
       bedrooms: property.building?.rooms?.beds?.toString() || null,
       bathrooms: property.building?.rooms?.bathsTotal?.toString() || null,
+      bathsFull: property.building?.rooms?.bathsFull?.toString() || null,
       squareFootage: property.building?.size?.livingSize?.toString() || null,
       yearBuilt: property.summary?.yearBuilt?.toString() || null,
       zoning: property.lot?.zoningType || null,
       lotSizeAcres: property.lot?.lotSize1 || null,
       lotSizeSqFt: property.lot?.lotSize2 || null,
+      // Address fields
+      addressOneLine: property.address?.oneLine || null,
+      addressLine1: property.address?.line1 || null,
+      addressLocality: property.address?.locality || null,
+      addressCountrySubd: property.address?.countrySubd || null,
+      addressPostal1: property.address?.postal1 || null,
+      // Sale data
+      salePrice: property.sale?.saleAmountData?.saleAmt?.toString() || null,
+      saleTransDate: property.sale?.saleTransDate || null,
+      saleRecDate: property.sale?.saleAmountData?.saleRecDate || null,
     };
 
     console.log('Extracted data:', extractedData);
