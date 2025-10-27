@@ -1398,6 +1398,169 @@ const Index = () => {
         )}
 
         <div className="space-y-6">
+          {/* Basic Property Info */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Home className="h-5 w-5" />
+                Basic Property Information
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {!formData.isPremarket && (
+                <div>
+                  <Label htmlFor="address">Full Address *</Label>
+                  <Input
+                    id="address"
+                    placeholder="14832 Atlantic Ave, Hudson, FL 34667"
+                    value={formData.address}
+                    onChange={(e) => {
+                      const newAddress = e.target.value;
+                      updateFormData('address', newAddress);
+                      
+                      // Auto-fill city, state, and zip from address
+                      // Expected format: "Street Address, City, State Zip"
+                      const parts = newAddress.split(',').map(p => p.trim());
+                      if (parts.length >= 3) {
+                        // City is the second part (after street address)
+                        const city = parts[1];
+                        
+                        // State and Zip are in the last part
+                        const stateZipPart = parts[parts.length - 1];
+                        const stateZipMatch = stateZipPart.match(/^([A-Z]{2})\s+(\d{5})$/i);
+                        
+                        if (stateZipMatch) {
+                          const state = stateZipMatch[1].toUpperCase();
+                          const zip = stateZipMatch[2];
+                          
+                          // Auto-populate the fields
+                          updateFormData('city', city);
+                          updateFormData('state', state);
+                          updateFormData('zip', zip);
+                        }
+                      }
+                    }}
+                  />
+                </div>
+              )}
+
+              <div>
+                <Label htmlFor="apn">APN {formData.isLand ? '*' : '(Optional)'}</Label>
+                <Input
+                  id="apn"
+                  placeholder="123456789"
+                  value={formData.apn}
+                  onChange={(e) => {
+                    // Only allow digits
+                    const value = e.target.value.replace(/\D/g, '');
+                    updateFormData('apn', value);
+                  }}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="askingPrice">Asking Price * (Numbers only)</Label>
+                <Input
+                  id="askingPrice"
+                  placeholder="250000"
+                  value={formData.askingPrice}
+                  onChange={handleAskingPriceChange}
+                />
+              </div>
+
+              <div>
+                <Label>Financing Types Accepted *</Label>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
+                  {['Cash', 'Conventional', 'FHA', 'VA', 'As-Is'].map((type) => (
+                    <div key={type} className="flex items-center space-x-2">
+                      <Checkbox 
+                        id={type}
+                        checked={formData.financingTypes.includes(type)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            updateFormData('financingTypes', [...formData.financingTypes, type]);
+                          } else {
+                            updateFormData('financingTypes', formData.financingTypes.filter(t => t !== type));
+                          }
+                        }}
+                      />
+                      <Label htmlFor={type}>{type}</Label>
+                    </div>
+                  ))}
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="financingOther"
+                      checked={formData.financingTypes.includes('Other')}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          updateFormData('financingTypes', [...formData.financingTypes, 'Other']);
+                        } else {
+                          updateFormData('financingTypes', formData.financingTypes.filter(t => t !== 'Other'));
+                          updateFormData('financingOther', '');
+                        }
+                      }}
+                    />
+                    <Label htmlFor="financingOther">Other</Label>
+                  </div>
+                </div>
+                {formData.financingTypes.includes('Other') && (
+                  <Input
+                    className="mt-2"
+                    placeholder="Specify other financing type"
+                    value={formData.financingOther}
+                    onChange={(e) => updateFormData('financingOther', e.target.value)}
+                  />
+                )}
+              </div>
+
+              <div>
+                <Label>Closing Date/Deadline *</Label>
+                <div className="space-y-2">
+                  <RadioGroup 
+                    value={formData.closingDateType} 
+                    onValueChange={(value) => updateFormData('closingDateType', value as 'exact' | 'onBefore')}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="exact" id="exact" />
+                      <Label htmlFor="exact">Exact Date</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="onBefore" id="onBefore" />
+                      <Label htmlFor="onBefore">On/Before Date</Label>
+                    </div>
+                  </RadioGroup>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !formData.closingDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {formData.closingDate ? (
+                          format(new Date(formData.closingDate), "MM/dd/yyyy")
+                        ) : (
+                          <span>Pick a date</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={formData.closingDate ? new Date(formData.closingDate) : undefined}
+                        onSelect={(date) => updateFormData('closingDate', date ? date.toISOString() : '')}
+                        initialFocus
+                        className="pointer-events-auto"
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Listing Headline Section */}
           <Card>
             <CardHeader>
@@ -1564,143 +1727,6 @@ const Index = () => {
             </CardContent>
           </Card>
 
-          {/* Basic Property Info */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Home className="h-5 w-5" />
-                Basic Property Information
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {!formData.isPremarket && (
-                <div>
-                  <Label htmlFor="address">Full Address *</Label>
-                  <Input
-                    id="address"
-                    placeholder="14832 Atlantic Ave, Hudson, FL 34667"
-                    value={formData.address}
-                    onChange={(e) => updateFormData('address', e.target.value)}
-                  />
-                </div>
-              )}
-
-              <div>
-                <Label htmlFor="apn">APN {formData.isLand ? '*' : '(Optional)'}</Label>
-                <Input
-                  id="apn"
-                  placeholder="123456789"
-                  value={formData.apn}
-                  onChange={(e) => {
-                    // Only allow digits
-                    const value = e.target.value.replace(/\D/g, '');
-                    updateFormData('apn', value);
-                  }}
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="askingPrice">Asking Price * (Numbers only)</Label>
-                <Input
-                  id="askingPrice"
-                  placeholder="250000"
-                  value={formData.askingPrice}
-                  onChange={handleAskingPriceChange}
-                />
-              </div>
-
-              <div>
-                <Label>Financing Types Accepted *</Label>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
-                  {['Cash', 'Conventional', 'FHA', 'VA', 'As-Is'].map((type) => (
-                    <div key={type} className="flex items-center space-x-2">
-                      <Checkbox 
-                        id={type}
-                        checked={formData.financingTypes.includes(type)}
-                        onCheckedChange={(checked) => {
-                          if (checked) {
-                            updateFormData('financingTypes', [...formData.financingTypes, type]);
-                          } else {
-                            updateFormData('financingTypes', formData.financingTypes.filter(t => t !== type));
-                          }
-                        }}
-                      />
-                      <Label htmlFor={type}>{type}</Label>
-                    </div>
-                  ))}
-                  <div className="flex items-center space-x-2">
-                    <Checkbox 
-                      id="financingOther"
-                      checked={formData.financingTypes.includes('Other')}
-                      onCheckedChange={(checked) => {
-                        if (checked) {
-                          updateFormData('financingTypes', [...formData.financingTypes, 'Other']);
-                        } else {
-                          updateFormData('financingTypes', formData.financingTypes.filter(t => t !== 'Other'));
-                          updateFormData('financingOther', '');
-                        }
-                      }}
-                    />
-                    <Label htmlFor="financingOther">Other</Label>
-                  </div>
-                </div>
-                {formData.financingTypes.includes('Other') && (
-                  <Input
-                    className="mt-2"
-                    placeholder="Specify other financing type"
-                    value={formData.financingOther}
-                    onChange={(e) => updateFormData('financingOther', e.target.value)}
-                  />
-                )}
-              </div>
-
-              <div>
-                <Label>Closing Date/Deadline *</Label>
-                <div className="space-y-2">
-                  <RadioGroup 
-                    value={formData.closingDateType} 
-                    onValueChange={(value) => updateFormData('closingDateType', value as 'exact' | 'onBefore')}
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="exact" id="exact" />
-                      <Label htmlFor="exact">Exact Date</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="onBefore" id="onBefore" />
-                      <Label htmlFor="onBefore">On/Before Date</Label>
-                    </div>
-                  </RadioGroup>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "w-full justify-start text-left font-normal",
-                          !formData.closingDate && "text-muted-foreground"
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {formData.closingDate ? (
-                          format(new Date(formData.closingDate), "MM/dd/yyyy")
-                        ) : (
-                          <span>Pick a date</span>
-                        )}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={formData.closingDate ? new Date(formData.closingDate) : undefined}
-                        onSelect={(date) => updateFormData('closingDate', date ? date.toISOString() : '')}
-                        initialFocus
-                        className="pointer-events-auto"
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
 
           {/* Photo Section */}
           <Card>
