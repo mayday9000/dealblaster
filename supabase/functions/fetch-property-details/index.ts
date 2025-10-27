@@ -24,22 +24,27 @@ serve(async (req) => {
 
     console.log('Received address:', address);
 
-    // Format address to ATTOM Data API format
-    // Convert "503 Foxdale Ridge Dr. Cary, NC 27519" to "503 FOXDALE RIDGE DR, CARY, NC 27519"
-    const formattedAddress = address
-      .replace(/\.\s+/g, ', ') // Replace ". " with ", "
-      .toUpperCase()
-      .trim();
-
-    console.log('Formatted address:', formattedAddress);
-
-    const attomApiKey = Deno.env.get('ATTOM_API_KEY');
-    if (!attomApiKey) {
-      throw new Error('ATTOM_API_KEY not configured');
+    // Parse address into address1 (street) and address2 (city, state)
+    // Example: "4529 Winona Court, Denver, CO" -> address1: "4529 Winona Court", address2: "Denver, CO"
+    const addressParts = address.split(',').map((part: string) => part.trim());
+    
+    if (addressParts.length < 2) {
+      return new Response(
+        JSON.stringify({ error: 'Address must include street, city, and state (e.g., "4529 Winona Court, Denver, CO")' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
-    // Call ATTOM Data API
-    const apiUrl = `https://api.gateway.attomdata.com/propertyapi/v1.0.0/property/detail?address=${encodeURIComponent(formattedAddress)}`;
+    const address1 = addressParts[0]; // Street name and number
+    const address2 = addressParts.slice(1).join(', '); // City, State (and ZIP if present)
+
+    console.log('Parsed address1:', address1);
+    console.log('Parsed address2:', address2);
+
+    const attomApiKey = '80d6d645feeb1f76c4126ed1703ef791';
+
+    // Call ATTOM Data API with new endpoint
+    const apiUrl = `https://api.gateway.attomdata.com/propertyapi/v1.0.0/property/basicprofile?address1=${encodeURIComponent(address1)}&address2=${encodeURIComponent(address2)}`;
     console.log('Calling ATTOM API:', apiUrl);
 
     const response = await fetch(apiUrl, {
@@ -71,17 +76,15 @@ serve(async (req) => {
       );
     }
 
-    // Extract fields according to the mappings
+    // Extract fields according to the new mappings
     const extractedData = {
-      bedrooms: property.building?.rooms?.bathsfull?.toString() || null,
-      bathrooms: property.building?.rooms?.bathstotal?.toString() || null,
-      squareFootage: property.building?.size?.livingsize?.toString() || 
-                     property.building?.size?.universalsize?.toString() || 
-                     property.building?.size?.bldgsize?.toString() || null,
-      yearBuilt: property.summary?.yearbuilt?.toString() || null,
-      lotSizeAcres: property.lot?.lotsize1 || null,
-      lotSizeSqFt: property.lot?.lotsize2 || null,
-      poolType: property.lot?.pooltype || null,
+      bedrooms: property.building?.rooms?.beds?.toString() || null,
+      bathrooms: property.building?.rooms?.bathsTotal?.toString() || null,
+      squareFootage: property.building?.size?.livingSize?.toString() || null,
+      yearBuilt: property.summary?.yearBuilt?.toString() || null,
+      zoning: property.lot?.zoningType || null,
+      lotSizeAcres: property.lot?.lotSize1 || null,
+      lotSizeSqFt: property.lot?.lotSize2 || null,
     };
 
     console.log('Extracted data:', extractedData);

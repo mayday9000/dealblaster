@@ -631,6 +631,10 @@ const Index = () => {
           updates.yearBuilt = data.yearBuilt;
           populatedCount++;
         }
+        if (data.zoning) {
+          updates.zoning = data.zoning;
+          populatedCount++;
+        }
 
         // Handle lot size - prefer acres
         if (data.lotSizeAcres) {
@@ -643,30 +647,12 @@ const Index = () => {
           populatedCount++;
         }
 
-        // Handle pool
-        if (data.poolType) {
-          if (data.poolType === 'NO POOL') {
-            updates.pool = false;
-            updates.poolType = '';
-          } else {
-            updates.pool = true;
-            // Try to determine pool type from the value
-            const poolTypeStr = data.poolType.toLowerCase();
-            if (poolTypeStr.includes('inground')) {
-              updates.poolType = 'inground';
-            } else {
-              updates.poolType = 'above-ground';
-            }
-          }
-          populatedCount++;
-        }
-
         return { ...prev, ...updates };
       });
 
       toast({
         title: "Success!",
-        description: `Auto-populated ${populatedCount} of 6 fields from ATTOM Data`,
+        description: `Auto-populated ${populatedCount} fields from ATTOM Data`,
       });
 
     } catch (error) {
