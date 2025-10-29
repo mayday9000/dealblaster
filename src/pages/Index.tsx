@@ -327,6 +327,8 @@ const Index = () => {
   const [existingFrontPhoto, setExistingFrontPhoto] = useState<string | null>(null);
   const [existingContactImage, setExistingContactImage] = useState<string | null>(null);
   const [existingCompanyLogo, setExistingCompanyLogo] = useState<string | null>(null);
+  const [isAttomFetching, setIsAttomFetching] = useState(false);
+  const [isCompAttomFetching, setIsCompAttomFetching] = useState<Record<number, boolean>>({});
 
   // Fetch property data when in edit mode
   useEffect(() => {
@@ -662,6 +664,8 @@ const Index = () => {
         description: error instanceof Error ? error.message : "Failed to fetch property data",
         variant: "destructive"
       });
+    } finally {
+      setIsAttomFetching(false);
     }
   };
 
@@ -677,15 +681,38 @@ const Index = () => {
       return;
     }
 
+    // Basic validation
+    const addressParts = comp.address.split(',').map(p => p.trim());
+    if (addressParts.length < 2) {
+      toast({
+        title: "Invalid address format",
+        description: "Please enter address in format: Street, City, State",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsCompAttomFetching(prev => ({ ...prev, [compIndex]: true }));
     toast({
       title: "Fetching comp details...",
       description: `Getting data for Comp #${compIndex + 1}`,
     });
 
     try {
-      const { data, error } = await supabase.functions.invoke('fetch-property-details', {
-        body: { address: comp.address }
+      // Create a timeout promise (35 seconds)
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Request timed out after 35 seconds')), 35000);
       });
+
+      // Race between the API call and timeout
+      const result = await Promise.race([
+        supabase.functions.invoke('fetch-property-details', {
+          body: { address: comp.address }
+        }),
+        timeoutPromise
+      ]) as any;
+
+      const { data, error } = result;
 
       if (error) {
         console.error('Edge function error:', error);
@@ -762,6 +789,8 @@ const Index = () => {
         description: error instanceof Error ? error.message : "Failed to fetch comp data",
         variant: "destructive"
       });
+    } finally {
+      setIsCompAttomFetching(prev => ({ ...prev, [compIndex]: false }));
     }
   };
 
@@ -1783,10 +1812,11 @@ const Index = () => {
                     variant="outline"
                     size="sm"
                     onClick={handleAttomDataFetch}
+                    disabled={isAttomFetching}
                     className="flex items-center gap-2"
                   >
                     <Database className="h-4 w-4" />
-                    Auto-Fill from ATTOM Data
+                    {isAttomFetching ? 'Fetching...' : 'Auto-Fill from ATTOM Data'}
                   </Button>
                 )}
               </div>
@@ -2624,10 +2654,11 @@ const Index = () => {
                           variant="outline"
                           size="sm"
                           onClick={() => handleCompAttomDataFetch(index)}
+                          disabled={isCompAttomFetching[index]}
                           className="flex items-center gap-2"
                         >
                           <Database className="h-4 w-4" />
-                          Auto-Fill
+                          {isCompAttomFetching[index] ? 'Fetching...' : 'Auto-Fill'}
                         </Button>
                       )}
                       {formData.comps.length > 2 && (

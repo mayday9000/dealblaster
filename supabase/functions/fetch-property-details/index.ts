@@ -13,9 +13,20 @@ serve(async (req) => {
   }
 
   try {
-    const { address } = await req.json();
+    let requestBody;
+    try {
+      requestBody = await req.json();
+    } catch (parseError) {
+      console.error('Failed to parse request body:', parseError);
+      return new Response(
+        JSON.stringify({ error: 'Invalid request body' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
-    if (!address) {
+    const { address } = requestBody;
+
+    if (!address || typeof address !== 'string' || address.trim().length === 0) {
       return new Response(
         JSON.stringify({ error: 'Address is required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -43,17 +54,37 @@ serve(async (req) => {
 
     const attomApiKey = '80d6d645feeb1f76c4126ed1703ef791';
 
-    // Call ATTOM Data API with new endpoint
+    // Call ATTOM Data API with new endpoint and timeout
     const apiUrl = `https://api.gateway.attomdata.com/propertyapi/v1.0.0/property/basicprofile?address1=${encodeURIComponent(address1)}&address2=${encodeURIComponent(address2)}`;
     console.log('Calling ATTOM API:', apiUrl);
 
-    const response = await fetch(apiUrl, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-        'apikey': attomApiKey,
-      },
-    });
+    // Create AbortController for timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 25000); // 25 second timeout
+
+    let response;
+    try {
+      response = await fetch(apiUrl, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'apikey': attomApiKey,
+        },
+        signal: controller.signal,
+      });
+    } catch (fetchError: any) {
+      clearTimeout(timeoutId);
+      if (fetchError.name === 'AbortError') {
+        console.error('ATTOM API request timed out after 25 seconds');
+        return new Response(
+          JSON.stringify({ error: 'ATTOM API request timed out after 25 seconds. Please try again.' }),
+          { status: 504, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      throw fetchError;
+    } finally {
+      clearTimeout(timeoutId);
+    }
 
     if (!response.ok) {
       const errorText = await response.text();
