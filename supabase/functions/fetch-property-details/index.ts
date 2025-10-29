@@ -13,7 +13,18 @@ serve(async (req) => {
   }
 
   try {
-    const { address } = await req.json();
+    // Parse request body with error handling
+    let address;
+    try {
+      const body = await req.json();
+      address = body.address;
+    } catch (parseError) {
+      console.error('Failed to parse request body:', parseError);
+      return new Response(
+        JSON.stringify({ error: 'Invalid request body' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     if (!address) {
       return new Response(
@@ -25,7 +36,6 @@ serve(async (req) => {
     console.log('Received address:', address);
 
     // Parse address into address1 (street) and address2 (city, state)
-    // Example: "4529 Winona Court, Denver, CO" -> address1: "4529 Winona Court", address2: "Denver, CO"
     const addressParts = address.split(',').map((part: string) => part.trim());
     
     if (addressParts.length < 2) {
@@ -35,25 +45,46 @@ serve(async (req) => {
       );
     }
 
-    const address1 = addressParts[0]; // Street name and number
-    const address2 = addressParts.slice(1).join(', '); // City, State (and ZIP if present)
+    const address1 = addressParts[0];
+    const address2 = addressParts.slice(1).join(', ');
 
     console.log('Parsed address1:', address1);
     console.log('Parsed address2:', address2);
 
     const attomApiKey = '80d6d645feeb1f76c4126ed1703ef791';
-
-    // Call ATTOM Data API with new endpoint
     const apiUrl = `https://api.gateway.attomdata.com/propertyapi/v1.0.0/property/basicprofile?address1=${encodeURIComponent(address1)}&address2=${encodeURIComponent(address2)}`;
     console.log('Calling ATTOM API:', apiUrl);
 
-    const response = await fetch(apiUrl, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-        'apikey': attomApiKey,
-      },
-    });
+    // Add timeout handling for ATTOM API call
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 50000); // 50 second timeout
+
+    let response;
+    try {
+      response = await fetch(apiUrl, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'apikey': attomApiKey,
+        },
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      if (fetchError.name === 'AbortError') {
+        console.error('ATTOM API request timed out');
+        return new Response(
+          JSON.stringify({ error: 'ATTOM API request timed out after 50 seconds' }),
+          { status: 504, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      console.error('ATTOM API fetch error:', fetchError);
+      return new Response(
+        JSON.stringify({ error: `Failed to fetch from ATTOM API: ${fetchError.message}` }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -67,7 +98,6 @@ serve(async (req) => {
     const data = await response.json();
     console.log('ATTOM API response received');
 
-    // Extract the required fields from the response
     const property = data.property?.[0];
     if (!property) {
       return new Response(
@@ -76,7 +106,6 @@ serve(async (req) => {
       );
     }
 
-    // Extract fields according to the new mappings
     const extractedData = {
       bedrooms: property.building?.rooms?.beds?.toString() || null,
       bathrooms: property.building?.rooms?.bathsTotal?.toString() || null,
@@ -86,13 +115,11 @@ serve(async (req) => {
       zoning: property.lot?.zoningType || null,
       lotSizeAcres: property.lot?.lotSize1 || null,
       lotSizeSqFt: property.lot?.lotSize2 || null,
-      // Address fields
       addressOneLine: property.address?.oneLine || null,
       addressLine1: property.address?.line1 || null,
       addressLocality: property.address?.locality || null,
       addressCountrySubd: property.address?.countrySubd || null,
       addressPostal1: property.address?.postal1 || null,
-      // Sale data
       salePrice: property.sale?.saleAmountData?.saleAmt?.toString() || null,
       saleTransDate: property.sale?.saleTransDate || null,
       saleRecDate: property.sale?.saleAmountData?.saleRecDate || null,
@@ -106,9 +133,12 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('Error in fetch-property-details function:', error);
+    console.error('Unhandled error in fetch-property-details:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message || 'An unexpected error occurred',
+        details: error.toString()
+      }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
