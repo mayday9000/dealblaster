@@ -595,16 +595,9 @@ const Index = () => {
     });
 
     try {
-      // Add client-side timeout of 55 seconds
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Request timed out after 55 seconds')), 55000)
-      );
-
-      const fetchPromise = supabase.functions.invoke('fetch-property-details', {
+      const { data, error } = await supabase.functions.invoke('fetch-property-details', {
         body: { address: formData.address }
       });
-
-      const { data, error } = await Promise.race([fetchPromise, timeoutPromise]) as any;
 
       if (error) {
         console.error('Edge function error:', error);
@@ -690,16 +683,9 @@ const Index = () => {
     });
 
     try {
-      // Add client-side timeout of 55 seconds
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Request timed out after 55 seconds')), 55000)
-      );
-
-      const fetchPromise = supabase.functions.invoke('fetch-property-details', {
+      const { data, error } = await supabase.functions.invoke('fetch-property-details', {
         body: { address: comp.address }
       });
-
-      const { data, error } = await Promise.race([fetchPromise, timeoutPromise]) as any;
 
       if (error) {
         console.error('Edge function error:', error);
