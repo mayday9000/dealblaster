@@ -234,7 +234,7 @@ const Index = () => {
     exitStrategy: '',
     
     // 1% Rule
-    includeOnePercentRule: true,
+    includeOnePercentRule: false,
     
     // Comps
     comps: [
@@ -1337,15 +1337,28 @@ const Index = () => {
         
         // Buy & Hold Snapshot
         include_buy_hold_snapshot: formData.includeBuyHoldSnapshot,
-        buy_hold_type: formData.buyHoldType,
-        buy_hold_purchase_price: formData.buyHoldPurchasePrice,
-        buy_hold_rehab_cost: formData.buyHoldRehabCost,
-        buy_hold_monthly_rent: formData.buyHoldMonthlyRent,
-        buy_hold_monthly_taxes: formData.buyHoldMonthlyTaxes,
-        buy_hold_monthly_insurance: formData.buyHoldMonthlyInsurance,
-        buy_hold_other_expenses: formData.buyHoldOtherExpenses,
-        buy_hold_mortgage_payment: formData.buyHoldMortgagePayment,
-        buy_hold_cash_to_seller: formData.buyHoldCashToSeller,
+        // Buy & Hold Snapshot - only include data if checkbox is checked
+        ...(formData.includeBuyHoldSnapshot ? {
+          buy_hold_type: formData.buyHoldType,
+          buy_hold_purchase_price: formData.buyHoldPurchasePrice,
+          buy_hold_rehab_cost: formData.buyHoldRehabCost,
+          buy_hold_monthly_rent: formData.buyHoldMonthlyRent,
+          buy_hold_monthly_taxes: formData.buyHoldMonthlyTaxes,
+          buy_hold_monthly_insurance: formData.buyHoldMonthlyInsurance,
+          buy_hold_other_expenses: formData.buyHoldOtherExpenses,
+          buy_hold_mortgage_payment: formData.buyHoldMortgagePayment,
+          buy_hold_cash_to_seller: formData.buyHoldCashToSeller,
+        } : {
+          buy_hold_type: null,
+          buy_hold_purchase_price: null,
+          buy_hold_rehab_cost: null,
+          buy_hold_monthly_rent: null,
+          buy_hold_monthly_taxes: null,
+          buy_hold_monthly_insurance: null,
+          buy_hold_other_expenses: null,
+          buy_hold_mortgage_payment: null,
+          buy_hold_cash_to_seller: null,
+        }),
         
         // Comps
         comps: formData.comps,
