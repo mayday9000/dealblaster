@@ -22,6 +22,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AuthGate } from '@/components/AuthGate';
 import { Header } from '@/components/Header';
 import { useSession } from '@/hooks/useSession';
+import { buildAbsoluteShareUrl } from '@/lib/shareLinks';
 
 interface FormData {
   // Listing Headline
@@ -1414,7 +1415,7 @@ const Index = () => {
   };
 
   const copyShareUrl = async () => {
-    const fullUrl = `${window.location.origin}${shareUrl}`;
+    const fullUrl = buildAbsoluteShareUrl(shareUrl);
     try {
       await navigator.clipboard.writeText(fullUrl);
       toast({
@@ -3267,7 +3268,7 @@ const Index = () => {
         onOpenChange={setShowSuccessModal}
         shareUrl={shareUrl}
         onCopyUrl={copyShareUrl}
-        onViewProperty={() => window.open(shareUrl, '_blank')}
+        onViewProperty={() => window.open(buildAbsoluteShareUrl(shareUrl), '_blank')}
       />
         </div>
       </div>
