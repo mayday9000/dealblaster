@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import { User } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -13,6 +14,7 @@ export function OnboardingModal() {
   const { user } = useSession();
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [includeBusinessHours, setIncludeBusinessHours] = useState(false);
   const [formData, setFormData] = useState({
     contact_name: '',
     contact_phone: '',
@@ -52,6 +54,16 @@ export function OnboardingModal() {
   const handleSave = async () => {
     if (!user) return;
 
+    // Validate email is required
+    if (!formData.contact_email || !formData.contact_email.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Email is required",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setSaving(true);
     try {
       const { error } = await supabase
@@ -63,7 +75,7 @@ export function OnboardingModal() {
           contact_email: formData.contact_email || null,
           office_number: formData.office_number || null,
           website: formData.website || null,
-          business_hours: formData.business_hours,
+          business_hours: includeBusinessHours ? formData.business_hours : null,
           company_logo: null,
           contact_image: null
         });
@@ -101,7 +113,7 @@ export function OnboardingModal() {
         contact_email: null,
         office_number: null,
         website: null,
-        business_hours: { startTime: '09:00', endTime: '17:00', timeZone: 'EST' },
+        business_hours: null,
         company_logo: null,
         contact_image: null
       })
@@ -148,13 +160,14 @@ export function OnboardingModal() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="onboard_email">Email</Label>
+              <Label htmlFor="onboard_email">Email <span className="text-destructive">*</span></Label>
               <Input
                 id="onboard_email"
                 type="email"
                 value={formData.contact_email}
                 onChange={(e) => setFormData({ ...formData, contact_email: e.target.value })}
                 placeholder="john@example.com"
+                required
               />
             </div>
 
@@ -180,54 +193,67 @@ export function OnboardingModal() {
           </div>
 
           <div className="space-y-2">
-            <Label className="text-base font-semibold">Business Hours (Optional)</Label>
-            <div className="grid gap-3 md:grid-cols-3">
-              <div className="space-y-2">
-                <Label htmlFor="onboard_start_time" className="text-sm">Start Time</Label>
-                <Input
-                  id="onboard_start_time"
-                  type="time"
-                  value={formData.business_hours.startTime}
-                  onChange={(e) => setFormData({
-                    ...formData,
-                    business_hours: { ...formData.business_hours, startTime: e.target.value }
-                  })}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="onboard_end_time" className="text-sm">End Time</Label>
-                <Input
-                  id="onboard_end_time"
-                  type="time"
-                  value={formData.business_hours.endTime}
-                  onChange={(e) => setFormData({
-                    ...formData,
-                    business_hours: { ...formData.business_hours, endTime: e.target.value }
-                  })}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="onboard_timezone" className="text-sm">Timezone</Label>
-                <Select
-                  value={formData.business_hours.timeZone}
-                  onValueChange={(value) => setFormData({
-                    ...formData,
-                    business_hours: { ...formData.business_hours, timeZone: value }
-                  })}
-                >
-                  <SelectTrigger id="onboard_timezone">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {timezones.map((tz) => (
-                      <SelectItem key={tz} value={tz}>{tz}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+            <Label className="text-base font-semibold">Business Hours</Label>
+            <div className="flex items-center space-x-2 mb-2">
+              <Checkbox
+                id="include_business_hours"
+                checked={includeBusinessHours}
+                onCheckedChange={(checked) => setIncludeBusinessHours(checked as boolean)}
+              />
+              <Label htmlFor="include_business_hours" className="cursor-pointer">
+                Include Business Hours
+              </Label>
             </div>
+            
+            {includeBusinessHours && (
+              <div className="grid gap-3 md:grid-cols-3">
+                <div className="space-y-2">
+                  <Label htmlFor="onboard_start_time" className="text-sm">Start Time</Label>
+                  <Input
+                    id="onboard_start_time"
+                    type="time"
+                    value={formData.business_hours.startTime}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      business_hours: { ...formData.business_hours, startTime: e.target.value }
+                    })}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="onboard_end_time" className="text-sm">End Time</Label>
+                  <Input
+                    id="onboard_end_time"
+                    type="time"
+                    value={formData.business_hours.endTime}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      business_hours: { ...formData.business_hours, endTime: e.target.value }
+                    })}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="onboard_timezone" className="text-sm">Timezone</Label>
+                  <Select
+                    value={formData.business_hours.timeZone}
+                    onValueChange={(value) => setFormData({
+                      ...formData,
+                      business_hours: { ...formData.business_hours, timeZone: value }
+                    })}
+                  >
+                    <SelectTrigger id="onboard_timezone">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {timezones.map((tz) => (
+                        <SelectItem key={tz} value={tz}>{tz}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

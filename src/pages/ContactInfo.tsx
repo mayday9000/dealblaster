@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import { User, Phone, Mail, Building, Clock, Globe, Upload, Image as ImageIcon } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -48,6 +49,7 @@ const ContactInfo = () => {
   const [contactImageFile, setContactImageFile] = useState<File | null>(null);
   const [companyLogoPreview, setCompanyLogoPreview] = useState<string | null>(null);
   const [contactImagePreview, setContactImagePreview] = useState<string | null>(null);
+  const [includeBusinessHours, setIncludeBusinessHours] = useState(false);
 
   useEffect(() => {
     fetchProfile();
@@ -80,6 +82,7 @@ const ContactInfo = () => {
         });
         setCompanyLogoPreview(data.company_logo);
         setContactImagePreview(data.contact_image);
+        setIncludeBusinessHours(businessHours !== null && businessHours.startTime !== '');
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
@@ -114,6 +117,16 @@ const ContactInfo = () => {
   const handleSave = async () => {
     if (!user) return;
 
+    // Validate email is required
+    if (!profileData.contact_email || !profileData.contact_email.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Email is required",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setSaving(true);
     try {
       let companyLogoUrl = profileData.company_logo;
@@ -136,7 +149,7 @@ const ContactInfo = () => {
           contact_email: profileData.contact_email || null,
           office_number: profileData.office_number || null,
           website: profileData.website || null,
-          business_hours: profileData.business_hours,
+          business_hours: includeBusinessHours ? profileData.business_hours : null,
           company_logo: companyLogoUrl,
           contact_image: contactImageUrl
         }, {
@@ -234,13 +247,14 @@ const ContactInfo = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="contact_email">Email</Label>
+                  <Label htmlFor="contact_email">Email <span className="text-destructive">*</span></Label>
                   <Input
                     id="contact_email"
                     type="email"
                     value={profileData.contact_email}
                     onChange={(e) => setProfileData({ ...profileData, contact_email: e.target.value })}
                     placeholder="john@example.com"
+                    required
                   />
                 </div>
 
@@ -273,53 +287,66 @@ const ContactInfo = () => {
                 Business Hours
               </h3>
               
-              <div className="grid gap-4 md:grid-cols-3">
-                <div className="space-y-2">
-                  <Label htmlFor="start_time">Start Time</Label>
-                  <Input
-                    id="start_time"
-                    type="time"
-                    value={profileData.business_hours.startTime}
-                    onChange={(e) => setProfileData({
-                      ...profileData,
-                      business_hours: { ...profileData.business_hours, startTime: e.target.value }
-                    })}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="end_time">End Time</Label>
-                  <Input
-                    id="end_time"
-                    type="time"
-                    value={profileData.business_hours.endTime}
-                    onChange={(e) => setProfileData({
-                      ...profileData,
-                      business_hours: { ...profileData.business_hours, endTime: e.target.value }
-                    })}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="timezone">Timezone</Label>
-                  <Select
-                    value={profileData.business_hours.timeZone}
-                    onValueChange={(value) => setProfileData({
-                      ...profileData,
-                      business_hours: { ...profileData.business_hours, timeZone: value }
-                    })}
-                  >
-                    <SelectTrigger id="timezone">
-                      <SelectValue placeholder="Select timezone" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {timezones.map((tz) => (
-                        <SelectItem key={tz} value={tz}>{tz}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+              <div className="flex items-center space-x-2 mb-4">
+                <Checkbox
+                  id="include_business_hours"
+                  checked={includeBusinessHours}
+                  onCheckedChange={(checked) => setIncludeBusinessHours(checked as boolean)}
+                />
+                <Label htmlFor="include_business_hours" className="cursor-pointer">
+                  Include Business Hours
+                </Label>
               </div>
+              
+              {includeBusinessHours && (
+                <div className="grid gap-4 md:grid-cols-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="start_time">Start Time</Label>
+                    <Input
+                      id="start_time"
+                      type="time"
+                      value={profileData.business_hours.startTime}
+                      onChange={(e) => setProfileData({
+                        ...profileData,
+                        business_hours: { ...profileData.business_hours, startTime: e.target.value }
+                      })}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="end_time">End Time</Label>
+                    <Input
+                      id="end_time"
+                      type="time"
+                      value={profileData.business_hours.endTime}
+                      onChange={(e) => setProfileData({
+                        ...profileData,
+                        business_hours: { ...profileData.business_hours, endTime: e.target.value }
+                      })}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="timezone">Timezone</Label>
+                    <Select
+                      value={profileData.business_hours.timeZone}
+                      onValueChange={(value) => setProfileData({
+                        ...profileData,
+                        business_hours: { ...profileData.business_hours, timeZone: value }
+                      })}
+                    >
+                      <SelectTrigger id="timezone">
+                        <SelectValue placeholder="Select timezone" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {timezones.map((tz) => (
+                          <SelectItem key={tz} value={tz}>{tz}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Images */}
