@@ -9,4 +9,4 @@
  * IMPORTANT: After deploying your app, update this value to your production domain
  * to ensure property share links work correctly for public viewers.
  */
-export const PUBLIC_BASE_URL: string = '';
+export const PUBLIC_BASE_URL: string = 'https://preview--flyerform.lovable.app/';
