@@ -129,6 +129,7 @@ interface FormData {
   contactPhone: string;
   contactEmail: string;
   officeNumber: string;
+  includeBusinessHours: boolean;
   businessHours: {
     startTime: string;
     endTime: string;
@@ -291,6 +292,7 @@ const Index = () => {
     contactPhone: '',
     contactEmail: '',
     officeNumber: '',
+    includeBusinessHours: false,
     businessHours: {
       startTime: '',
       endTime: '',
@@ -429,6 +431,7 @@ const Index = () => {
           contactPhone: contactData?.contact_phone || '',
           contactEmail: contactData?.contact_email || '',
           officeNumber: contactData?.office_number || '',
+          includeBusinessHours: contactData?.business_hours ? true : false,
           businessHours: contactData?.business_hours ? 
             (typeof contactData.business_hours === 'string' ? 
               JSON.parse(contactData.business_hours) : 
@@ -951,6 +954,7 @@ const Index = () => {
     
     if (!formData.contactName) errors.push('Contact Name');
     if (!formData.contactPhone) errors.push('Contact Phone');
+    if (!formData.contactEmail?.trim()) errors.push('Contact Email');
     
     // Validate big ticket systems only for residential properties
     if (!formData.isLand) {
@@ -1234,7 +1238,7 @@ const Index = () => {
         contact_phone: formData.contactPhone,
         contact_email: formData.contactEmail,
         office_number: formData.officeNumber,
-        business_hours: businessHoursDisplay,
+        business_hours: formData.includeBusinessHours ? businessHoursDisplay : null,
         contact_image: contactImageBase64,
         website: formData.website,
         emd_amount: formData.emdAmount,
@@ -1368,7 +1372,7 @@ const Index = () => {
         contact_phone: formData.contactPhone,
         contact_email: formData.contactEmail,
         office_number: formData.officeNumber,
-        business_hours: JSON.stringify(formData.businessHours),
+        business_hours: formData.includeBusinessHours ? JSON.stringify(formData.businessHours) : null,
         contact_image: contactImageBase64,
         company_logo: companyLogoBase64,
         website: formData.website,
@@ -3041,13 +3045,14 @@ const Index = () => {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="contactEmail">Contact Email</Label>
+                  <Label htmlFor="contactEmail">Contact Email <span className="text-destructive">*</span></Label>
                   <Input
                     id="contactEmail"
                     type="email"
                     placeholder="john@example.com"
                     value={formData.contactEmail}
                     onChange={(e) => updateFormData('contactEmail', e.target.value)}
+                    required
                   />
                 </div>
                 <div>
@@ -3070,57 +3075,69 @@ const Index = () => {
                 </div>
               </div>
 
-              <div>
-                <Label>Business Hours</Label>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <Label htmlFor="startTime" className="text-sm font-medium">Start Time</Label>
-                    <div className="relative">
-                      <Input
-                        id="startTime"
-                        type="time"
-                        placeholder="--:-- --"
-                        value={formData.businessHours.startTime || ''}
-                        onChange={(e) => updateFormData('businessHours', { ...formData.businessHours, startTime: e.target.value })}
-                        className="pr-10"
-                      />
-                      <Clock className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="endTime" className="text-sm font-medium">End Time</Label>
-                    <div className="relative">
-                      <Input
-                        id="endTime"
-                        type="time"
-                        placeholder="--:-- --"
-                        value={formData.businessHours.endTime || ''}
-                        onChange={(e) => updateFormData('businessHours', { ...formData.businessHours, endTime: e.target.value })}
-                        className="pr-10"
-                      />
-                      <Clock className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="timezone" className="text-sm font-medium">Timezone</Label>
-                    <Select 
-                      value={formData.businessHours.timeZone || ''} 
-                      onValueChange={(value) => updateFormData('businessHours', { ...formData.businessHours, timeZone: value })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select timezone" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="EST">EST</SelectItem>
-                        <SelectItem value="CST">CST</SelectItem>
-                        <SelectItem value="MST">MST</SelectItem>
-                        <SelectItem value="PST">PST</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2 mb-2">
+                  <Checkbox
+                    id="include_business_hours"
+                    checked={formData.includeBusinessHours}
+                    onCheckedChange={(checked) => updateFormData('includeBusinessHours', checked as boolean)}
+                  />
+                  <Label htmlFor="include_business_hours" className="cursor-pointer">
+                    Include Business Hours
+                  </Label>
                 </div>
+                
+                {formData.includeBusinessHours && (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <Label htmlFor="startTime" className="text-sm font-medium">Start Time</Label>
+                      <div className="relative">
+                        <Input
+                          id="startTime"
+                          type="time"
+                          placeholder="--:-- --"
+                          value={formData.businessHours.startTime || ''}
+                          onChange={(e) => updateFormData('businessHours', { ...formData.businessHours, startTime: e.target.value })}
+                          className="pr-10"
+                        />
+                        <Clock className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="endTime" className="text-sm font-medium">End Time</Label>
+                      <div className="relative">
+                        <Input
+                          id="endTime"
+                          type="time"
+                          placeholder="--:-- --"
+                          value={formData.businessHours.endTime || ''}
+                          onChange={(e) => updateFormData('businessHours', { ...formData.businessHours, endTime: e.target.value })}
+                          className="pr-10"
+                        />
+                        <Clock className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="timezone" className="text-sm font-medium">Timezone</Label>
+                      <Select 
+                        value={formData.businessHours.timeZone || ''} 
+                        onValueChange={(value) => updateFormData('businessHours', { ...formData.businessHours, timeZone: value })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select timezone" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="EST">EST</SelectItem>
+                          <SelectItem value="CST">CST</SelectItem>
+                          <SelectItem value="MST">MST</SelectItem>
+                          <SelectItem value="PST">PST</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div>
