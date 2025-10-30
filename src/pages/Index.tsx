@@ -533,6 +533,44 @@ const Index = () => {
     }));
   };
 
+  // Helper functions for currency parsing and formatting
+  const parseCurrency = (value: string): number => {
+    const cleaned = value.replace(/[^0-9.-]/g, '');
+    return parseFloat(cleaned) || 0;
+  };
+
+  const formatCurrency = (value: number): string => {
+    return value > 0 ? `$${value.toLocaleString()}` : '';
+  };
+
+  // Auto-calculate All-In Cost (Asking Price + Rehab Estimate)
+  useEffect(() => {
+    if (formData.includeFinancialBreakdown && formData.rehabEstimate) {
+      const askingPrice = parseCurrency(formData.askingPrice);
+      const rehabEstimate = parseCurrency(formData.rehabEstimate);
+      const allInCost = askingPrice + rehabEstimate;
+      
+      const formattedAllIn = formatCurrency(allInCost);
+      if (formData.allIn !== formattedAllIn) {
+        updateFormData('allIn', formattedAllIn);
+      }
+    }
+  }, [formData.askingPrice, formData.rehabEstimate, formData.includeFinancialBreakdown]);
+
+  // Auto-calculate Gross Profit (ARV - All-In Cost)
+  useEffect(() => {
+    if (formData.includeFinancialBreakdown && formData.arv && formData.allIn) {
+      const arv = parseCurrency(formData.arv);
+      const allIn = parseCurrency(formData.allIn);
+      const grossProfit = arv - allIn;
+      
+      const formattedProfit = formatCurrency(grossProfit);
+      if (formData.grossProfit !== formattedProfit) {
+        updateFormData('grossProfit', formattedProfit);
+      }
+    }
+  }, [formData.arv, formData.allIn, formData.includeFinancialBreakdown]);
+
   const updateComp = (index: number, field: string, value: string) => {
     setFormData(prev => ({
       ...prev,
@@ -2288,21 +2326,23 @@ const Index = () => {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="allIn">All-In Cost</Label>
+                    <Label htmlFor="allIn">All-In Cost (Auto-calculated)</Label>
                     <Input
                       id="allIn"
-                      placeholder="$295,000"
+                      placeholder="Auto-calculated"
                       value={formData.allIn}
-                      onChange={(e) => updateFormData('allIn', e.target.value)}
+                      readOnly
+                      className="bg-muted cursor-not-allowed"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="grossProfit">Gross Profit</Label>
+                    <Label htmlFor="grossProfit">Gross Profit (Auto-calculated)</Label>
                     <Input
                       id="grossProfit"
-                      placeholder="$30,000"
+                      placeholder="Auto-calculated"
                       value={formData.grossProfit}
-                      onChange={(e) => updateFormData('grossProfit', e.target.value)}
+                      readOnly
+                      className="bg-muted cursor-not-allowed"
                     />
                   </div>
                   <div className="md:col-span-2">
