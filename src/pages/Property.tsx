@@ -109,10 +109,10 @@ const Property = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading property...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-gray-300">Loading property...</p>
         </div>
       </div>
     );
@@ -120,12 +120,12 @@ const Property = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Card className="max-w-md">
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <Card className="max-w-md bg-card border-gray-800">
           <CardContent className="text-center p-6">
-            <h1 className="text-xl font-semibold mb-2">Listing Not Found</h1>
-            <p className="text-muted-foreground mb-4">{error}</p>
-            <Button asChild>
+            <h1 className="text-xl font-semibold mb-2 text-white">Listing Not Found</h1>
+            <p className="text-gray-300 mb-4">{error}</p>
+            <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl">
               <Link to="/">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Home
@@ -138,14 +138,14 @@ const Property = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-black">
       {/* Header with controls - always visible, fixed at top */}
-      <div className="fixed top-0 left-0 right-0 bg-card border-b print:hidden z-50 shadow-sm">
+      <div className="fixed top-0 left-0 right-0 bg-card border-b border-gray-800 print:hidden z-50 shadow-sm">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             {session ? (
-              <Button variant="outline" asChild>
-                <Link to="/">
+              <Button variant="outline" asChild className="border-gray-700 text-white hover:bg-gray-800">
+                <Link to="/app">
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Back to Generator
                 </Link>
@@ -156,15 +156,15 @@ const Property = () => {
             
             <div className="flex items-center gap-2">
               {session && (
-                <Button variant="outline" asChild>
-                  <Link to={`/?edit=${addressSlug}`}>
+                <Button variant="outline" asChild className="border-gray-700 text-white hover:bg-gray-800">
+                  <Link to={`/app?edit=${addressSlug}`}>
                     <Edit className="w-4 h-4 mr-2" />
                     Edit Property
                   </Link>
                 </Button>
               )}
               
-              <Button onClick={handleDownloadPDF} className="flex items-center gap-2">
+              <Button onClick={handleDownloadPDF} className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl">
                 <Download className="w-4 h-4" />
                 Download as PDF
               </Button>
