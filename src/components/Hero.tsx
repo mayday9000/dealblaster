@@ -51,15 +51,26 @@ const Hero = () => {
         </p>
 
         {/* Testimonial Block */}
-        <div className="bg-gray-900 rounded-2xl p-8 max-w-3xl mx-auto border border-gray-800">
-          <h3 className="text-xl font-semibold mb-4">Real listing results (testimonial)</h3>
-          <div className="bg-gray-800 rounded-xl p-6 mb-4">
-            <img src={textConversation} alt="Text conversation showing buyer interest" className="w-full rounded-lg" />
+        <div className="mt-16 max-w-2xl mx-auto text-center">
+          <h3 className="text-2xl font-bold text-white mb-8">Real listing results (testimonial)</h3>
+          
+          <div className="bg-gray-900 border border-gray-700 rounded-lg overflow-hidden mb-6 max-w-md mx-auto">
+            <img 
+              src={textConversation} 
+              alt="Text conversation showing Lucas sharing professional listing PDF and buyer showing immediate interest and requesting access" 
+              className="w-full h-auto max-h-80 object-contain"
+            />
           </div>
-          <p className="text-gray-400 italic mb-2">
+          
+          <p className="text-white text-lg mb-4">
+            Text conversation showing professional listing PDF and buyer showing immediate interest
+          </p>
+          
+          <p className="text-white text-xl italic mb-2">
             "Sent at 4:13 PM — buyer replied within minutes ready to purchase."
           </p>
-          <p className="text-sm text-gray-500">
+          
+          <p className="text-white text-sm">
             Real result from a standard DealBlaster listing.
           </p>
         </div>
