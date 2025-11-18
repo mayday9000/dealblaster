@@ -195,9 +195,8 @@ const ContactInfo = () => {
   if (loading) {
     return (
       <AuthGate>
-        <Header />
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <div className="flex items-center justify-center min-h-screen bg-black">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
         </div>
       </AuthGate>
     );
@@ -205,18 +204,18 @@ const ContactInfo = () => {
 
   return (
     <AuthGate>
-      <Header />
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <User className="h-6 w-6" />
-              Contact Information
-            </CardTitle>
-            <CardDescription>
-              Set up your default contact information. This will auto-populate when creating new property flyers.
-            </CardDescription>
-          </CardHeader>
+      <div className="min-h-screen bg-black">
+        <div className="container mx-auto px-4 py-8 max-w-4xl">
+          <Card className="bg-card border-gray-800">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-white">
+                <User className="h-6 w-6" />
+                Contact Information
+              </CardTitle>
+              <CardDescription className="text-gray-400">
+                Set up your default contact information. This will auto-populate when creating new property flyers.
+              </CardDescription>
+            </CardHeader>
           <CardContent className="space-y-6">
             {/* Basic Info */}
             <div className="space-y-4">
@@ -406,12 +405,14 @@ const ContactInfo = () => {
               <Button
                 onClick={handleSave}
                 disabled={saving}
+                className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl"
               >
                 {saving ? 'Saving...' : 'Save Contact Information'}
               </Button>
             </div>
           </CardContent>
         </Card>
+        </div>
       </div>
     </AuthGate>
   );

@@ -1430,30 +1430,30 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-black">
       <div className="p-4">
           <div className="max-w-4xl mx-auto">
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-4 mb-2">
-            <h1 className="text-4xl font-bold text-gray-900 flex items-center gap-2">
-              <Building className="h-8 w-8 text-blue-600" />
+            <h1 className="text-4xl font-bold text-white flex items-center gap-2">
+              <Building className="h-8 w-8 text-blue-500" />
               Property Flyer Generator
             </h1>
             <Button 
               variant="outline" 
               onClick={() => navigate('/test')}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 border-gray-700 text-white hover:bg-gray-800"
             >
               Test with Preset Data
             </Button>
           </div>
-          <p className="text-gray-600">Create professional investment property flyers in minutes</p>
+          <p className="text-gray-300">Create professional investment property flyers in minutes</p>
         </div>
 
         {/* Edit Mode Banner */}
         {editSlug && (
-          <Alert className="mb-6">
-            <AlertDescription className="flex items-center justify-between">
+          <Alert className="mb-6 bg-card border-gray-800">
+            <AlertDescription className="flex items-center justify-between text-white">
               <span className="font-medium">
                 Editing Property: {formData.address || editSlug}
               </span>
@@ -1464,6 +1464,7 @@ const Index = () => {
                   setSearchParams({});
                   window.location.reload();
                 }}
+                className="border-gray-700 text-white hover:bg-gray-800"
               >
                 Start New Property
               </Button>
