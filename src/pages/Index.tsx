@@ -1480,14 +1480,14 @@ const Index = () => {
 
         <div className="space-y-6">
           {/* Basic Property Info */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Home className="h-5 w-5" />
+          <div className="bg-gray-900 border border-gray-700 rounded-lg shadow-sm">
+            <div className="flex flex-col space-y-1.5 p-6">
+              <h3 className="text-2xl font-semibold leading-none tracking-tight text-white flex items-center gap-2">
+                <Home className="h-5 w-5 text-blue-500" />
                 Basic Property Information
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+              </h3>
+            </div>
+            <div className="p-6 pt-0 space-y-4">
               {!formData.isPremarket && (
                 <div>
                   <Label htmlFor="address">Full Address *</Label>
@@ -1639,19 +1639,19 @@ const Index = () => {
                   </Popover>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
           {/* Listing Headline Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Sparkles className="h-5 w-5" />
+          <div className="bg-gray-900 border border-gray-700 rounded-lg shadow-sm">
+            <div className="flex flex-col space-y-1.5 p-6">
+              <h3 className="text-2xl font-semibold leading-none tracking-tight text-white flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-blue-500" />
                 Listing Headline
-              </CardTitle>
-              <CardDescription>Create an eye-catching title for your property listing</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
+              </h3>
+              <p className="text-sm text-gray-400">Create an eye-catching title for your property listing</p>
+            </div>
+            <div className="p-6 pt-0 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="city">City *</Label>
@@ -1736,18 +1736,18 @@ const Index = () => {
                   </RadioGroup>
                 </div>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
           {/* Property Type */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MapPin className="h-5 w-5" />
+          <div className="bg-gray-900 border border-gray-700 rounded-lg shadow-sm">
+            <div className="flex flex-col space-y-1.5 p-6">
+              <h3 className="text-2xl font-semibold leading-none tracking-tight text-white flex items-center gap-2">
+                <MapPin className="h-5 w-5 text-blue-500" />
                 Property Type
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+              </h3>
+            </div>
+            <div className="p-6 pt-0 space-y-4">
               <div className="flex items-center space-x-2">
                 <Checkbox 
                   id="isLand" 
@@ -1805,19 +1805,19 @@ const Index = () => {
                   </div>
                 </div>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
 
           {/* Photo Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Upload className="h-5 w-5" />
+          <div className="bg-gray-900 border border-gray-700 rounded-lg shadow-sm">
+            <div className="flex flex-col space-y-1.5 p-6">
+              <h3 className="text-2xl font-semibold leading-none tracking-tight text-white flex items-center gap-2">
+                <Upload className="h-5 w-5 text-blue-500" />
                 Property Photos
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+              </h3>
+            </div>
+            <div className="p-6 pt-0 space-y-4">
               <div>
                 <Label htmlFor="photoLink">PHOTO LINK *</Label>
                 <Input
@@ -1846,18 +1846,18 @@ const Index = () => {
                   <p className="text-xs text-muted-foreground mt-1">Upload a new photo to replace the current one</p>
                 )}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
 
           {/* Property Overview */}
-          <Card>
-            <CardHeader>
+          <div className="bg-gray-900 border border-gray-700 rounded-lg shadow-sm">
+            <div className="flex flex-col space-y-1.5 p-6">
               <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  <Building className="h-5 w-5" />
+                <h3 className="text-2xl font-semibold leading-none tracking-tight text-white flex items-center gap-2">
+                  <Building className="h-5 w-5 text-blue-500" />
                   Property Overview
-                </CardTitle>
+                </h3>
                 {formData.address && (
                   <Button
                     type="button"
@@ -1872,8 +1872,8 @@ const Index = () => {
                   </Button>
                 )}
               </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
+            </div>
+            <div className="p-6 pt-0 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {!formData.isLand && (
                   <>
@@ -2092,20 +2092,20 @@ const Index = () => {
                   </div>
                 </>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
           {/* Big Ticket Systems */}
           {!formData.isLand && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Wrench className="h-5 w-5" />
+            <div className="bg-gray-900 border border-gray-700 rounded-lg shadow-sm">
+              <div className="flex flex-col space-y-1.5 p-6">
+                <h3 className="text-2xl font-semibold leading-none tracking-tight text-white flex items-center gap-2">
+                  <Wrench className="h-5 w-5 text-blue-500" />
                   Big Ticket Systems (Required)
-                </CardTitle>
-                <CardDescription>Information about major home systems - enter year (e.g., "2010") or age (e.g., "10 years old")</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
+                </h3>
+                <p className="text-sm text-gray-400">Information about major home systems - enter year (e.g., "2010") or age (e.g., "10 years old")</p>
+              </div>
+              <div className="p-6 pt-0 space-y-6">
                 {formData.bigTicketItems.map((item, index) => (
                   <div key={index} className="border rounded-lg p-4 space-y-4">
                     <div className="flex items-center justify-between">
@@ -2250,20 +2250,20 @@ const Index = () => {
                   <Plus className="h-4 w-4 mr-2" />
                   Add Additional System
                 </Button>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           )}
 
           {/* Occupancy */}
           {!formData.isLand && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Users className="h-5 w-5" />
+            <div className="bg-gray-900 border border-gray-700 rounded-lg shadow-sm">
+              <div className="flex flex-col space-y-1.5 p-6">
+                <h3 className="text-2xl font-semibold leading-none tracking-tight text-white flex items-center gap-2">
+                  <Users className="h-5 w-5 text-blue-500" />
                   Occupancy
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
+                </h3>
+              </div>
+              <div className="p-6 pt-0">
                 <div>
                   <Label htmlFor="occupancy">Occupancy Status *</Label>
                   <Select value={formData.occupancy} onValueChange={(value) => updateFormData('occupancy', value)}>
@@ -2296,20 +2296,20 @@ const Index = () => {
                     </SelectContent>
                   </Select>
                 </div>
-              </CardContent>
-            </Card>
+            </div>
+          </div>
           )}
 
           {/* Financial Snapshot */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calculator className="h-5 w-5" />
+          <div className="bg-gray-900 border border-gray-700 rounded-lg shadow-sm">
+            <div className="flex flex-col space-y-1.5 p-6">
+              <h3 className="text-2xl font-semibold leading-none tracking-tight text-white flex items-center gap-2">
+                <Calculator className="h-5 w-5 text-blue-500" />
                 Financial Snapshot
-              </CardTitle>
-              <CardDescription>Optional financial breakdown for investors</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
+              </h3>
+              <p className="text-sm text-gray-400">Optional financial breakdown for investors</p>
+            </div>
+            <div className="p-6 pt-0 space-y-4">
               <div className="flex items-center space-x-2">
                 <Checkbox 
                   id="includeFinancialBreakdown" 
@@ -2376,19 +2376,19 @@ const Index = () => {
                   </div>
                 </div>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
           {/* Buy & Hold Snapshot Section - Moved from after Comps */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calculator className="h-5 w-5" />
+          <div className="bg-gray-900 border border-gray-700 rounded-lg shadow-sm">
+            <div className="flex flex-col space-y-1.5 p-6">
+              <h3 className="text-2xl font-semibold leading-none tracking-tight text-white flex items-center gap-2">
+                <Calculator className="h-5 w-5 text-blue-500" />
                 🏡 Buy & Hold Snapshot
-              </CardTitle>
-              <CardDescription>Optional rental analysis for investment properties</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
+              </h3>
+              <p className="text-sm text-gray-400">Optional rental analysis for investment properties</p>
+            </div>
+            <div className="p-6 pt-0 space-y-4">
               <div className="flex items-center space-x-2">
                 <Checkbox 
                   id="includeBuyHoldSnapshot" 
@@ -2684,19 +2684,19 @@ const Index = () => {
                   )}
                 </div>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
           {/* Comps Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MapPin className="h-5 w-5" />
+          <div className="bg-gray-900 border border-gray-700 rounded-lg shadow-sm">
+            <div className="flex flex-col space-y-1.5 p-6">
+              <h3 className="text-2xl font-semibold leading-none tracking-tight text-white flex items-center gap-2">
+                <MapPin className="h-5 w-5 text-blue-500" />
                 🔍 Comparable Sales Breakdown
-              </CardTitle>
-              <CardDescription>At least 2 comparable properties are required</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
+              </h3>
+              <p className="text-sm text-gray-400">At least 2 comparable properties are required</p>
+            </div>
+            <div className="p-6 pt-0 space-y-6">
               {formData.comps.map((comp, index) => (
                 <div key={index} className="border rounded-lg p-4 space-y-4">
                   <div className="flex items-center justify-between">
@@ -3009,19 +3009,19 @@ const Index = () => {
                 <Plus className="h-4 w-4 mr-2" />
                 Add Another Comp
               </Button>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
 
           {/* Contact Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="h-5 w-5" />
+          <div className="bg-gray-900 border border-gray-700 rounded-lg shadow-sm">
+            <div className="flex flex-col space-y-1.5 p-6">
+              <h3 className="text-2xl font-semibold leading-none tracking-tight text-white flex items-center gap-2">
+                <User className="h-5 w-5 text-blue-500" />
                 Contact Information
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+              </h3>
+            </div>
+            <div className="p-6 pt-0 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="contactName">Contact Name *</Label>
@@ -3174,18 +3174,18 @@ const Index = () => {
                   <p className="text-xs text-muted-foreground mt-1">Upload a new photo to replace the current one</p>
                 )}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
           {/* Legal Disclosures */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Lock className="h-5 w-5" />
+          <div className="bg-gray-900 border border-gray-700 rounded-lg shadow-sm">
+            <div className="flex flex-col space-y-1.5 p-6">
+              <h3 className="text-2xl font-semibold leading-none tracking-tight text-white flex items-center gap-2">
+                <Lock className="h-5 w-5 text-blue-500" />
                 Legal Disclosures
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+              </h3>
+            </div>
+            <div className="p-6 pt-0 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="emdAmount">EMD Amount (Optional)</Label>
@@ -3232,8 +3232,8 @@ const Index = () => {
                   rows={4}
                 />
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
           {/* Generate Button */}
           <div className="flex justify-center">
