@@ -6,11 +6,23 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Layout } from '@/components/Layout';
+import { z } from 'zod';
+
+// Input validation schema
+const loginSchema = z.object({
+  email: z.string()
+    .trim()
+    .email({ message: "Invalid email address" })
+    .max(255, { message: "Email must be less than 255 characters" }),
+  password: z.string()
+    .min(1, { message: "Password is required" })
+    .max(255, { message: "Password must be less than 255 characters" })
+});
 
 export default function Auth() {
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [magicLinkSent, setMagicLinkSent] = useState(false);
   const { session } = useSession();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -27,10 +39,14 @@ export default function Auth() {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email) {
+    // Validate inputs
+    const validation = loginSchema.safeParse({ email, password });
+    
+    if (!validation.success) {
+      const firstError = validation.error.errors[0];
       toast({
-        title: "Email required",
-        description: "Please enter your email address",
+        title: "Invalid input",
+        description: firstError.message,
         variant: "destructive",
       });
       return;
@@ -39,24 +55,25 @@ export default function Auth() {
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          emailRedirectTo: `${window.location.origin}/app`,
-        },
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: validation.data.email,
+        password: validation.data.password,
       });
 
       if (error) throw error;
 
-      setMagicLinkSent(true);
+      // On success, redirect to /app or the route saved in location.state.from
+      const from = (location.state as any)?.from?.pathname || '/app';
+      navigate(from, { replace: true });
+      
       toast({
-        title: "Check your email",
-        description: "We sent you a magic link to sign in",
+        title: "Logged in successfully",
+        description: `Welcome back!`,
       });
     } catch (error: any) {
       toast({
-        title: "Error",
-        description: error.message || "Failed to send magic link",
+        title: "Login failed",
+        description: error.message ?? "Invalid email or password.",
         variant: "destructive",
       });
     } finally {
@@ -72,53 +89,53 @@ export default function Auth() {
             <div className="text-center mb-8">
               <h1 className="text-3xl font-bold mb-2">Sign In</h1>
               <p className="text-muted-foreground">
-                Enter your email to receive a magic link
+                Enter your credentials to access your account
               </p>
             </div>
 
-            {magicLinkSent ? (
-              <div className="bg-muted p-6 rounded-xl text-center">
-                <h2 className="text-xl font-semibold mb-2">Check your email</h2>
-                <p className="text-muted-foreground mb-4">
-                  We sent a magic link to <strong>{email}</strong>
-                </p>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Click the link in your email to sign in.
-                </p>
-                <Button 
-                  variant="outline" 
-                  onClick={() => setMagicLinkSent(false)}
-                  className="mt-2"
-                >
-                  Try another email
-                </Button>
-              </div>
-            ) : (
-              <form onSubmit={handleSignIn} className="space-y-4">
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium mb-2">
-                    Email address
-                  </label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="you@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    disabled={loading}
-                    required
-                    className="bg-input"
-                  />
-                </div>
-                <Button 
-                  type="submit" 
-                  className="w-full"
+            <form onSubmit={handleSignIn} className="space-y-4">
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium mb-2">
+                  Email address
+                </label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   disabled={loading}
-                >
-                  {loading ? 'Sending...' : 'Send Magic Link'}
-                </Button>
-              </form>
-            )}
+                  required
+                  className="bg-input"
+                  autoComplete="email"
+                />
+              </div>
+              
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium mb-2">
+                  Password
+                </label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={loading}
+                  required
+                  className="bg-input"
+                  autoComplete="current-password"
+                />
+              </div>
+              
+              <Button 
+                type="submit" 
+                className="w-full"
+                disabled={loading}
+              >
+                {loading ? 'Logging in...' : 'Log in'}
+              </Button>
+            </form>
 
             <div className="mt-6 text-center">
               <Link to="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
