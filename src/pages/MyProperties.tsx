@@ -113,7 +113,7 @@ export default function MyProperties() {
               </p>
             </div>
             <Button 
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/app')}
               className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl"
             >
               <Plus className="mr-2 h-4 w-4" />
@@ -166,7 +166,7 @@ export default function MyProperties() {
                       <Button
                         size="sm"
                         className="flex-1 border border-gray-700 bg-gray-900 text-white/80 hover:bg-gray-800 rounded-lg"
-                        onClick={() => navigate(`/?editSlug=${property.address_slug}`)}
+                        onClick={() => navigate(`/app?editSlug=${property.address_slug}`)}
                       >
                         <Edit className="mr-1 h-3 w-3" />
                         Edit
