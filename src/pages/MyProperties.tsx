@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useSession } from '@/hooks/useSession';
 import { AuthGate } from '@/components/AuthGate';
-import { Header } from '@/components/Header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
@@ -105,7 +104,6 @@ export default function MyProperties() {
   return (
     <AuthGate>
       <div className="min-h-screen bg-background">
-        <Header />
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-between mb-6">
             <div>

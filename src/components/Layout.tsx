@@ -69,6 +69,12 @@ export function Layout({ children }: LayoutProps) {
                   >
                     My Properties
                   </Link>
+                  <Link
+                    to="/contact-info"
+                    className="hidden sm:inline-flex text-sm text-foreground hover:text-primary transition-colors"
+                  >
+                    Contact Info
+                  </Link>
                   <span className="hidden md:inline-flex text-xs text-muted-foreground">
                     {user?.email}
                   </span>
