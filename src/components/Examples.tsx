@@ -5,27 +5,32 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import example1 from "@/assets/example-1.jpg";
+import example2 from "@/assets/example-2.jpg";
+import example3 from "@/assets/example-3.jpg";
+import example4 from "@/assets/example-4.jpg";
+import example5 from "@/assets/example-5.jpg";
 
 const Examples = () => {
   const examples = [
     {
-      src: "https://placehold.co/800x1200/1a1a1a/white?text=Example+1",
+      src: example1,
       alt: "Flip opportunity listing with photos and key details"
     },
     {
-      src: "https://placehold.co/800x1200/1a1a1a/white?text=Example+2",
+      src: example2,
       alt: "Property specifications and big ticket items"
     },
     {
-      src: "https://placehold.co/800x1200/1a1a1a/white?text=Example+3",
+      src: example3,
       alt: "Investment snapshot with pricing breakdown"
     },
     {
-      src: "https://placehold.co/800x1200/1a1a1a/white?text=Example+4",
+      src: example4,
       alt: "Deal summary and profit potential"
     },
     {
-      src: "https://placehold.co/800x1200/1a1a1a/white?text=Example+5",
+      src: example5,
       alt: "Contact information and branding"
     }
   ];
