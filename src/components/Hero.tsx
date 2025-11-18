@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import dealblasterLogo from "@/assets/dealblaster-logo.png";
 
 const Hero = () => {
   const scrollToForm = () => {
@@ -13,7 +14,7 @@ const Hero = () => {
       <div className="container mx-auto max-w-6xl">
         <div className="text-center mb-16">
           <div className="mb-8">
-            <img src="https://placehold.co/200x50/000000/white?text=DealBlaster" alt="DealBlaster Logo" className="h-12 mx-auto mb-8" />
+            <img src={dealblasterLogo} alt="DealBlaster Logo" className="h-12 mx-auto mb-8" />
           </div>
           
           <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
