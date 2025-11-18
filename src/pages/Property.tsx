@@ -109,10 +109,10 @@ const Property = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-400">Loading property...</p>
+          <p className="text-gray-600">Loading property...</p>
         </div>
       </div>
     );
@@ -120,11 +120,11 @@ const Property = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center px-4">
-        <div className="bg-gray-900 border border-gray-700 rounded-lg p-6 max-w-md">
+      <div className="min-h-screen bg-white flex items-center justify-center px-4">
+        <div className="bg-gray-100 border border-gray-300 rounded-lg p-6 max-w-md">
           <div className="text-center">
-            <h1 className="text-xl font-semibold text-white mb-2">Listing Not Found</h1>
-            <p className="text-gray-400 mb-4">{error}</p>
+            <h1 className="text-xl font-semibold text-gray-900 mb-2">Listing Not Found</h1>
+            <p className="text-gray-600 mb-4">{error}</p>
             <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl">
               <Link to="/">
                 <ArrowLeft className="w-4 h-4 mr-2" />
@@ -138,7 +138,7 @@ const Property = () => {
   }
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-white text-black">
       {/* Header with controls - always visible, fixed at top */}
       <div className="fixed top-0 left-0 right-0 bg-gray-900 border-b border-gray-700 print:hidden z-50 shadow-sm">
         <div className="container mx-auto px-4 py-4">
