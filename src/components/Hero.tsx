@@ -51,7 +51,7 @@ const Hero = () => {
         </p>
 
         {/* Testimonial Block */}
-        <div className="mt-24 max-w-2xl mx-auto text-center">
+        <div className="mt-32 max-w-2xl mx-auto text-center">
           <h3 className="text-2xl font-bold text-white mb-8">Real listing results (testimonial)</h3>
           
           <div className="bg-gray-900 border border-gray-700 rounded-lg overflow-hidden mb-6 max-w-md mx-auto">
