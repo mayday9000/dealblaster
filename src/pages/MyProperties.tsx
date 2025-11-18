@@ -104,16 +104,17 @@ export default function MyProperties() {
 
   return (
     <AuthGate>
-      <div className="min-h-screen bg-black">
+      <div className="min-h-screen bg-background">
+        <Header />
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-white">My Properties</h1>
-              <p className="text-gray-300 mt-1">
+              <h1 className="text-3xl font-bold">My Properties</h1>
+              <p className="text-muted-foreground mt-1">
                 Manage all your property listings
               </p>
             </div>
-            <Button onClick={() => navigate('/app')} className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl">
+            <Button onClick={() => navigate('/')}>
               <Plus className="mr-2 h-4 w-4" />
               Create New
             </Button>
@@ -121,15 +122,15 @@ export default function MyProperties() {
 
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
             </div>
           ) : properties.length === 0 ? (
-            <Card className="bg-card border-gray-800">
+            <Card>
               <CardContent className="flex flex-col items-center justify-center py-12">
-                <p className="text-gray-300 mb-4">
+                <p className="text-muted-foreground mb-4">
                   You haven't created any properties yet
                 </p>
-                <Button onClick={() => navigate('/app')} className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl">
+                <Button onClick={() => navigate('/')}>
                   <Plus className="mr-2 h-4 w-4" />
                   Create Your First Property
                 </Button>
@@ -138,45 +139,44 @@ export default function MyProperties() {
           ) : (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {properties.map((property) => (
-                <Card key={property.id} className="bg-card border-gray-800 hover:shadow-lg hover:shadow-blue-500/20 transition-shadow">
+                <Card key={property.id}>
                   <CardHeader>
-                    <CardTitle className="text-lg text-white">{property.address}</CardTitle>
-                    <CardDescription className="text-gray-400">
+                    <CardTitle className="text-lg">{property.address}</CardTitle>
+                    <CardDescription>
                       {property.city}{property.state ? `, ${property.state}` : ''}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-gray-400">Type:</span>
-                        <span className="font-medium text-white">{property.deal_type}</span>
+                        <span className="text-muted-foreground">Type:</span>
+                        <span className="font-medium">{property.deal_type}</span>
                       </div>
                       {property.asking_price && (
                         <div className="flex justify-between">
-                          <span className="text-gray-400">Price:</span>
-                          <span className="font-medium text-white">{property.asking_price}</span>
+                          <span className="text-muted-foreground">Price:</span>
+                          <span className="font-medium">{property.asking_price}</span>
                         </div>
                       )}
                       <div className="flex justify-between">
-                        <span className="text-gray-400">Created:</span>
-                        <span className="font-medium text-gray-300">{formatDate(property.created_at)}</span>
+                        <span className="text-muted-foreground">Created:</span>
+                        <span className="font-medium">{formatDate(property.created_at)}</span>
                       </div>
                     </div>
                     <div className="flex gap-2 mt-4">
                       <Button
                         variant="outline"
                         size="sm"
-                        className="flex-1 border-gray-700 text-white hover:bg-gray-800"
-                        onClick={() => navigate(`/app?editSlug=${property.address_slug}`)}
+                        className="flex-1"
+                        onClick={() => navigate(`/?editSlug=${property.address_slug}`)}
                       >
                         <Edit className="mr-2 h-4 w-4" />
                         Edit
                       </Button>
                       <Button
-                        variant="outline"
+                        variant="destructive"
                         size="sm"
                         onClick={() => setDeleteId(property.id)}
-                        className="border-gray-700 text-white hover:bg-gray-800"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -189,16 +189,16 @@ export default function MyProperties() {
         </div>
 
         <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
-          <AlertDialogContent className="bg-card border-gray-800">
+          <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle className="text-white">Are you sure?</AlertDialogTitle>
-              <AlertDialogDescription className="text-gray-300">
+              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+              <AlertDialogDescription>
                 This action cannot be undone. This will permanently delete your property listing.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel className="border-gray-700 text-white hover:bg-gray-800">Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={handleDelete} className="bg-blue-600 hover:bg-blue-700 text-white">Delete</AlertDialogAction>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
