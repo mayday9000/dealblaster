@@ -1430,24 +1430,24 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-black">
       <div className="p-4">
           <div className="max-w-4xl mx-auto">
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-4 mb-2">
-            <h1 className="text-4xl font-bold text-gray-900 flex items-center gap-2">
-              <Building className="h-8 w-8 text-blue-600" />
+            <h1 className="text-4xl font-bold text-white flex items-center gap-2">
+              <Building className="h-8 w-8 text-primary" />
               Property Flyer Generator
             </h1>
             <Button 
               variant="outline" 
               onClick={() => navigate('/test')}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 border-border bg-card text-card-foreground hover:bg-card/80"
             >
               Test with Preset Data
             </Button>
           </div>
-          <p className="text-gray-600">Create professional investment property flyers in minutes</p>
+          <p className="text-gray-400">Create professional investment property flyers in minutes</p>
         </div>
 
         {/* Edit Mode Banner */}
@@ -1956,7 +1956,7 @@ const Index = () => {
                     </div>
                   </div>
                   {formData.lotSize && (
-                    <p className="text-sm text-gray-600 mt-1">
+                    <p className="text-sm text-gray-400 mt-1">
                       Display: "{formData.lotSize} {formData.lotSizeUnit}"
                     </p>
                   )}
@@ -2057,7 +2057,7 @@ const Index = () => {
                       </div>
                     </div>
                     {formData.parkingSpaces && formData.parkingType && (
-                      <p className="text-sm text-gray-600 mt-2">
+                      <p className="text-sm text-gray-400 mt-2">
                         Display: "{formData.parkingSpaces} {formData.parkingType} spaces"
                       </p>
                     )}
@@ -2277,7 +2277,7 @@ const Index = () => {
                     </SelectContent>
                   </Select>
                   {formData.occupancy === "Owner Occupied" && (
-                    <p className="text-sm text-gray-600 mt-2">
+                    <p className="text-sm text-gray-400 mt-2">
                       Display: "Owner Occupied (to be delivered vacant)"
                     </p>
                   )}
@@ -3097,7 +3097,7 @@ const Index = () => {
                           onChange={(e) => updateFormData('businessHours', { ...formData.businessHours, startTime: e.target.value })}
                           className="pr-10"
                         />
-                        <Clock className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
+                        <Clock className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                       </div>
                     </div>
                     
@@ -3112,7 +3112,7 @@ const Index = () => {
                           onChange={(e) => updateFormData('businessHours', { ...formData.businessHours, endTime: e.target.value })}
                           className="pr-10"
                         />
-                        <Clock className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
+                        <Clock className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                       </div>
                     </div>
                     
@@ -3205,7 +3205,7 @@ const Index = () => {
                       value={formData.emdDueDate}
                       onChange={(e) => updateFormData('emdDueDate', e.target.value)}
                     />
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-gray-400 mt-1">
                       Typically within 24 hours of signed purchase offer
                     </p>
                   </div>
