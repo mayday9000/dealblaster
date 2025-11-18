@@ -113,12 +113,12 @@ const LeadForm = () => {
 
   if (isSubmitted) {
     return (
-      <section id="lead-form" className="py-20 px-4">
-        <div className="container mx-auto max-w-md text-center">
-          <div className="bg-gray-900 rounded-2xl p-12 border border-gray-800">
+      <section id="lead-form" className="py-12 bg-black">
+        <div className="max-w-xl mx-auto px-4 sm:px-6 lg:px-8 pb-20 sm:pb-0">
+          <div className="bg-gray-900 rounded-2xl shadow-xl p-8 border border-gray-800 text-center">
             <CheckCircle2 className="w-16 h-16 text-green-500 mx-auto mb-6" />
-            <h3 className="text-3xl font-bold mb-4">Thanks! You're on the list.</h3>
-            <p className="text-gray-400">We'll reach out soon.</p>
+            <h3 className="text-3xl font-bold text-white mb-4">Thanks! You're on the list.</h3>
+            <p className="text-gray-300">We'll reach out soon.</p>
           </div>
         </div>
       </section>
@@ -126,19 +126,21 @@ const LeadForm = () => {
   }
 
   return (
-    <section id="lead-form" className="py-20 px-4">
-      <div className="container mx-auto max-w-md">
-        <div className="bg-gray-900 rounded-2xl p-8 border border-gray-800">
-          <h3 className="text-3xl font-bold text-center mb-2">Join The Waitlist</h3>
-          <p className="text-gray-400 text-center mb-8">Be the first to know when DealBlaster launches</p>
+    <section id="lead-form" className="py-12 bg-black">
+      <div className="max-w-xl mx-auto px-4 sm:px-6 lg:px-8 pb-20 sm:pb-0">
+        <div className="bg-gray-900 rounded-2xl shadow-xl p-8 border border-gray-800">
+          <div className="text-center mb-8">
+            <h3 className="text-3xl font-bold text-white mb-2">Join The Waitlist</h3>
+            <p className="text-gray-300 font-bold">Be the first to know when DealBlaster launches</p>
+          </div>
           
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <Label htmlFor="fullName" className="text-white mb-2 block">Full Name *</Label>
+              <Label htmlFor="fullName" className="text-white font-medium text-lg mb-2 block">Full Name *</Label>
               <Input
                 id="fullName"
                 type="text"
-                placeholder="John Doe"
+                placeholder="Enter your full name"
                 value={formData.fullName}
                 onChange={(e) => handleInputChange('fullName', e.target.value)}
                 className={`rounded-xl bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500 ${errors.fullName ? 'border-red-500' : ''}`}
@@ -150,7 +152,7 @@ const LeadForm = () => {
             </div>
 
             <div>
-              <Label htmlFor="phone" className="text-white mb-2 block">Phone Number *</Label>
+              <Label htmlFor="phone" className="text-white font-medium text-lg mb-2 block">Phone Number *</Label>
               <Input
                 id="phone"
                 type="tel"
@@ -166,11 +168,11 @@ const LeadForm = () => {
             </div>
 
             <div>
-              <Label htmlFor="email" className="text-white mb-2 block">Email Address *</Label>
+              <Label htmlFor="email" className="text-white font-medium text-lg mb-2 block">Email Address *</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="john@example.com"
+                placeholder="your@email.com"
                 value={formData.email}
                 onChange={(e) => handleInputChange('email', e.target.value)}
                 className={`rounded-xl bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500 ${errors.email ? 'border-red-500' : ''}`}
@@ -183,13 +185,13 @@ const LeadForm = () => {
 
             <Button 
               type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-6 text-lg rounded-xl"
+              className="w-full rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold py-6 text-lg"
               disabled={isSubmitting}
             >
               {isSubmitting ? 'Notifying...' : 'Notify Me'}
             </Button>
 
-            <p className="text-sm text-gray-500 text-center">
+            <p className="text-sm text-gray-400 text-center">
               We'll only use your info to contact you about DealBlaster.
             </p>
           </form>

@@ -9,14 +9,15 @@ const FinalCTA = () => {
   };
 
   return (
-    <section className="py-20 px-4 bg-gray-950">
-      <div className="container mx-auto max-w-4xl text-center">
-        <h2 className="text-4xl md:text-5xl font-bold mb-8">
+    <section className="py-16 bg-black">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 className="text-4xl lg:text-5xl font-bold text-white mb-8">
           Ready to move deals faster?
         </h2>
+        
         <Button 
           onClick={scrollToForm}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-12 py-6 text-lg rounded-xl"
+          className="w-full sm:w-auto rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-6 text-lg"
         >
           Join the Waitlist
         </Button>
