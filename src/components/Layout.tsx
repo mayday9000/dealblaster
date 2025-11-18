@@ -37,7 +37,7 @@ export function Layout({ children }: LayoutProps) {
   return (
     <div className="min-h-screen bg-background">
       {/* Navbar */}
-      <nav className="sticky top-0 z-50 bg-background border-b border-border">
+      <nav className="sticky top-0 z-50 bg-black border-b border-border">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             {/* Left side - Logo */}
@@ -53,35 +53,36 @@ export function Layout({ children }: LayoutProps) {
                 <>
                   <Link
                     to="/"
-                    className="hidden sm:inline-flex text-sm text-foreground hover:text-primary transition-colors"
+                    className="hidden sm:inline-flex text-sm text-white hover:text-primary transition-colors"
                   >
                     Home
                   </Link>
                   <Link
                     to="/app"
-                    className="text-sm text-foreground hover:text-primary transition-colors"
+                    className="text-sm text-white hover:text-primary transition-colors"
                   >
                     Dashboard
                   </Link>
                   <Link
                     to="/my-properties"
-                    className="hidden sm:inline-flex text-sm text-foreground hover:text-primary transition-colors"
+                    className="hidden sm:inline-flex text-sm text-white hover:text-primary transition-colors"
                   >
                     My Properties
                   </Link>
                   <Link
                     to="/contact-info"
-                    className="hidden sm:inline-flex text-sm text-foreground hover:text-primary transition-colors"
+                    className="hidden sm:inline-flex text-sm text-white hover:text-primary transition-colors"
                   >
                     Contact Info
                   </Link>
-                  <span className="hidden md:inline-flex text-xs text-muted-foreground">
+                  <span className="hidden md:inline-flex text-xs text-gray-400">
                     {user?.email}
                   </span>
                   <Button
                     onClick={handleSignOut}
                     variant="outline"
                     size="sm"
+                    className="border-white/20 text-white hover:bg-white/10"
                   >
                     Log out
                   </Button>
@@ -90,13 +91,14 @@ export function Layout({ children }: LayoutProps) {
                 <>
                   <Link
                     to="/"
-                    className="hidden sm:inline-flex text-sm text-foreground hover:text-primary transition-colors"
+                    className="hidden sm:inline-flex text-sm text-white hover:text-primary transition-colors"
                   >
                     Home
                   </Link>
                   <Button
                     onClick={() => navigate('/login')}
                     size="sm"
+                    className="bg-primary text-white hover:bg-primary/90"
                   >
                     Log in
                   </Button>

@@ -9,7 +9,6 @@ import { User, Phone, Mail, Building, Clock, Globe, Upload, Image as ImageIcon }
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { AuthGate } from '@/components/AuthGate';
-import { Header } from '@/components/Header';
 import { useSession } from '@/hooks/useSession';
 
 interface UserProfile {
@@ -195,7 +194,6 @@ const ContactInfo = () => {
   if (loading) {
     return (
       <AuthGate>
-        <Header />
         <div className="flex items-center justify-center min-h-screen">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
@@ -205,7 +203,6 @@ const ContactInfo = () => {
 
   return (
     <AuthGate>
-      <Header />
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <Card>
           <CardHeader>
