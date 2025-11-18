@@ -174,7 +174,7 @@ const Property = () => {
       </div>
 
       {/* Property content with top padding to account for fixed header */}
-      <div className="property-content pt-20">
+      <div className="property-content pt-20 bg-white">
         {/* Use extracted content for both screen and print for consistency */}
         <div className="flyer-container mx-auto max-w-4xl px-4 text-left">
           <div 
@@ -217,11 +217,17 @@ const Property = () => {
         }
         
         @media print {
+          /* Ensure white background for printing */
+          body, html {
+            background: white !important;
+          }
+          
           .print\\:hidden {
             display: none !important;
           }
           
           .property-content {
+            background: white !important;
             margin: 0;
             padding: 0 !important;
             max-width: none !important;

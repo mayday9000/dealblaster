@@ -72,9 +72,7 @@ const App = () => (
             path="/property"
             element={
               <AuthGate>
-                <Layout>
-                  <Property />
-                </Layout>
+                <Property />
               </AuthGate>
             }
           />
