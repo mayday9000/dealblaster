@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import dealblasterLogo from "@/assets/dealblaster-logo.png";
+import textConversation from "@/assets/text-conversation.png";
 
 const Hero = () => {
   const scrollToForm = () => {
@@ -45,7 +46,7 @@ const Hero = () => {
         <div className="bg-gray-900 rounded-2xl p-8 max-w-3xl mx-auto border border-gray-800">
           <h3 className="text-xl font-semibold mb-4">Real listing results (testimonial)</h3>
           <div className="bg-gray-800 rounded-xl p-6 mb-4">
-            <img src="https://placehold.co/600x400/1a1a1a/white?text=Text+Conversation" alt="Text conversation" className="w-full rounded-lg" />
+            <img src={textConversation} alt="Text conversation showing buyer interest" className="w-full rounded-lg" />
           </div>
           <p className="text-gray-400 italic mb-2">
             "Sent at 4:13 PM — buyer replied within minutes ready to purchase."
