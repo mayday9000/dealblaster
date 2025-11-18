@@ -103,16 +103,19 @@ export default function MyProperties() {
 
   return (
     <AuthGate>
-      <div className="min-h-screen bg-background">
-        <div className="container mx-auto px-4 py-8">
+      <div className="min-h-screen bg-black">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-3xl font-bold">My Properties</h1>
-              <p className="text-muted-foreground mt-1">
+              <h1 className="text-3xl lg:text-4xl font-bold text-white">My Properties</h1>
+              <p className="text-sm text-gray-400 mt-1">
                 Manage all your property listings
               </p>
             </div>
-            <Button onClick={() => navigate('/')}>
+            <Button 
+              onClick={() => navigate('/')}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl"
+            >
               <Plus className="mr-2 h-4 w-4" />
               Create New
             </Button>
@@ -135,52 +138,49 @@ export default function MyProperties() {
               </CardContent>
             </Card>
           ) : (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {properties.map((property) => (
-                <Card key={property.id}>
-                  <CardHeader>
-                    <CardTitle className="text-lg">{property.address}</CardTitle>
-                    <CardDescription>
+                <div key={property.id} className="bg-gray-900 border border-gray-700 rounded-lg p-6 hover:shadow-lg transition-shadow">
+                  <div className="mb-4">
+                    <h3 className="text-xl font-semibold text-white mb-2">{property.address}</h3>
+                    <p className="text-sm text-gray-400">
                       {property.city}{property.state ? `, ${property.state}` : ''}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Type:</span>
-                        <span className="font-medium">{property.deal_type}</span>
-                      </div>
-                      {property.asking_price && (
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Price:</span>
-                          <span className="font-medium">{property.asking_price}</span>
-                        </div>
-                      )}
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Created:</span>
-                        <span className="font-medium">{formatDate(property.created_at)}</span>
-                      </div>
+                    </p>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-400">Type:</span>
+                      <span className="font-medium text-white">{property.deal_type}</span>
                     </div>
-                    <div className="flex gap-2 mt-4">
+                    {property.asking_price && (
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-400">Price:</span>
+                        <span className="font-semibold text-blue-400">{property.asking_price}</span>
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-gray-500">Created:</span>
+                      <span className="text-gray-400">{formatDate(property.created_at)}</span>
+                    </div>
+                    <div className="flex gap-2 pt-3">
                       <Button
-                        variant="outline"
                         size="sm"
-                        className="flex-1"
+                        className="flex-1 border border-gray-700 bg-gray-900 text-white/80 hover:bg-gray-800 rounded-lg"
                         onClick={() => navigate(`/?editSlug=${property.address_slug}`)}
                       >
-                        <Edit className="mr-2 h-4 w-4" />
+                        <Edit className="mr-1 h-3 w-3" />
                         Edit
                       </Button>
                       <Button
-                        variant="destructive"
                         size="sm"
+                        className="border border-red-900 bg-transparent text-red-400 hover:bg-red-950 rounded-lg"
                         onClick={() => setDeleteId(property.id)}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               ))}
             </div>
           )}

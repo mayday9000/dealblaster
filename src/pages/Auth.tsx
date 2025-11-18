@@ -85,17 +85,17 @@ export default function Auth() {
     <Layout>
       <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center py-12 px-4">
         <div className="max-w-md w-full">
-          <div className="bg-card border border-border rounded-2xl p-8 shadow-lg">
+          <div className="bg-gray-900 border border-gray-700 rounded-2xl p-8 shadow-lg">
             <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold mb-2">Sign In</h1>
-              <p className="text-muted-foreground">
+              <h1 className="text-3xl font-bold text-white mb-2">Sign In</h1>
+              <p className="text-sm text-gray-400">
                 Enter your credentials to access your account
               </p>
             </div>
 
             <form onSubmit={handleSignIn} className="space-y-4">
               <div>
-                <label htmlFor="email" className="block text-sm font-medium mb-2">
+                <label htmlFor="email" className="block text-xs font-medium text-gray-300 mb-2">
                   Email address
                 </label>
                 <Input
@@ -112,7 +112,7 @@ export default function Auth() {
               </div>
               
               <div>
-                <label htmlFor="password" className="block text-sm font-medium mb-2">
+                <label htmlFor="password" className="block text-xs font-medium text-gray-300 mb-2">
                   Password
                 </label>
                 <Input
@@ -130,7 +130,7 @@ export default function Auth() {
               
               <Button 
                 type="submit" 
-                className="w-full"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl"
                 disabled={loading}
               >
                 {loading ? 'Logging in...' : 'Log in'}
@@ -138,7 +138,7 @@ export default function Auth() {
             </form>
 
             <div className="mt-6 text-center">
-              <Link to="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <Link to="/" className="text-sm text-blue-400 hover:text-blue-300 hover:underline transition-colors">
                 ← Back to home
               </Link>
             </div>

@@ -35,9 +35,9 @@ export function Layout({ children }: LayoutProps) {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-black text-white">
       {/* Navbar */}
-      <nav className="sticky top-0 z-50 bg-black border-b border-border">
+      <nav className="sticky top-0 z-50 bg-black border-b border-gray-800">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             {/* Left side - Logo */}
@@ -78,10 +78,10 @@ export function Layout({ children }: LayoutProps) {
                   <span className="hidden md:inline-flex text-xs text-gray-400">
                     {user?.email}
                   </span>
-                  <Button
+                   <Button
                     onClick={handleSignOut}
-                    variant="outline"
                     size="sm"
+                    className="border border-white/20 bg-transparent text-white hover:bg-white/10 rounded-lg"
                   >
                     Log out
                   </Button>
@@ -97,7 +97,7 @@ export function Layout({ children }: LayoutProps) {
                   <Button
                     onClick={() => navigate('/login')}
                     size="sm"
-                    className="bg-primary text-white hover:bg-primary/90"
+                    className="bg-blue-600 text-white hover:bg-blue-700 rounded-xl font-semibold"
                   >
                     Log in
                   </Button>
