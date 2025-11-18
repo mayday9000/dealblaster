@@ -26,7 +26,7 @@ export function AuthGate({ children, fallback }: AuthGateProps) {
             <div className="text-center">
               <p className="mb-4">Please sign in to continue</p>
               <Link 
-                to="/auth" 
+                to="/login" 
                 className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
               >
                 Sign in

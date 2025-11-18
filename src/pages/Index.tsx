@@ -19,8 +19,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { slugify } from '@/utils/slugify';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AuthGate } from '@/components/AuthGate';
-import { Header } from '@/components/Header';
 import { useSession } from '@/hooks/useSession';
 import { buildAbsoluteShareUrl } from '@/lib/shareLinks';
 
@@ -1432,10 +1430,8 @@ const Index = () => {
   };
 
   return (
-    <AuthGate>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-        <Header />
-        <div className="p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="p-4">
           <div className="max-w-4xl mx-auto">
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-4 mb-2">
@@ -3272,7 +3268,6 @@ const Index = () => {
       />
         </div>
       </div>
-    </AuthGate>
   );
 };
 
