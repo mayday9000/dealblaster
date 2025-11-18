@@ -36,29 +36,35 @@ const Examples = () => {
   ];
 
   return (
-    <section className="py-20 px-4">
-      <div className="container mx-auto max-w-6xl">
-        <h2 className="text-4xl md:text-5xl font-bold text-center mb-16">Real DealBlaster Examples</h2>
+    <section className="bg-black py-16 px-4 sm:px-6 lg:px-8">
+      <div className="container mx-auto max-w-4xl">
+        <h2 className="text-4xl lg:text-5xl font-bold text-white text-center mb-12">
+          Real DealBlaster Examples
+        </h2>
         
-        <Carousel className="w-full max-w-2xl mx-auto mb-12">
+        <Carousel className="relative w-full overflow-hidden mb-8">
           <CarouselContent>
             {examples.map((example, index) => (
-              <CarouselItem key={index}>
-                <img 
-                  src={example.src} 
-                  alt={example.alt}
-                  className="w-full h-auto rounded-xl border border-gray-800"
-                />
+              <CarouselItem key={index} className="flex justify-center">
+                <div className="bg-gray-900 border border-gray-700 rounded-lg overflow-hidden max-w-sm md:max-w-md lg:max-w-lg">
+                  <img 
+                    src={example.src} 
+                    alt={example.alt}
+                    className="w-full h-auto"
+                  />
+                </div>
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious className="bg-gray-800 border-gray-700 text-white hover:bg-gray-700" />
-          <CarouselNext className="bg-gray-800 border-gray-700 text-white hover:bg-gray-700" />
+          <CarouselPrevious className="bg-white/90 text-black border-white hover:bg-white left-4 md:left-8" />
+          <CarouselNext className="bg-white/90 text-black border-white hover:bg-white right-4 md:right-8" />
         </Carousel>
         
-        <p className="text-center text-gray-400 text-lg max-w-3xl mx-auto">
-          Each listing is professionally formatted with all the key details buyers need: photos, comps, pricing, closing timeline, and property specifications. No more back-and-forth questions or endless follow-ups.
-        </p>
+        <div className="text-center">
+          <p className="text-lg text-gray-300 max-w-3xl mx-auto">
+            Each listing is professionally formatted with all the key details buyers need: photos, comps, pricing, closing timeline, and property specifications. No more back-and-forth questions or endless follow-ups.
+          </p>
+        </div>
       </div>
     </section>
   );
