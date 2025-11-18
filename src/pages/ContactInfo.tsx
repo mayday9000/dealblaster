@@ -194,8 +194,8 @@ const ContactInfo = () => {
   if (loading) {
     return (
       <AuthGate>
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <div className="flex items-center justify-center min-h-screen bg-black">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
       </AuthGate>
     );
@@ -203,212 +203,228 @@ const ContactInfo = () => {
 
   return (
     <AuthGate>
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <User className="h-6 w-6" />
-              Contact Information
-            </CardTitle>
-            <CardDescription>
-              Set up your default contact information. This will auto-populate when creating new property flyers.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Basic Info */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold flex items-center gap-2">
-                <User className="h-5 w-5" />
-                Basic Information
-              </h3>
-              
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="contact_name">Name</Label>
-                  <Input
-                    id="contact_name"
-                    value={profileData.contact_name}
-                    onChange={(e) => setProfileData({ ...profileData, contact_name: e.target.value })}
-                    placeholder="John Doe"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="contact_phone">Phone Number</Label>
-                  <Input
-                    id="contact_phone"
-                    value={profileData.contact_phone}
-                    onChange={(e) => setProfileData({ ...profileData, contact_phone: e.target.value })}
-                    placeholder="(555) 123-4567"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="contact_email">Email <span className="text-destructive">*</span></Label>
-                  <Input
-                    id="contact_email"
-                    type="email"
-                    value={profileData.contact_email}
-                    onChange={(e) => setProfileData({ ...profileData, contact_email: e.target.value })}
-                    placeholder="john@example.com"
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="office_number">Office Number</Label>
-                  <Input
-                    id="office_number"
-                    value={profileData.office_number}
-                    onChange={(e) => setProfileData({ ...profileData, office_number: e.target.value })}
-                    placeholder="(555) 987-6543"
-                  />
-                </div>
-
-                <div className="space-y-2 md:col-span-2">
-                  <Label htmlFor="website">Website</Label>
-                  <Input
-                    id="website"
-                    value={profileData.website}
-                    onChange={(e) => setProfileData({ ...profileData, website: e.target.value })}
-                    placeholder="https://example.com"
-                  />
-                </div>
-              </div>
+      <div className="min-h-screen bg-black px-4 sm:px-6 lg:px-8 py-12">
+        <div className="container mx-auto max-w-4xl">
+          <div className="bg-gray-900 border border-gray-700 rounded-lg p-6">
+            <div className="mb-6">
+              <h1 className="text-3xl lg:text-4xl font-bold text-white mb-2 flex items-center gap-2">
+                <User className="h-6 w-6 text-blue-500" />
+                Contact Information
+              </h1>
+              <p className="text-sm text-gray-400">
+                Set up your default contact information. This will auto-populate when creating new property flyers.
+              </p>
             </div>
 
-            {/* Business Hours */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold flex items-center gap-2">
-                <Clock className="h-5 w-5" />
-                Business Hours
-              </h3>
+            <div className="space-y-6">
+              {/* Basic Info */}
+              <div className="space-y-4">
+                <h3 className="text-2xl font-semibold text-white flex items-center gap-2">
+                  <User className="h-5 w-5 text-blue-500" />
+                  Basic Information
+                </h3>
               
-              <div className="flex items-center space-x-2 mb-4">
-                <Checkbox
-                  id="include_business_hours"
-                  checked={includeBusinessHours}
-                  onCheckedChange={(checked) => setIncludeBusinessHours(checked as boolean)}
-                />
-                <Label htmlFor="include_business_hours" className="cursor-pointer">
-                  Include Business Hours
-                </Label>
-              </div>
-              
-              {includeBusinessHours && (
-                <div className="grid gap-4 md:grid-cols-3">
+                <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
-                    <Label htmlFor="start_time">Start Time</Label>
+                    <Label htmlFor="contact_name" className="text-xs font-medium text-gray-300">Name</Label>
                     <Input
-                      id="start_time"
-                      type="time"
-                      value={profileData.business_hours.startTime}
-                      onChange={(e) => setProfileData({
-                        ...profileData,
-                        business_hours: { ...profileData.business_hours, startTime: e.target.value }
-                      })}
+                      id="contact_name"
+                      value={profileData.contact_name}
+                      onChange={(e) => setProfileData({ ...profileData, contact_name: e.target.value })}
+                      placeholder="John Doe"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="end_time">End Time</Label>
+                    <Label htmlFor="contact_phone" className="text-xs font-medium text-gray-300">Phone Number</Label>
                     <Input
-                      id="end_time"
-                      type="time"
-                      value={profileData.business_hours.endTime}
-                      onChange={(e) => setProfileData({
-                        ...profileData,
-                        business_hours: { ...profileData.business_hours, endTime: e.target.value }
-                      })}
+                      id="contact_phone"
+                      value={profileData.contact_phone}
+                      onChange={(e) => setProfileData({ ...profileData, contact_phone: e.target.value })}
+                      placeholder="(555) 123-4567"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="timezone">Timezone</Label>
-                    <Select
-                      value={profileData.business_hours.timeZone}
-                      onValueChange={(value) => setProfileData({
-                        ...profileData,
-                        business_hours: { ...profileData.business_hours, timeZone: value }
-                      })}
-                    >
-                      <SelectTrigger id="timezone">
-                        <SelectValue placeholder="Select timezone" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {timezones.map((tz) => (
-                          <SelectItem key={tz} value={tz}>{tz}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Label htmlFor="contact_email" className="text-xs font-medium text-gray-300">Email <span className="text-red-400">*</span></Label>
+                    <Input
+                      id="contact_email"
+                      type="email"
+                      value={profileData.contact_email}
+                      onChange={(e) => setProfileData({ ...profileData, contact_email: e.target.value })}
+                      placeholder="john@example.com"
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="office_number" className="text-xs font-medium text-gray-300">Office Number</Label>
+                    <Input
+                      id="office_number"
+                      value={profileData.office_number}
+                      onChange={(e) => setProfileData({ ...profileData, office_number: e.target.value })}
+                      placeholder="(555) 987-6543"
+                    />
+                  </div>
+
+                  <div className="space-y-2 md:col-span-2">
+                    <Label htmlFor="website" className="text-xs font-medium text-gray-300">Website</Label>
+                    <Input
+                      id="website"
+                      value={profileData.website}
+                      onChange={(e) => setProfileData({ ...profileData, website: e.target.value })}
+                      placeholder="https://example.com"
+                    />
                   </div>
                 </div>
-              )}
-            </div>
+              </div>
 
-            {/* Images */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold flex items-center gap-2">
-                <ImageIcon className="h-5 w-5" />
-                Images
-              </h3>
+              {/* Business Hours */}
+              <div className="space-y-4 border-t border-gray-700 pt-6">
+                <h3 className="text-2xl font-semibold text-white flex items-center gap-2">
+                  <Clock className="h-5 w-5 text-blue-500" />
+                  Business Hours
+                </h3>
               
-              <div className="grid gap-6 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="company_logo">Company Logo</Label>
-                  <div className="space-y-3">
-                    {companyLogoPreview && (
-                      <div className="relative w-full h-32 rounded-lg border overflow-hidden bg-muted">
-                        <img
-                          src={companyLogoPreview}
-                          alt="Company Logo"
-                          className="w-full h-full object-contain p-2"
+                <div className="flex items-center space-x-2 mb-4">
+                  <Checkbox
+                    id="include_business_hours"
+                    checked={includeBusinessHours}
+                    onCheckedChange={(checked) => setIncludeBusinessHours(checked as boolean)}
+                  />
+                  <Label htmlFor="include_business_hours" className="cursor-pointer text-sm text-gray-300">
+                    Include Business Hours
+                  </Label>
+                </div>
+              
+                {includeBusinessHours && (
+                  <div className="grid gap-4 md:grid-cols-3">
+                    <div className="space-y-2">
+                      <Label htmlFor="start_time" className="text-xs font-medium text-gray-300">Start Time</Label>
+                      <Input
+                        id="start_time"
+                        type="time"
+                        value={profileData.business_hours.startTime}
+                        onChange={(e) => setProfileData({
+                          ...profileData,
+                          business_hours: { ...profileData.business_hours, startTime: e.target.value }
+                        })}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="end_time" className="text-xs font-medium text-gray-300">End Time</Label>
+                      <Input
+                        id="end_time"
+                        type="time"
+                        value={profileData.business_hours.endTime}
+                        onChange={(e) => setProfileData({
+                          ...profileData,
+                          business_hours: { ...profileData.business_hours, endTime: e.target.value }
+                        })}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="timezone" className="text-xs font-medium text-gray-300">Timezone</Label>
+                      <Select
+                        value={profileData.business_hours.timeZone}
+                        onValueChange={(value) => setProfileData({
+                          ...profileData,
+                          business_hours: { ...profileData.business_hours, timeZone: value }
+                        })}
+                      >
+                        <SelectTrigger id="timezone">
+                          <SelectValue placeholder="Select timezone" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {timezones.map((tz) => (
+                            <SelectItem key={tz} value={tz}>{tz}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Images */}
+              <div className="space-y-4 border-t border-gray-700 pt-6">
+                <h3 className="text-2xl font-semibold text-white flex items-center gap-2">
+                  <ImageIcon className="h-5 w-5 text-blue-500" />
+                  Images
+                </h3>
+                
+                <div className="grid gap-6 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="company_logo" className="text-xs font-medium text-gray-300">Company Logo</Label>
+                    <div className="space-y-3">
+                      {companyLogoPreview && (
+                        <div className="relative w-full h-32 rounded-lg border border-gray-700 overflow-hidden bg-gray-800">
+                          <img
+                            src={companyLogoPreview}
+                            alt="Company Logo"
+                            className="w-full h-full object-contain p-2"
+                          />
+                        </div>
+                      )}
+                      <div className="border-2 border-dashed border-gray-700 rounded-lg p-4 bg-gray-800/50 hover:bg-gray-800/70 transition-colors">
+                        <Input
+                          id="company_logo"
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleImageChange(e, 'logo')}
+                          className="cursor-pointer"
                         />
+                        <p className="text-xs text-gray-500 mt-2">
+                          Upload your company logo
+                        </p>
                       </div>
-                    )}
-                    <Input
-                      id="company_logo"
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleImageChange(e, 'logo')}
-                    />
+                    </div>
                   </div>
-                </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="contact_image">Personal Headshot</Label>
-                  <div className="space-y-3">
-                    {contactImagePreview && (
-                      <div className="relative w-full h-32 rounded-lg border overflow-hidden bg-muted">
-                        <img
-                          src={contactImagePreview}
-                          alt="Contact"
-                          className="w-full h-full object-cover"
+                  <div className="space-y-2">
+                    <Label htmlFor="contact_image" className="text-xs font-medium text-gray-300">Personal Headshot</Label>
+                    <div className="space-y-3">
+                      {contactImagePreview && (
+                        <div className="relative w-full h-32 rounded-lg border border-gray-700 overflow-hidden bg-gray-800">
+                          <img
+                            src={contactImagePreview}
+                            alt="Contact"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      )}
+                      <div className="border-2 border-dashed border-gray-700 rounded-lg p-4 bg-gray-800/50 hover:bg-gray-800/70 transition-colors">
+                        <Input
+                          id="contact_image"
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleImageChange(e, 'image')}
+                          className="cursor-pointer"
                         />
+                        <p className="text-xs text-gray-500 mt-2">
+                          Upload your headshot
+                        </p>
                       </div>
-                    )}
-                    <Input
-                      id="contact_image"
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleImageChange(e, 'image')}
-                    />
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Action Buttons */}
-            <div className="flex justify-end gap-3 pt-4">
-              <Button
-                onClick={handleSave}
-                disabled={saving}
-              >
-                {saving ? 'Saving...' : 'Save Contact Information'}
-              </Button>
+              {/* Action Buttons */}
+              <div className="flex justify-end gap-3 pt-6 border-t border-gray-700">
+                <Button
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl w-full sm:w-auto"
+                >
+                  {saving ? 'Saving...' : 'Save Contact Information'}
+                </Button>
+              </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </AuthGate>
   );
