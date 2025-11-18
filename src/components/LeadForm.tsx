@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CheckCircle2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface FormData {
   fullName: string;
@@ -71,7 +72,19 @@ const LeadForm = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('https://primary-production-b0d4.up.railway.app/webhook/a9ab59e7-de83-40d0-af55-8434f6364abf', {
+      // Save to Supabase
+      const { error: supabaseError } = await supabase
+        .from('waitlist_signups')
+        .insert({
+          name: formData.fullName,
+          phone: formData.phone,
+          email: formData.email
+        });
+
+      if (supabaseError) throw supabaseError;
+
+      // Also post to webhook
+      await fetch('https://primary-production-b0d4.up.railway.app/webhook/a9ab59e7-de83-40d0-af55-8434f6364abf', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -82,10 +95,6 @@ const LeadForm = () => {
           email: formData.email
         })
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to submit form');
-      }
 
       setIsSubmitted(true);
       toast({
