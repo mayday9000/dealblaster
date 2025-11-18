@@ -1,3 +1,5 @@
+import lucasPhoto from "@/assets/lucas-founder.png";
+
 const Founder = () => {
   return (
     <section className="py-20 px-4">
@@ -7,7 +9,7 @@ const Founder = () => {
         <div className="bg-gray-900 rounded-2xl p-8 md:p-12 border border-gray-800">
           <div className="flex flex-col md:flex-row gap-8 items-center">
             <img 
-              src="https://placehold.co/300x300/1a1a1a/white?text=Lucas" 
+              src={lucasPhoto} 
               alt="Lucas - Founder" 
               className="w-48 h-48 rounded-full object-cover border-4 border-blue-600"
             />
