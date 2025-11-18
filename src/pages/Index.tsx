@@ -1623,7 +1623,7 @@ const Index = () => {
                         {formData.closingDate ? (
                           format(new Date(formData.closingDate), "MM/dd/yyyy")
                         ) : (
-                          <span>Pick a date</span>
+                          <span className="text-foreground">Pick a date</span>
                         )}
                       </Button>
                     </PopoverTrigger>
@@ -2931,7 +2931,7 @@ const Index = () => {
                               const [year, month, day] = comp.soldListedDate.split('-');
                               return format(new Date(parseInt(year), parseInt(month) - 1, parseInt(day)), "MM/dd/yyyy");
                             })() : (
-                              <span>Pick a date</span>
+                              <span className="text-foreground">Pick a date</span>
                             )}
                           </Button>
                         </PopoverTrigger>
@@ -2974,7 +2974,7 @@ const Index = () => {
                             {comp.pendingDate ? (
                               format(new Date(comp.pendingDate), "MM/dd/yyyy")
                             ) : (
-                              <span>Pick a date</span>
+                              <span className="text-foreground">Pick a date</span>
                             )}
                           </Button>
                         </PopoverTrigger>
