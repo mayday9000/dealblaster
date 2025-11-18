@@ -70,11 +70,7 @@ const App = () => (
           />
           <Route
             path="/property"
-            element={
-              <AuthGate>
-                <Property />
-              </AuthGate>
-            }
+            element={<Property />}
           />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
