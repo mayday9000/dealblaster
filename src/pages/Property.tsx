@@ -238,8 +238,7 @@ const Property = () => {
           
           /* Force all images to be responsive on mobile */
           .flyer-content img {
-            max-width: 100% !important;
-            width: auto !important;
+            width: 100% !important;
             height: auto !important;
             object-fit: contain !important;
             display: block !important;
