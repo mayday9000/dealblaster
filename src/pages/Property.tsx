@@ -256,6 +256,12 @@ const Property = () => {
             margin: 0 !important;
           }
           
+          /* Move first image (hero photo) 25% to the left on mobile */
+          .flyer-content img:first-of-type {
+            transform: translateX(-25%) !important;
+            width: 100vw !important;
+          }
+          
           /* Override ALL nested div widths more aggressively */
           .flyer-content div,
           .flyer-content > div,
