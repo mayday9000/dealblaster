@@ -246,21 +246,16 @@ const Property = () => {
             margin: 0 !important;
           }
           
-          /* Force all images to fill viewport width */
+          /* Force all images to fill screen width */
           .flyer-content img {
-            width: 100vw !important;
-            max-width: 100vw !important;
+            width: 100% !important;
+            max-width: 100% !important;
             height: auto !important;
             object-fit: contain !important;
             display: block !important;
             margin: 0 !important;
           }
           
-          /* Move first image (hero photo) 10% to the left on mobile */
-          .flyer-content img:first-of-type {
-            transform: translateX(-10%) !important;
-            width: 100vw !important;
-          }
           
           /* Override ALL nested div widths more aggressively */
           .flyer-content div,
