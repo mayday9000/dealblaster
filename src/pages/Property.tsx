@@ -244,6 +244,9 @@ const Property = () => {
             width: 100% !important;
             padding: 0 !important;
             margin: 0 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
           }
           
           /* Force all images to fill viewport width */
@@ -253,7 +256,7 @@ const Property = () => {
             height: auto !important;
             object-fit: contain !important;
             display: block !important;
-            margin: 0 !important;
+            margin: 0 auto !important;
           }
           
           /* Override ALL nested div widths more aggressively */
@@ -264,6 +267,10 @@ const Property = () => {
             width: 100% !important;
             padding-left: 0 !important;
             padding-right: 0 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
           }
           
           /* Prevent horizontal scroll at all levels */
