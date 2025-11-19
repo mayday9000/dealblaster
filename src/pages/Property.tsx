@@ -140,7 +140,7 @@ const Property = () => {
   return (
     <div className="min-h-screen bg-white text-black">
       {/* Header with controls - always visible, fixed at top */}
-      <div className="fixed top-0 left-0 right-0 bg-gray-900 border-b border-gray-700 print:hidden z-50 shadow-sm">
+      <div className={`fixed top-0 left-0 right-0 bg-gray-900 border-b border-gray-700 print:hidden z-50 shadow-sm ${!session ? 'hidden md:block' : ''}`}>
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             {session ? (
