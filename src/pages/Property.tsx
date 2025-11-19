@@ -256,9 +256,9 @@ const Property = () => {
             margin: 0 !important;
           }
           
-          /* Move first image (hero photo) 10% to the left on mobile */
+          /* Move first image (hero photo) 5% to the left on mobile */
           .flyer-content img:first-of-type {
-            transform: translateX(-10%) !important;
+            transform: translateX(-5%) !important;
             width: 100vw !important;
           }
           
