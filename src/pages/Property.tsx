@@ -225,39 +225,67 @@ const Property = () => {
         
         /* Mobile-specific responsive styles */
         @media (max-width: 768px) {
+          /* Remove ALL padding to allow images to reach screen edges */
           .flyer-container {
             max-width: 100% !important;
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            padding: 0 !important;
+            margin: 0 !important;
+          }
+          
+          .property-content {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+          }
+          
+          .flyer-content {
+            max-width: 100% !important;
+            width: 100% !important;
+            padding: 0 !important;
+            margin: 0 !important;
+          }
+          
+          /* Force all images to fill viewport width */
+          .flyer-content img {
+            width: 100vw !important;
+            max-width: 100vw !important;
+            height: auto !important;
+            object-fit: contain !important;
+            display: block !important;
+            margin: 0 !important;
+          }
+          
+          /* Override ALL nested div widths more aggressively */
+          .flyer-content div,
+          .flyer-content > div,
+          .flyer-content div[style*="width"] {
+            max-width: 100vw !important;
+            width: 100% !important;
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+          }
+          
+          /* Prevent horizontal scroll at all levels */
+          body,
+          html,
+          .property-content,
+          .flyer-container,
+          .flyer-content {
+            overflow-x: hidden !important;
+            max-width: 100vw !important;
+          }
+          
+          /* Adjust text for readability on mobile with minimal padding */
+          .flyer-content p,
+          .flyer-content h1,
+          .flyer-content h2,
+          .flyer-content h3,
+          .flyer-content span {
             padding-left: 1rem !important;
             padding-right: 1rem !important;
           }
           
-          .flyer-content {
-            max-width: 100% !important;
-            width: 100% !important;
-          }
-          
-          /* Force all images to be responsive on mobile */
-          .flyer-content img {
-            width: 100% !important;
-            height: auto !important;
-            object-fit: contain !important;
-            display: block !important;
-            margin-left: auto !important;
-            margin-right: auto !important;
-          }
-          
-          /* Constrain any div containers that might have fixed widths */
-          .flyer-content > div,
-          .flyer-content div[style*="width"] {
-            max-width: 100% !important;
-          }
-          
-          /* Prevent horizontal scroll */
-          .flyer-content {
-            overflow-x: hidden !important;
-          }
-          
-          /* Adjust text for readability on mobile */
           .flyer-content {
             font-size: 14px !important;
           }
