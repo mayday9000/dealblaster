@@ -12,6 +12,7 @@ import Property from "./pages/Property";
 import TestPreset from "./pages/TestPreset";
 import Auth from "./pages/Auth";
 import AcceptInvite from "./pages/AcceptInvite";
+import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 import MyProperties from "./pages/MyProperties";
 import ContactInfo from "./pages/ContactInfo";
@@ -31,6 +32,7 @@ const App = () => (
           <Route path="/login" element={<Auth />} />
           <Route path="/auth" element={<Navigate to="/login" replace />} />
           <Route path="/accept-invite" element={<AcceptInvite />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/test" element={<TestPreset />} />
           
           {/* Protected routes */}
