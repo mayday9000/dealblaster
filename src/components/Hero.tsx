@@ -54,7 +54,7 @@ const Hero = () => {
         <div className="mt-16 max-w-2xl mx-auto text-center">
           <h3 className="text-2xl font-bold text-white mb-8">Real listing results (testimonial)</h3>
           
-          <div className="bg-gray-900 border border-gray-700 rounded-lg overflow-hidden mb-6 max-w-md mx-auto">
+          <div className="bg-gray-900 border border-gray-700 rounded-lg overflow-hidden mb-6 max-w-[calc(100vw-2rem)] sm:max-w-md mx-auto">
             <img 
               src={textConversation} 
               alt="Text conversation showing Lucas sharing professional listing PDF and buyer showing immediate interest and requesting access" 
