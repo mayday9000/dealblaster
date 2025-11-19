@@ -452,9 +452,9 @@ const TestPreset = () => {
 
       console.log('Property saved successfully:', insertResult);
 
-      const propertyUrl = `/property?address=${addressSlug}`;
-      console.log('Generated property URL:', propertyUrl);
-      setShareUrl(propertyUrl);
+      // Set the address slug as the share URL (SuccessModal will build the full URL)
+      console.log('Generated address slug:', addressSlug);
+      setShareUrl(addressSlug);
       setShowSuccessModal(true);
 
       toast({

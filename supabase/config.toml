@@ -1,1 +1,7 @@
 project_id = "xqlmeprrvijmcxvbaubq"
+
+[functions.fetch-property-details]
+verify_jwt = false
+
+[functions.property-meta-preview]
+verify_jwt = false
