@@ -6,7 +6,7 @@ import { AuthGate } from '@/components/AuthGate';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Trash2, Edit, Plus } from 'lucide-react';
+import { Trash2, Edit, Plus, Link2 } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -101,6 +101,22 @@ export default function MyProperties() {
     });
   };
 
+  const handleCopyLink = (addressSlug: string) => {
+    const url = `${window.location.origin}/property?address=${addressSlug}`;
+    navigator.clipboard.writeText(url).then(() => {
+      toast({
+        title: 'Link Copied',
+        description: 'Property link copied to clipboard',
+      });
+    }).catch(() => {
+      toast({
+        title: 'Error',
+        description: 'Failed to copy link',
+        variant: 'destructive',
+      });
+    });
+  };
+
   return (
     <AuthGate>
       <div className="min-h-screen bg-black">
@@ -170,6 +186,13 @@ export default function MyProperties() {
                       >
                         <Edit className="mr-1 h-3 w-3" />
                         Edit
+                      </Button>
+                      <Button
+                        size="sm"
+                        className="border border-blue-900 bg-transparent text-blue-400 hover:bg-blue-950 rounded-lg"
+                        onClick={() => handleCopyLink(property.address_slug)}
+                      >
+                        <Link2 className="h-4 w-4" />
                       </Button>
                       <Button
                         size="sm"
