@@ -197,6 +197,13 @@ const Property = () => {
           max-width: 900px;
         }
         
+        /* Make images responsive by default */
+        .flyer-content img {
+          max-width: 100%;
+          height: auto;
+          display: block;
+        }
+        
         /* Override problematic inline styles in the flyer content */
         .flyer-content * {
           height: auto !important;
@@ -214,6 +221,47 @@ const Property = () => {
         
         .flyer-content [style*="position: fixed"] {
           position: relative !important;
+        }
+        
+        /* Mobile-specific responsive styles */
+        @media (max-width: 768px) {
+          .flyer-container {
+            max-width: 100% !important;
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+          }
+          
+          .flyer-content {
+            max-width: 100% !important;
+            width: 100% !important;
+          }
+          
+          /* Force all images to be responsive on mobile */
+          .flyer-content img {
+            max-width: 100% !important;
+            width: auto !important;
+            height: auto !important;
+            object-fit: contain !important;
+            display: block !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+          }
+          
+          /* Constrain any div containers that might have fixed widths */
+          .flyer-content > div,
+          .flyer-content div[style*="width"] {
+            max-width: 100% !important;
+          }
+          
+          /* Prevent horizontal scroll */
+          .flyer-content {
+            overflow-x: hidden !important;
+          }
+          
+          /* Adjust text for readability on mobile */
+          .flyer-content {
+            font-size: 14px !important;
+          }
         }
         
         @media print {
