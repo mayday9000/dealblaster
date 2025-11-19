@@ -4,9 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Copy, ExternalLink, Check, AlertTriangle } from 'lucide-react';
-import { buildAbsoluteShareUrl, isLovablePreviewDomain } from '@/lib/shareLinks';
-import { PUBLIC_BASE_URL } from '@/config/app';
+import { Copy, ExternalLink, Check } from 'lucide-react';
+import { buildPropertyShareUrl, isLovablePreviewDomain } from '@/lib/shareLinks';
 
 interface SuccessModalProps {
   open: boolean;
@@ -17,8 +16,9 @@ interface SuccessModalProps {
 }
 
 const SuccessModal = ({ open, onOpenChange, shareUrl, onCopyUrl, onViewProperty }: SuccessModalProps) => {
-  const fullUrl = buildAbsoluteShareUrl(shareUrl);
-  const showPreviewWarning = isLovablePreviewDomain() && !PUBLIC_BASE_URL;
+  // shareUrl is now the address slug, build the property share URL with meta tags
+  const fullUrl = buildPropertyShareUrl(shareUrl);
+  const showPreviewWarning = false; // No longer needed as edge function handles this
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -34,17 +34,6 @@ const SuccessModal = ({ open, onOpenChange, shareUrl, onCopyUrl, onViewProperty 
         </DialogHeader>
         
         <div className="space-y-4">
-          {showPreviewWarning && (
-            <Alert variant="default" className="border-amber-500/50 bg-amber-50 dark:bg-amber-950/20">
-              <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-500" />
-              <AlertDescription className="text-sm text-amber-800 dark:text-amber-200">
-                You're copying a preview URL that may require Lovable authentication. 
-                Set <code className="px-1 py-0.5 rounded bg-amber-100 dark:bg-amber-900 text-amber-900 dark:text-amber-100">PUBLIC_BASE_URL</code> in{' '}
-                <code className="px-1 py-0.5 rounded bg-amber-100 dark:bg-amber-900 text-amber-900 dark:text-amber-100">src/config/app.ts</code> to your published domain for public sharing.
-              </AlertDescription>
-            </Alert>
-          )}
-          
           <div>
             <Label htmlFor="shareUrl">Shareable Link</Label>
             <div className="flex gap-2 mt-1">
