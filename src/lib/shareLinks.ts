@@ -22,16 +22,6 @@ export function buildAbsoluteShareUrl(path: string): string {
 }
 
 /**
- * Builds a property share URL that includes Open Graph meta tags for link previews
- * Uses the Supabase edge function for crawler detection and meta tag serving
- * @param addressSlug - The property address slug
- */
-export function buildPropertyShareUrl(addressSlug: string): string {
-  const supabaseUrl = 'https://xqlmeprrvijmcxvbaubq.supabase.co';
-  return `${supabaseUrl}/functions/v1/property-meta-preview?address=${addressSlug}`;
-}
-
-/**
  * Checks if the current environment is a Lovable preview domain
  */
 export function isLovablePreviewDomain(): boolean {
