@@ -254,6 +254,11 @@ const Property = () => {
             object-fit: contain !important;
             display: block !important;
             margin: 0 !important;
+            position: relative !important;
+            left: 50% !important;
+            right: 50% !important;
+            margin-left: -50vw !important;
+            margin-right: -50vw !important;
           }
           
           /* Override ALL nested div widths more aggressively */
