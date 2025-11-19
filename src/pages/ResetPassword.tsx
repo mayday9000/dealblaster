@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { z } from "zod";
+import { useSession } from "@/hooks/useSession";
 
 const passwordSchema = z.object({
   password: z.string().min(6, "Password must be at least 6 characters"),
@@ -17,6 +18,7 @@ const passwordSchema = z.object({
 
 const ResetPassword = () => {
   const navigate = useNavigate();
+  const { session, loading: sessionLoading } = useSession();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -61,6 +63,42 @@ const ResetPassword = () => {
       setLoading(false);
     }
   };
+
+  // Show loading state while checking for session
+  if (sessionLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="text-center space-y-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+          <p className="text-muted-foreground">Processing your password reset link...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error if no session (invalid or expired link)
+  if (!session) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="w-full max-w-md space-y-8 text-center">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">Invalid Reset Link</h1>
+            <p className="mt-4 text-muted-foreground">
+              This password reset link is invalid or has expired.
+            </p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Please request a new password reset link from the login page.
+            </p>
+          </div>
+          <Link to="/login">
+            <Button className="w-full">
+              Back to Login
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">

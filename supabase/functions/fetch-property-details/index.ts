@@ -123,8 +123,8 @@ serve(async (req) => {
       squareFootage: property.building?.size?.livingSize?.toString() || null,
       yearBuilt: property.summary?.yearBuilt?.toString() || null,
       zoning: property.lot?.zoningType || null,
-      lotSizeAcres: property.lot?.lotSize1 || null,
-      lotSizeSqFt: property.lot?.lotSize2 || null,
+      lotSizeAcres: property.lot?.lotSize1 ? Math.round(property.lot.lotSize1 * 100) / 100 : null,
+      lotSizeSqFt: property.lot?.lotSize2 ? Math.round(property.lot.lotSize2 * 100) / 100 : null,
       // Address fields
       addressOneLine: property.address?.oneLine || null,
       addressLine1: property.address?.line1 || null,
