@@ -52,7 +52,15 @@ serve(async (req) => {
     console.log('Parsed address1:', address1);
     console.log('Parsed address2:', address2);
 
-    const attomApiKey = '80d6d645feeb1f76c4126ed1703ef791';
+    const attomApiKey = Deno.env.get('ATTOM_API_KEY');
+    
+    if (!attomApiKey) {
+      console.error('ATTOM_API_KEY not configured');
+      return new Response(
+        JSON.stringify({ error: 'API configuration error' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     // Call ATTOM Data API with new endpoint and timeout
     const apiUrl = `https://api.gateway.attomdata.com/propertyapi/v1.0.0/property/basicprofile?address1=${encodeURIComponent(address1)}&address2=${encodeURIComponent(address2)}`;
